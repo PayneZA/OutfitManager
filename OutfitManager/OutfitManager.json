@@ -1,0 +1,11 @@
+{
+    "Author": "Anonymous",
+    "Name": "Outfit Manager",
+    "Punchline": "Allows penumbra/glamourer/gearset assignment via chat command.",
+    "Description": "Easy outfit changing if you know the name with penumbra/glamourer and gearset support.",
+    "InternalName": "OutfitManager",
+    "ApplicableVersion": "any",
+    "Tags": [
+        "plugin"
+    ]
+}
