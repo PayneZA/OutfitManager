@@ -13,8 +13,8 @@
         "LoadPriority": 0,
         "Punchline": "Allows penumbra/glamourer/gearset assignment via chat command.",
         "RepoUrl": "https://github.com/PayneZA/OutfitManager",
-        "DownloadLinkInstall": "https://github.com/PayneZA/OutfitManager/tree/main/OutfitManager/latest/latest.zip",
-        "DownloadLinkTesting": "https://github.com/PayneZA/OutfitManager/tree/main/OutfitManager/latest/latest.zip",
-        "DownloadLinkUpdate": "https://github.com/PayneZA/OutfitManager/tree/main/OutfitManager/latest/latest.zip"
+        "DownloadLinkInstall": "https://github.com/PayneZA/OutfitManager/blob/main/OutfitManager/latest/latest.zip",
+        "DownloadLinkTesting": "https://github.com/PayneZA/OutfitManager/blob/main/OutfitManager/latest/latest.zip",
+        "DownloadLinkUpdate": "https://github.com/PayneZA/OutfitManager/blob/main/OutfitManager/latest/latest.zip"
     }
 ]
