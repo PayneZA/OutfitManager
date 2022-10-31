@@ -48,7 +48,7 @@ namespace OutfitManager
        
             this.CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
             {
-                HelpMessage = $""
+                HelpMessage = $"No arguments to bring up UI{Environment.NewLine}wear OUTFITNAME = wear saved outfit name{Environment.NewLine}random TAGNAME = wear random outfit with tag{Environment.NewLine}"
             });
 
             WindowSystem.AddWindow(new ConfigWindow(this));
