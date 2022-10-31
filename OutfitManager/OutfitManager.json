@@ -1,13 +1,7 @@
 {
-    "Author": "Anonymous",
     "Name": "Outfit Manager",
-    "Punchline": "Allows penumbra/glamourer/gearset assignment via chat command.",
+    "Author": "Anonymous",
     "Description": "Easy outfit changing if you know the name with penumbra/glamourer and gearset support.",
-    "InternalName": "OutfitManager",
-    "ApplicableVersion": "any",
-    "Tags": [
-        "plugin"
-    ],
-    "DownloadLinkInstall": "https://github.com/PayneZA/OutfitManager/tree/main/OutfitManager/latest.zip",
-    "DownloadLinkUpdate": "https://github.com/PayneZA/OutfitManager/tree/main/OutfitManager/latest.zip"
+    "Punchline": "Allows penumbra/glamourer/gearset assignment via chat command.",
+    "RepoUrl": "https://github.com/PayneZA/OutfitManager"
 }
