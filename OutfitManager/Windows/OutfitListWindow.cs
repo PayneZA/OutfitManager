@@ -23,7 +23,7 @@ namespace OutfitManager.Windows
         private List<Outfit> _outfitList;
         private string _characterName = string.Empty;
         private string _notes = string.Empty;
-
+        private string _tags = string.Empty;
 
         string[] _outfits;
 
@@ -95,6 +95,7 @@ namespace OutfitManager.Windows
                 _gearset = _outfit.GearSet;
                 _glamourerDesign = _outfit.DesignPath;
                 _notes = _outfit.Notes;
+                _tags = String.Join(",", _outfit.Tags);
             }
         }
 
@@ -106,6 +107,7 @@ namespace OutfitManager.Windows
             ImGui.InputTextWithHint("Penumbra Collection", "Enter penumbra collection name (e.g. character name)...", ref _penumbraCollection, 64, ImGuiInputTextFlags.EnterReturnsTrue);
             ImGui.InputTextWithHint("Glamourer Design", "Enter Glamourer Design Path (E.g. /collections/outfit1)...", ref _glamourerDesign, 64, ImGuiInputTextFlags.EnterReturnsTrue);
             ImGui.InputTextWithHint("Gearset", "Enter gearset number (optional)...", ref _gearset, 64, ImGuiInputTextFlags.EnterReturnsTrue);
+            ImGui.InputTextWithHint("Tags", "Enter tags for your gear comma separated (optional)...", ref _tags, 64, ImGuiInputTextFlags.EnterReturnsTrue);
             ImGui.InputTextMultiline("Notes", ref _notes,512, new Vector2(440, 60));
 
             if (ImGui.Button("Add / Update Outfit") && (!string.IsNullOrEmpty(_newOutfitName)))
@@ -117,7 +119,8 @@ namespace OutfitManager.Windows
                     DisplayName = _newOutfitName,
                     GearSet = _gearset,
                     Name = _newOutfitName.ToLower(),
-                    Notes = _notes
+                    Notes = _notes,
+                    Tags = _tags.ToLower().Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList()
                 };
 
                 if (!this.Plugin.Configuration.Characters[this.Plugin.Configuration.CharacterName].Outfits.ContainsKey(_outfit.Name))
@@ -153,6 +156,7 @@ namespace OutfitManager.Windows
                     _glamourerDesign = "";
                     _gearset = "";
                     _notes = "";
+                    _tags = "";
                     Init();
 
                 }
@@ -165,6 +169,7 @@ namespace OutfitManager.Windows
                 _glamourerDesign = "";
                 _gearset = "";
                 _notes = "";
+                _tags = "";
                 this.Plugin.EquipOutfit(_outfit.Name);
             }
         }

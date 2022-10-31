@@ -86,6 +86,12 @@ namespace OutfitManager
 
                     EquipOutfit(args.ToLower());
                 }
+                else if (args.ToLower().StartsWith("random"))
+                {
+                    args = args.Remove(0, 6).Trim();
+
+                    EquipOutfit("",args.ToLower());
+                }
             }
         }
 
@@ -108,31 +114,51 @@ namespace OutfitManager
         }
 
 
-        public void EquipOutfit(string outfitName)
+        public void EquipOutfit(string outfitName = "", string tag = "")
         {
-            Outfit outfit = this.Configuration.Characters[this.Configuration.CharacterName].Outfits[outfitName];
+            Outfit outfit = null;
 
-            List<RecievedCommand> commands = new List<RecievedCommand>();
-
-            if (!string.IsNullOrEmpty(outfit.CollectionName.Trim()))
+            if (!string.IsNullOrEmpty(tag))
             {
-                commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/penumbra collection yourself {outfit.CollectionName}" });
+                List<Outfit> outfits = this.Configuration.Characters[this.Configuration.CharacterName].Outfits.Values.Where(x => x.Tags.Contains(tag)).ToList();
+
+                if (outfits.Count > 0)
+                {
+                    Random random = new Random();
+                    int index = random.Next(outfits.Count);
+                    outfit = outfits[index];
+                }
             }
-            if (!string.IsNullOrEmpty(outfit.DesignPath.Trim()))
+            else
             {
-                commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/glamour apply,{this.Configuration.CharacterName},{outfit.DesignPath}" });
-            }
-            int delay = 0;
-            if (!string.IsNullOrEmpty(outfit.GearSet))
-            {
-                this.Common.Functions.Chat.SendMessage("/gearset change " + outfit.GearSet.Trim());
-
-                delay = 300;
+                outfit = this.Configuration.Characters[this.Configuration.CharacterName].Outfits[outfitName];
             }
 
-            foreach (RecievedCommand recievedCommand in commands)
+            if (outfit != null)
             {
-                RelayCommand(recievedCommand.Command, delay += 100);
+
+                List<RecievedCommand> commands = new List<RecievedCommand>();
+
+                if (!string.IsNullOrEmpty(outfit.CollectionName.Trim()))
+                {
+                    commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/penumbra collection yourself {outfit.CollectionName}" });
+                }
+                if (!string.IsNullOrEmpty(outfit.DesignPath.Trim()))
+                {
+                    commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/glamour apply,{this.Configuration.CharacterName},{outfit.DesignPath}" });
+                }
+                int delay = 0;
+                if (!string.IsNullOrEmpty(outfit.GearSet))
+                {
+                    this.Common.Functions.Chat.SendMessage("/gearset change " + outfit.GearSet.Trim());
+
+                    delay = 300;
+                }
+
+                foreach (RecievedCommand recievedCommand in commands)
+                {
+                    RelayCommand(recievedCommand.Command, delay += 100);
+                }
             }
         }
 
@@ -161,7 +187,8 @@ namespace OutfitManager
                 {
                     if (type == XivChatType.TellIncoming)
                     {
-                        if (message.TextValue.ToLower().StartsWith(this.Configuration.CharacterName.ToLower().Split(" ")[0] + " wear:"))
+                        string name = this.Configuration.CharacterName.ToLower().Split(" ")[0];
+                        if (message.TextValue.ToLower().StartsWith(name + " wear:") || message.TextValue.ToLower().StartsWith(name + " random:"))
                         {
 
                             var payloads = sender.Payloads[0].ToString();
@@ -169,43 +196,58 @@ namespace OutfitManager
                             var playername = payloadElements[0].Split(":")[1].Trim();
                             var world = payloadElements[2].Split(":")[1].Trim();
 
+              
                             if (this.Configuration.SafeSenders.Keys.Contains($"{playername}@{world}") || this.Configuration.SafeSenders.ContainsKey("*"))
                             {
-                           
+                                Outfit outfit = null;
                                 string textValue = message.TextValue.Remove(0, message.TextValue.Substring(0, message.TextValue.IndexOf(":")).Length + 1).Trim();
 
-                                if (this.Configuration.Characters[this.Configuration.CharacterName].Outfits.ContainsKey(textValue.Trim().ToLower()))
+                                if (message.TextValue.ToLower().StartsWith(name + " random:"))
                                 {
-                                    Outfit outfit = this.Configuration.Characters[this.Configuration.CharacterName].Outfits[textValue.Trim().ToLower()];
-
-                                    List<RecievedCommand> commands = new List<RecievedCommand>();
-
-                                    if (!string.IsNullOrEmpty(outfit.CollectionName.Trim()))
-                                    {
-                                        commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/penumbra collection yourself {outfit.CollectionName}" });
-                                    }
-                                    if (!string.IsNullOrEmpty(outfit.DesignPath.Trim()))
-                                    {
-                                        commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/glamour apply,{this.Configuration.CharacterName},{outfit.DesignPath}" });
-                                    }
-                                    int delay = 0;
-                                    if (!string.IsNullOrEmpty(outfit.GearSet))
-                                    {
-                                        this.Common.Functions.Chat.SendMessage("/gearset change " + outfit.GearSet.Trim());
-
-                                        delay = 300;
-                                    }
-
-                                    foreach (RecievedCommand recievedCommand in commands)
-                                    {
-                                        RelayCommand(recievedCommand.Command, delay += 100);
-                                    }
-
+                                    EquipOutfit("", textValue.Trim().ToLower());
                                 }
                                 else
                                 {
-                                    Dalamud.Chat.Print("Outfit not found");
+
+                                    if (this.Configuration.Characters[this.Configuration.CharacterName].Outfits.ContainsKey(textValue.Trim().ToLower()))
+                                    {
+                                        outfit = this.Configuration.Characters[this.Configuration.CharacterName].Outfits[textValue.Trim().ToLower()];
+
+                                        EquipOutfit(outfit.Name);
+                                        //List<RecievedCommand> commands = new List<RecievedCommand>();
+
+                                        //if (!string.IsNullOrEmpty(outfit.CollectionName.Trim()))
+                                        //{
+                                        //    commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/penumbra collection yourself {outfit.CollectionName}" });
+                                        //}
+                                        //if (!string.IsNullOrEmpty(outfit.DesignPath.Trim()))
+                                        //{
+                                        //    commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/glamour apply,{this.Configuration.CharacterName},{outfit.DesignPath}" });
+                                        //}
+                                        //int delay = 0;
+                                        //if (!string.IsNullOrEmpty(outfit.GearSet))
+                                        //{
+                                        //    this.Common.Functions.Chat.SendMessage("/gearset change " + outfit.GearSet.Trim());
+
+                                        //    delay = 300;
+                                        //}
+
+                                        //foreach (RecievedCommand recievedCommand in commands)
+                                        //{
+                                        //    RelayCommand(recievedCommand.Command, delay += 100);
+                                        //}
+
+                                    }
+                                    else
+                                    {
+                                        Dalamud.Chat.Print("Outfit not found");
+                                    }
+
+                            
                                 }
+                               
+
+                            
                             }
                         }
                     }

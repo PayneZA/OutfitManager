@@ -22,6 +22,6 @@ namespace OutfitManager
 
         public string Notes { get; set; }
 
-        public bool Public { get; set; }
+        public List<string> Tags { get; set; }
     }
 }
