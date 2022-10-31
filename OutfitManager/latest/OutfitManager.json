@@ -1,5 +1,5 @@
 {
-    "Author": "PayneZA",
+    "Author": "Anonymous",
     "Name": "Outfit Manager",
     "InternalName": "OutfitManager",
     "AssemblyVersion": "0.0.0.1",
@@ -8,7 +8,6 @@
     "RepoUrl": "https://github.com/PayneZA/OutfitManager",
     "DalamudApiLevel": 7,
     "LoadPriority": 0,
-    "https": null,
     "Punchline": "Allows penumbra/glamourer/gearset assignment via chat command.",
     "DownloadLinkInstall": "https://github.com/PayneZA/OutfitManager/releases/download/Test/outfitmanager.zip",
     "DownloadLinkTesting": "https://github.com/PayneZA/OutfitManager/releases/download/Test/outfitmanager.zip",
