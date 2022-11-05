@@ -74,6 +74,7 @@ namespace OutfitManager.Windows
                 if (!this.Plugin.Configuration.Characters.ContainsKey(_characterName))
                 {
                     this.Plugin.Configuration.Characters.Add(_characterName, new Character());
+                    this.Plugin.MyCharacter = this.Plugin.Configuration.Characters[_characterName];
                 }
                 this.Plugin.Configuration.Save();
                 _characterExists = true;
@@ -93,6 +94,7 @@ namespace OutfitManager.Windows
             {
                     this.Plugin.Configuration.Characters[_characterName].World = _worldName;
                     this.Plugin.Configuration.Save();
+                    this.Plugin.MyCharacter = this.Plugin.Configuration.Characters[_characterName];
                     _worldExists = true;
             }
 

@@ -26,7 +26,7 @@ namespace OutfitManager
         private CommandManager CommandManager { get; init; }
         public Configuration Configuration { get; init; }
         //   public OutfitManagerConfig CustomConfig { get; set; }
-
+        public Character MyCharacter { get; set; }
         private bool isCommandsEnabled { get; set; }
         //   public OutfitManagerConfig Config = null!;
         ////   public OutfitManagerConfig Config { get; set; } = new OutfitManagerConfig();
@@ -48,7 +48,7 @@ namespace OutfitManager
        
             this.CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
             {
-                HelpMessage = $"No arguments to bring up UI{Environment.NewLine}wear OUTFITNAME = wear saved outfit name{Environment.NewLine}random TAGNAME = wear random outfit with tag{Environment.NewLine}"
+                HelpMessage = $"No arguments to bring up UI (Will take you to outfits if you have added any otherwise config){Environment.NewLine}config = bring up configuration window{Environment.NewLine}wear OUTFITNAME = wear saved outfit name{Environment.NewLine}random TAGNAME = wear random outfit with tag{Environment.NewLine}"
             });
 
             WindowSystem.AddWindow(new ConfigWindow(this));
@@ -61,6 +61,18 @@ namespace OutfitManager
 
             this.ChatGui.ChatMessage += OnChatMessage;
             
+            if(!string.IsNullOrEmpty(this.Configuration.CharacterName))
+            {
+                if (this.Configuration.Characters.ContainsKey(this.Configuration.CharacterName))
+                {
+                    MyCharacter = this.Configuration.Characters[this.Configuration.CharacterName];
+                }
+                else
+                {
+                    MyCharacter = new Character();
+                }
+            }
+
         }
 
         public void Dispose()
@@ -76,11 +88,25 @@ namespace OutfitManager
             args = args.Trim();
             if (string.IsNullOrEmpty(args))
             {
-                WindowSystem.GetWindow("OutfitManager").IsOpen = true;
+               
+               if (this.MyCharacter.Outfits != null && this.MyCharacter.Outfits.Count > 0)
+                {
+                    
+                    WindowSystem.GetWindow("OutfitManager Outfit List Window").IsOpen = true;
+                }
+               else
+                {
+                    WindowSystem.GetWindow("OutfitManager").IsOpen = true;
+                }    
+            
             }
             else
             {
-                if (args.ToLower().StartsWith("wear"))
+                if (args.ToLower().StartsWith("config"))
+                {
+                    WindowSystem.GetWindow("OutfitManager").IsOpen = true;
+                }
+                else if (args.ToLower().StartsWith("wear"))
                 {
                    args = args.Remove(0, 4).Trim();
 
