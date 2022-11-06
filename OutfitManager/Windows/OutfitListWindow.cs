@@ -104,10 +104,10 @@ namespace OutfitManager.Windows
         public void OutfitAddition()
         {
             ImGui.InputTextWithHint("Outfit Name", "Enter outfit name...", ref _newOutfitName, 64, ImGuiInputTextFlags.EnterReturnsTrue);
-            ImGui.InputTextWithHint("Penumbra Collection", "Enter penumbra collection name (e.g. character name)...", ref _penumbraCollection, 64, ImGuiInputTextFlags.EnterReturnsTrue);
-            ImGui.InputTextWithHint("Glamourer Design", "Enter Glamourer Design Path (E.g. /collections/outfit1)...", ref _glamourerDesign, 64, ImGuiInputTextFlags.EnterReturnsTrue);
-            ImGui.InputTextWithHint("Gearset", "Enter gearset number (optional)...", ref _gearset, 64, ImGuiInputTextFlags.EnterReturnsTrue);
-            ImGui.InputTextWithHint("Tags", "Enter tags for your gear comma separated (optional)...", ref _tags, 64, ImGuiInputTextFlags.EnterReturnsTrue);
+            ImGui.InputTextWithHint("Penumbra Collection", "Enter penumbra collection name (e.g. character name)", ref _penumbraCollection, 64, ImGuiInputTextFlags.EnterReturnsTrue);
+            ImGui.InputTextWithHint("Glamourer Design", "Glamourer Design Path (E.g. /collections/outfit1) (optional)", ref _glamourerDesign, 64, ImGuiInputTextFlags.EnterReturnsTrue);
+            ImGui.InputTextWithHint("Gearset", "Enter gearset number (e.g. 1 10 for gearset 1 glam plate 10)(optional)", ref _gearset, 64, ImGuiInputTextFlags.EnterReturnsTrue);
+            ImGui.InputTextWithHint("Tags", "Enter tags for your gear comma separated (optional)", ref _tags, 64, ImGuiInputTextFlags.EnterReturnsTrue);
             ImGui.InputTextMultiline("Notes", ref _notes,512, new Vector2(440, 60));
 
             if (ImGui.Button("Add / Update Outfit") && (!string.IsNullOrEmpty(_newOutfitName)))

@@ -128,7 +128,7 @@ namespace OutfitManager
 
         public void DrawConfigUI()
         {
-            WindowSystem.GetWindow("A Wonderful Configuration Window").IsOpen = true;
+            WindowSystem.GetWindow("OutfitManager").IsOpen = true;
         }
         public void DrawAllowedUserUI()
         {
