@@ -135,7 +135,7 @@ namespace OutfitManager.Windows
                     DesignPath = _glamourerDesign,
                     DisplayName = _newOutfitName,
                     GearSet = _gearset,
-                    Name = _newOutfitName.ToLower(),
+                    Name = _newOutfitName.ToLower().Replace(":",""),
                     Notes = _notes,
                     Tags = _tags.ToLower().Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList()
                 };

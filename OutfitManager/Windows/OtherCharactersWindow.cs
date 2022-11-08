@@ -74,7 +74,7 @@ namespace OutfitManager.Windows
         {
             if (_outfits != null)
             {
-                if (ImGui.ListBox("Outfits", ref _currentOutfit, _outfits, _outfits.Count(), 5))
+                if (ImGui.ListBox("Outfits", ref _currentOutfit, _outfits, _outfits.Count(), 10))
                 {
                     _selectedOutfit = _outfits[_currentOutfit].ToLower();
                 }
