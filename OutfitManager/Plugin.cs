@@ -150,7 +150,7 @@ namespace OutfitManager
 
         public async Task SendEquipOutfit(string character, string characterFirstname, string outfit)
         {
-            this.Common.Functions.Chat.SendMessage($"/tell {character} {characterFirstname.Split(" ")[0]} wear:{outfit}");
+            this.Common.Functions.Chat.SendMessage($"/tell {character} {characterFirstname} wear:{outfit}");
         }
 
         public void EquipOutfit(string outfitName = "", string tag = "")
@@ -226,8 +226,8 @@ namespace OutfitManager
                 {
                     if (type == XivChatType.TellIncoming)
                     {
-                        string name = this.Configuration.MyCharacter.Name.ToLower();
-                        if (message.TextValue.ToLower().StartsWith(name + " wear:") || message.TextValue.ToLower().StartsWith(name + " random:"))
+                        string name = this.Configuration.MyCharacter.Name;
+                        if (message.TextValue.StartsWith(name+ " wear:") || message.TextValue.StartsWith(name+ " random:"))
                         {
 
                             var payloads = sender.Payloads[0].ToString();
@@ -235,8 +235,9 @@ namespace OutfitManager
                             var playername = payloadElements[0].Split(":")[1].Trim();
                             var world = payloadElements[2].Split(":")[1].Trim();
 
-              
-                            if (this.Configuration.SafeSenders.Keys.Contains($"{playername}@{world}") || this.Configuration.SafeSenders.ContainsKey("*"))
+                          
+
+                            if (this.Configuration.SafeSenders.Keys.Contains($"{playername}@{world}") || this.Configuration.SafeSenders.ContainsKey("everyone@everywhere"))
                             {
                                 Outfit outfit = null;
                                 string textValue = message.TextValue.Remove(0, message.TextValue.Substring(0, message.TextValue.IndexOf(":")).Length + 1).Trim();
