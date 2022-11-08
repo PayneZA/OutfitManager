@@ -25,11 +25,8 @@ namespace OutfitManager
         private DalamudPluginInterface PluginInterface { get; init; }
         private CommandManager CommandManager { get; init; }
         public Configuration Configuration { get; init; }
-        //   public OutfitManagerConfig CustomConfig { get; set; }
-        public Character MyCharacter { get; set; }
         private bool isCommandsEnabled { get; set; }
-        //   public OutfitManagerConfig Config = null!;
-        ////   public OutfitManagerConfig Config { get; set; } = new OutfitManagerConfig();
+
         private ChatGui ChatGui { get; init; }
         private WindowSystem WindowSystem = new("OutfitManager");
         private XivCommonBase Common { get; init; }
@@ -51,6 +48,28 @@ namespace OutfitManager
                 HelpMessage = $"No arguments to bring up UI (Will take you to outfits if you have added any otherwise config){Environment.NewLine}config = bring up configuration window{Environment.NewLine}wear OUTFITNAME = wear saved outfit name{Environment.NewLine}random TAGNAME = wear random outfit with tag{Environment.NewLine}"
             });
 
+
+            if (this.Configuration.MyCharacter == null || string.IsNullOrEmpty(this.Configuration.MyCharacter.Name))
+            { 
+
+                if (this.Configuration.Characters.Count > 0)
+                {
+                    var first = this.Configuration.Characters.First();
+                    string key = first.Key;
+                    Character val = first.Value;
+
+                    this.Configuration.MyCharacter = val;
+                    this.Configuration.MyCharacter.Name = first.Key;
+                    this.Configuration.Save();
+                }
+            }
+
+            if (string.IsNullOrEmpty(this.Configuration.MyCharacter.FullName) && !string.IsNullOrEmpty(this.Configuration.MyCharacter.Name) && !string.IsNullOrEmpty(this.Configuration.MyCharacter.World))
+            {
+                this.Configuration.MyCharacter.FullName = $"{this.Configuration.MyCharacter.Name}@{this.Configuration.MyCharacter.World}";
+                this.Configuration.Save();
+            }
+
             WindowSystem.AddWindow(new ConfigWindow(this));
             WindowSystem.AddWindow(new MainWindow(this));
             WindowSystem.AddWindow(new AllowedCharacterWindow(this));
@@ -60,19 +79,6 @@ namespace OutfitManager
             this.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
 
             this.ChatGui.ChatMessage += OnChatMessage;
-            
-            if(!string.IsNullOrEmpty(this.Configuration.CharacterName))
-            {
-                if (this.Configuration.Characters.ContainsKey(this.Configuration.CharacterName))
-                {
-                    MyCharacter = this.Configuration.Characters[this.Configuration.CharacterName];
-                }
-                else
-                {
-                    MyCharacter = new Character();
-                }
-            }
-
         }
 
         public void Dispose()
@@ -85,11 +91,11 @@ namespace OutfitManager
         private void OnCommand(string command, string args)
         {
             // in response to the slash command, just display our main ui
-            args = args.Trim();
+            args = args.ToLower().Trim();
+
             if (string.IsNullOrEmpty(args))
             {
-               
-               if (this.MyCharacter.Outfits != null && this.MyCharacter.Outfits.Count > 0)
+               if (this.Configuration.MyCharacter.Name != "" && this.Configuration.MyCharacter.World != "")
                 {
                     
                     WindowSystem.GetWindow("OutfitManager Outfit List Window").IsOpen = true;
@@ -98,25 +104,24 @@ namespace OutfitManager
                 {
                     WindowSystem.GetWindow("OutfitManager").IsOpen = true;
                 }    
-            
             }
             else
             {
-                if (args.ToLower().StartsWith("config"))
+                if (args.StartsWith("config"))
                 {
                     WindowSystem.GetWindow("OutfitManager").IsOpen = true;
                 }
-                else if (args.ToLower().StartsWith("wear"))
+                else if (args.StartsWith("wear"))
                 {
                    args = args.Remove(0, 4).Trim();
 
                     EquipOutfit(args.ToLower());
                 }
-                else if (args.ToLower().StartsWith("random"))
+                else if (args.StartsWith("random"))
                 {
                     args = args.Remove(0, 6).Trim();
 
-                    EquipOutfit("",args.ToLower());
+                    EquipOutfit("",args);
                 }
             }
         }
@@ -146,7 +151,7 @@ namespace OutfitManager
 
             if (!string.IsNullOrEmpty(tag))
             {
-                List<Outfit> outfits = this.Configuration.Characters[this.Configuration.CharacterName].Outfits.Values.Where(x => x.Tags.Contains(tag)).ToList();
+                List<Outfit> outfits = this.Configuration.MyCharacter.Outfits.Values.Where(x => x.Tags.Contains(tag)).ToList();
 
                 if (outfits.Count > 0)
                 {
@@ -157,7 +162,7 @@ namespace OutfitManager
             }
             else
             {
-                outfit = this.Configuration.Characters[this.Configuration.CharacterName].Outfits[outfitName];
+                outfit = this.Configuration.MyCharacter.Outfits[outfitName];
             }
 
             if (outfit != null)
@@ -171,7 +176,7 @@ namespace OutfitManager
                 }
                 if (!string.IsNullOrEmpty(outfit.DesignPath.Trim()))
                 {
-                    commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/glamour apply,{this.Configuration.CharacterName},{outfit.DesignPath}" });
+                    commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/glamour apply,{this.Configuration.MyCharacter.Name},{outfit.DesignPath}" });
                 }
                 int delay = 0;
                 if (!string.IsNullOrEmpty(outfit.GearSet))
@@ -213,7 +218,7 @@ namespace OutfitManager
                 {
                     if (type == XivChatType.TellIncoming)
                     {
-                        string name = this.Configuration.CharacterName.ToLower().Split(" ")[0];
+                        string name = this.Configuration.MyCharacter.Name.ToLower();
                         if (message.TextValue.ToLower().StartsWith(name + " wear:") || message.TextValue.ToLower().StartsWith(name + " random:"))
                         {
 
@@ -235,45 +240,17 @@ namespace OutfitManager
                                 else
                                 {
 
-                                    if (this.Configuration.Characters[this.Configuration.CharacterName].Outfits.ContainsKey(textValue.Trim().ToLower()))
+                                    if (this.Configuration.MyCharacter.Outfits.ContainsKey(textValue.Trim().ToLower()))
                                     {
-                                        outfit = this.Configuration.Characters[this.Configuration.CharacterName].Outfits[textValue.Trim().ToLower()];
+                                        outfit = this.Configuration.MyCharacter.Outfits[textValue.Trim().ToLower()];
 
                                         EquipOutfit(outfit.Name);
-                                        //List<RecievedCommand> commands = new List<RecievedCommand>();
-
-                                        //if (!string.IsNullOrEmpty(outfit.CollectionName.Trim()))
-                                        //{
-                                        //    commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/penumbra collection yourself {outfit.CollectionName}" });
-                                        //}
-                                        //if (!string.IsNullOrEmpty(outfit.DesignPath.Trim()))
-                                        //{
-                                        //    commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/glamour apply,{this.Configuration.CharacterName},{outfit.DesignPath}" });
-                                        //}
-                                        //int delay = 0;
-                                        //if (!string.IsNullOrEmpty(outfit.GearSet))
-                                        //{
-                                        //    this.Common.Functions.Chat.SendMessage("/gearset change " + outfit.GearSet.Trim());
-
-                                        //    delay = 300;
-                                        //}
-
-                                        //foreach (RecievedCommand recievedCommand in commands)
-                                        //{
-                                        //    RelayCommand(recievedCommand.Command, delay += 100);
-                                        //}
-
                                     }
                                     else
                                     {
                                         Dalamud.Chat.Print("Outfit not found");
                                     }
-
-                            
                                 }
-                               
-
-                            
                             }
                         }
                     }

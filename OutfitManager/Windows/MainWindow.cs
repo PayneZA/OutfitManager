@@ -16,7 +16,7 @@ namespace OutfitManager.Windows
     public class MainWindow : Window, IDisposable
     {
    
-        private Plugin Plugin;
+        private Plugin _Plugin;
         private string _characterName = "";
         private bool _characterExists = false;
         private string _worldName = "";
@@ -32,24 +32,9 @@ namespace OutfitManager.Windows
             };
 
         
-            this.Plugin = plugin;
-            _characterName = this.Plugin.Configuration.CharacterName;
+            this._Plugin = plugin;
 
-            _worldName = "";
-            if (!string.IsNullOrEmpty(_characterName))
-            {
-                if (this.Plugin.Configuration.Characters.ContainsKey(_characterName))
-                {
-                    _characterExists = true;
-                    if (!string.IsNullOrEmpty(this.Plugin.Configuration.Characters[_characterName].World))
-                    {
-                        _worldName = this.Plugin.Configuration.Characters[_characterName].World;
-                        _worldExists = true;
-                        _chatControl = this.Plugin.Configuration.ChatControl;
-                    }
-                    
-                }
-            }
+            Init();
         }
 
         public void Dispose()
@@ -57,33 +42,33 @@ namespace OutfitManager.Windows
            
         }
 
+        public void Init()
+        {
+            _characterName = this._Plugin.Configuration.MyCharacter.Name;
+            _worldName = this._Plugin.Configuration.MyCharacter.World;
+            _characterExists = !string.IsNullOrEmpty(this._Plugin.Configuration.MyCharacter.Name);
+            _worldExists = !string.IsNullOrEmpty(this._Plugin.Configuration.MyCharacter.Name);
+        }
+
         public void RemoteControl()
         {
             if (ImGui.Checkbox("Allow Chat Control (Via Tell)",ref _chatControl))
             {
-                this.Plugin.Configuration.ChatControl = _chatControl;
-                this.Plugin.Configuration.Save();
+                this._Plugin.Configuration.ChatControl = _chatControl;
+                this._Plugin.Configuration.Save();
             }
         }
         public void CharacterName()
         {
            if( ImGui.InputTextWithHint("Character Name", "Enter your character name and press enter...", ref _characterName, 64, ImGuiInputTextFlags.EnterReturnsTrue))
             {
-                this.Plugin.Configuration.CharacterName = _characterName;
-
-                if (!this.Plugin.Configuration.Characters.ContainsKey(_characterName))
-                {
-                    this.Plugin.Configuration.Characters.Add(_characterName, new Character());
-                    this.Plugin.MyCharacter = this.Plugin.Configuration.Characters[_characterName];
-                }
-                this.Plugin.Configuration.Save();
+                this._Plugin.Configuration.MyCharacter.Name = _characterName;
+                this._Plugin.Configuration.Save();
                 _characterExists = true;
             }
 
-           if (!string.IsNullOrEmpty(this.Plugin.Configuration.CharacterName) && this.Plugin.Configuration.Characters.ContainsKey(this.Plugin.Configuration.CharacterName))
+           if (_characterExists)
             {
-                _characterExists = true;
-
                 WorldName();
             }
         }
@@ -92,9 +77,9 @@ namespace OutfitManager.Windows
         {
             if (ImGui.InputTextWithHint("World Name", "Enter your world name and press enter...", ref _worldName, 64, ImGuiInputTextFlags.EnterReturnsTrue))
             {
-                    this.Plugin.Configuration.Characters[_characterName].World = _worldName;
-                    this.Plugin.Configuration.Save();
-                    this.Plugin.MyCharacter = this.Plugin.Configuration.Characters[_characterName];
+                    this._Plugin.Configuration.MyCharacter.World = _worldName;
+                    this._Plugin.Configuration.MyCharacter.FullName = $"{this._Plugin.Configuration.MyCharacter.Name}@{this._Plugin.Configuration.MyCharacter.World}";
+                    this._Plugin.Configuration.Save();
                     _worldExists = true;
             }
 
@@ -105,15 +90,13 @@ namespace OutfitManager.Windows
          
             if (_characterExists && _worldExists)
             {
-             
                 if (ImGui.Button("Add/Edit/View Outfits"))
                 {
-
-                    this.Plugin.DrawOutfitListUI();
+                    this._Plugin.DrawOutfitListUI();
                 }
                 if (ImGui.Button("Manage allow list"))
                 {
-                    this.Plugin.DrawAllowedUserUI();
+                    this._Plugin.DrawAllowedUserUI();
                 }
 
                 RemoteControl();
@@ -125,8 +108,7 @@ namespace OutfitManager.Windows
         {
             if (ImGui.Button("Add/Edit/View Outfits"))
             {
-
-                this.Plugin.DrawOutfitListUI();
+                this._Plugin.DrawOutfitListUI();
             }
         }
     }

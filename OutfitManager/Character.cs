@@ -10,7 +10,19 @@ namespace OutfitManager
     {
         public string Name { get; set; }
         public string World { get; set; }
-        public Dictionary<string, Outfit> Outfits { get; set; } = new Dictionary<string, Outfit>();
+
+        public string FullName { get; set; }
+
+        public Dictionary<string, Outfit> Outfits { get; set; }
         public bool isUserCharacter { get; set; }
+
+        public Character()
+        {
+            Name = "";
+            World = "";
+            FullName = "";
+            Outfits = new Dictionary<string, Outfit>();
+            isUserCharacter = false;
+        }
     }
 }

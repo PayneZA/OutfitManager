@@ -30,16 +30,12 @@ namespace OutfitManager.Windows
                 MaximumSize = new Vector2(float.MaxValue, float.MaxValue)
             };
 
-
             this.Plugin = plugin;
         }
         public override void Draw()
         {
             CharacterAddition();
             CharacterList();
-
-
-
         }
         public void CharacterList()
         {
@@ -49,7 +45,6 @@ namespace OutfitManager.Windows
         {
             ImGui.InputTextWithHint("Character Name", "Enter character name that can dress you...", ref _characterName, 64, ImGuiInputTextFlags.EnterReturnsTrue);
             ImGui.InputTextWithHint("World Name", "Enter world of character (optional but reccomended).", ref _worldName, 64, ImGuiInputTextFlags.EnterReturnsTrue);
-
 
             if (ImGui.Button("Add / Update Character") && (!string.IsNullOrEmpty(_characterName)))
             {

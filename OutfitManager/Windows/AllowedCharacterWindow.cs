@@ -36,15 +36,9 @@ namespace OutfitManager.Windows
         {
             CharacterAddition();
             CharacterList();
-           
-
-
         }
         public void CharacterList()
         {
-
-         
-
             if (ImGui.ListBox("Allowed Characters", ref _currentItem, this.Plugin.Configuration.SafeSenders.Keys.ToArray(), this.Plugin.Configuration.SafeSenders.Count(), 10))
             {
 
@@ -53,7 +47,6 @@ namespace OutfitManager.Windows
 
                 _characterName = c.Name;
                 _worldName = c.World;
-
             }
         }
         public void CharacterAddition()

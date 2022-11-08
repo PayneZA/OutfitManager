@@ -9,13 +9,9 @@ namespace OutfitManager
     public class Configuration : IPluginConfiguration
     {
         public int Version { get; set; } = 0;
- //       public Dictionary<string, Outfit> Outfits { get; set; } = new Dictionary<string, Outfit>();
-
+        public Character MyCharacter { get; set; }
         public Dictionary<string,Character> Characters { get;set; } = new Dictionary<string, Character>();
-        public string CharacterName { get; set; } = "";
-
         public Dictionary<string,Character> SafeSenders { get; set; } = new Dictionary<string, Character>();
-
         public bool ChatControl { get; set; }
 
         // the below exist just to make saving less cumbersome

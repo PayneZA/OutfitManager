@@ -1,11 +1,11 @@
-[
+
     {
         "Author": "PayneZA",
         "Name": "Outfit Manager",
         "Description": "Easy outfit changing if you know the name with penumbra/glamourer and gearset support.",
         "InternalName": "OutfitManager",
-        "AssemblyVersion": "0.0.0.4",
-        "TestingAssemblyVersion": "0.0.0.4",
+        "AssemblyVersion": "0.0.0.5",
+        "TestingAssemblyVersion": "0.0.0.5",
         "RepoUrl": "https://github.com/PayneZA/OutfitManager",
         "https": null,
         "ApplicableVersion": "any",
@@ -21,4 +21,3 @@
         "DownloadLinkTesting": "https://github.com/PayneZA/OutfitManager/releases/download/Alpha/outfitmanager.zip",
         "DownloadLinkUpdate": "https://github.com/PayneZA/OutfitManager/releases/download/Alpha/outfitmanager.zip"
     }
-]
