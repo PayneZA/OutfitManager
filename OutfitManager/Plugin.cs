@@ -74,6 +74,7 @@ namespace OutfitManager
             WindowSystem.AddWindow(new MainWindow(this));
             WindowSystem.AddWindow(new AllowedCharacterWindow(this));
             WindowSystem.AddWindow(new OutfitListWindow(this));
+            WindowSystem.AddWindow(new OtherCharactersWindow(this));
 
             this.PluginInterface.UiBuilder.Draw += DrawUI;
             this.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
@@ -97,7 +98,6 @@ namespace OutfitManager
             {
                if (!string.IsNullOrEmpty(this.Configuration.MyCharacter.Name) && !string.IsNullOrEmpty(this.Configuration.MyCharacter.World))
                 {
-                    
                     WindowSystem.GetWindow("OutfitManager Outfit List Window").IsOpen = true;
                 }
                else
@@ -123,6 +123,10 @@ namespace OutfitManager
 
                     EquipOutfit("",args);
                 }
+                else if (args.StartsWith("other"))
+                {
+                    WindowSystem.GetWindow("OutfitManager Other Character Window").IsOpen = true;
+                }
             }
         }
 
@@ -144,6 +148,10 @@ namespace OutfitManager
             WindowSystem.GetWindow("OutfitManager Outfit List Window").IsOpen = true;
         }
 
+        public async Task SendEquipOutfit(string character, string characterFirstname, string outfit)
+        {
+            this.Common.Functions.Chat.SendMessage($"/tell {character} {characterFirstname.Split(" ")[0]} wear:{outfit}");
+        }
 
         public void EquipOutfit(string outfitName = "", string tag = "")
         {

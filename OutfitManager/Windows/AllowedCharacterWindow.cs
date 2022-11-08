@@ -13,6 +13,7 @@ namespace OutfitManager.Windows
     {
         private Plugin Plugin;
         private string _characterName = string.Empty;
+        private string _fullName = string.Empty;
         private string _worldName = string.Empty;
         private Character _character = new Character();
         private int _currentItem = 0;
@@ -39,39 +40,45 @@ namespace OutfitManager.Windows
         }
         public void CharacterList()
         {
-            if (ImGui.ListBox("Allowed Characters", ref _currentItem, this.Plugin.Configuration.SafeSenders.Keys.ToArray(), this.Plugin.Configuration.SafeSenders.Count(), 10))
+            if (ImGui.ListBox("Allowed Characters", ref this._currentItem, this.Plugin.Configuration.SafeSenders.Keys.ToArray(), this.Plugin.Configuration.SafeSenders.Count(), 10))
             {
 
                 var names = this.Plugin.Configuration.SafeSenders.Keys.ToArray();
                 Character c = this.Plugin.Configuration.SafeSenders[names[_currentItem]];
 
-                _characterName = c.Name;
-                _worldName = c.World;
+                this._characterName = c.Name;
+                this._worldName = c.World;
+
+                if (string.IsNullOrEmpty(c.FullName))
+                {
+                    c.FullName = $"{_characterName}@{_worldName}";
+                }
             }
         }
         public void CharacterAddition()
         {
-            ImGui.InputTextWithHint("Character Name", "Enter character name that can dress you...", ref _characterName, 64, ImGuiInputTextFlags.EnterReturnsTrue);
-            ImGui.InputTextWithHint("World Name", "Enter world of character (optional but reccomended).", ref _worldName, 64, ImGuiInputTextFlags.EnterReturnsTrue);
+            ImGui.InputTextWithHint("Character Name", "Enter character name that can dress you...", ref this._characterName, 64, ImGuiInputTextFlags.EnterReturnsTrue);
+            ImGui.InputTextWithHint("World Name", "Enter world of character (optional but reccomended).", ref this._worldName, 64, ImGuiInputTextFlags.EnterReturnsTrue);
            
 
             if (ImGui.Button("Add / Update Character") && (!string.IsNullOrEmpty(_characterName)))
             {
-                _character = new Character
+                this._character = new Character
                 {
-                 Name = _characterName,
-                 World = _worldName
+                 Name = this._characterName,
+                 World = this._worldName,
+                 FullName = $"{_characterName}@{_worldName}"
                 };
 
                 if (!string.IsNullOrEmpty(_characterName))
                 {
                     if (!this.Plugin.Configuration.SafeSenders.ContainsKey(_characterName))
                     {
-                        this.Plugin.Configuration.SafeSenders.Add(_characterName + "@" + _worldName, _character);
+                        this.Plugin.Configuration.SafeSenders.Add(_character.FullName, this._character);
                     }
                     else
                     {
-                        this.Plugin.Configuration.SafeSenders[_characterName + "@" + _worldName] = _character;
+                        this.Plugin.Configuration.SafeSenders[_character.FullName] = this._character;
                     }
                     this.Plugin.Configuration.Save();
                 }

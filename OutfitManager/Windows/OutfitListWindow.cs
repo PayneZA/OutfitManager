@@ -1,6 +1,7 @@
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 using Microsoft.Win32.SafeHandles;
+using Newtonsoft.Json;
 using OutfitManager;
 using System;
 using System.Collections.Generic;
@@ -55,6 +56,7 @@ namespace OutfitManager.Windows
 
                 OutfitAddition();
                 OutfitList();
+                ExportToClipboard();
             }
 
         }
@@ -68,6 +70,31 @@ namespace OutfitManager.Windows
                 _outfits = _outfitList.Select(f => f.DisplayName).ToArray();
             }
         }
+        public string Base64Encode(string plainText)
+        {
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
+            return System.Convert.ToBase64String(plainTextBytes);
+        }
+
+        public void ExportToClipboard()
+        {
+
+
+            if (ImGui.Button("Export list to clipboard") && this._outfits.Count() > 0)
+            {
+                OutfitExport outfitExport = new OutfitExport();
+
+                Character character = new Character { FullName = this.Plugin.Configuration.MyCharacter.FullName, isUserCharacter = false, Name = this.Plugin.Configuration.MyCharacter.Name, World = this.Plugin.Configuration.MyCharacter.World };
+                character.Outfits = new Dictionary<string, Outfit>();
+
+                outfitExport.Outfits = this._outfits;
+                outfitExport.Character = character;
+
+                string json = JsonConvert.SerializeObject(outfitExport);
+
+                ImGui.SetClipboardText(Base64Encode(json));
+            }
+        }
         public void OutfitList()
         {
         
@@ -76,7 +103,7 @@ namespace OutfitManager.Windows
             {
                 _outfit = this.Plugin.Configuration.MyCharacter.Outfits[_outfits[_currentItem].ToLower()];
 
-                _newOutfitName = _outfit.Name;
+                _newOutfitName = _outfit.DisplayName;
                 _penumbraCollection = _outfit.CollectionName;
                 if (_outfit.GearSet == null)
                 {
@@ -131,6 +158,8 @@ namespace OutfitManager.Windows
                     this.Plugin.Configuration.MyCharacter.Name = _characterName;
                 }
                 this.Plugin.Configuration.Save();
+
+                
                 Init();
             }
 
