@@ -150,7 +150,7 @@ namespace OutfitManager
 
         public async Task SendEquipOutfit(string character, string characterFirstname, string outfit)
         {
-            this.Common.Functions.Chat.SendMessage($"/tell {character} {characterFirstname} wear:{outfit}");
+            this.Common.Functions.Chat.SendMessage($"/tell {character} wear:{outfit}");
         }
 
         public void EquipOutfit(string outfitName = "", string tag = "")
@@ -227,7 +227,7 @@ namespace OutfitManager
                     if (type == XivChatType.TellIncoming)
                     {
                         string name = this.Configuration.MyCharacter.Name;
-                        if (message.TextValue.StartsWith(name+ " wear:") || message.TextValue.StartsWith(name+ " random:"))
+                        if (message.TextValue.ToLower().StartsWith("wear:") || message.TextValue.ToLower().StartsWith("random:"))
                         {
 
                             var payloads = sender.Payloads[0].ToString();
@@ -242,7 +242,7 @@ namespace OutfitManager
                                 Outfit outfit = null;
                                 string textValue = message.TextValue.Remove(0, message.TextValue.Substring(0, message.TextValue.IndexOf(":")).Length + 1).Trim();
 
-                                if (message.TextValue.ToLower().StartsWith(name + " random:"))
+                                if (message.TextValue.ToLower().StartsWith("random:"))
                                 {
                                     EquipOutfit("", textValue.Trim().ToLower());
                                 }
