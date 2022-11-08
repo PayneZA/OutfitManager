@@ -95,7 +95,7 @@ namespace OutfitManager
 
             if (string.IsNullOrEmpty(args))
             {
-               if (this.Configuration.MyCharacter.Name != "" && this.Configuration.MyCharacter.World != "")
+               if (!string.IsNullOrEmpty(this.Configuration.MyCharacter.Name) && !string.IsNullOrEmpty(this.Configuration.MyCharacter.World))
                 {
                     
                     WindowSystem.GetWindow("OutfitManager Outfit List Window").IsOpen = true;
