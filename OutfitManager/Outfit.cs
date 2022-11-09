@@ -23,5 +23,6 @@ namespace OutfitManager
         public string Notes { get; set; }
 
         public List<string> Tags { get; set; }
+        public bool IsFavourite { get; set; }
     }
 }

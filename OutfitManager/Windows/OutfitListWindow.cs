@@ -1,4 +1,5 @@
 using Dalamud.Interface.Windowing;
+using FFXIVClientStructs.Havok;
 using ImGuiNET;
 using Microsoft.Win32.SafeHandles;
 using Newtonsoft.Json;
@@ -9,6 +10,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace OutfitManager.Windows
 {
@@ -25,10 +27,16 @@ namespace OutfitManager.Windows
         private string _characterName = string.Empty;
         private string _notes = string.Empty;
         private string _tags = string.Empty;
+        private string _filter = string.Empty;
+        private bool _favourite = false;
+        private bool _showFavourites = false;
+        private string[] _outfits;
+        private string[] _filteredOutfits;
+        private string _pastFilter = string.Empty;
+        string _favouritesText = "Show Favourites";
 
-        string[] _outfits;
 
-     
+
         public void Dispose()
         {
           
@@ -68,6 +76,9 @@ namespace OutfitManager.Windows
                 _outfitList = this.Plugin.Configuration.MyCharacter.Outfits.Values.OrderBy(x => x.DisplayName).ToList();
                 _characterName = this.Plugin.Configuration.MyCharacter.Name;
                 _outfits = _outfitList.Select(f => f.DisplayName).ToArray();
+                _filteredOutfits = _outfits;
+                _filter = "";
+                _favourite = false;
             }
         }
         public string Base64Encode(string plainText)
@@ -80,7 +91,7 @@ namespace OutfitManager.Windows
         {
 
 
-            if (ImGui.Button("Export list to clipboard") && this._outfits.Count() > 0)
+            if (ImGui.Button("Export all outfits to clipboard") && this._outfits.Count() > 0)
             {
                 OutfitExport outfitExport = new OutfitExport();
 
@@ -95,13 +106,35 @@ namespace OutfitManager.Windows
                 ImGui.SetClipboardText(Base64Encode(json));
             }
         }
+
+        public string[] FilterOutfits(string filter)
+        {
+            if (filter != _pastFilter)
+            {
+                if (string.IsNullOrEmpty(filter))
+                {
+                    _filteredOutfits = _outfits;
+
+                }
+                else
+                {
+                    _filteredOutfits = _outfits.Where(x => x.Contains(_filter, StringComparison.OrdinalIgnoreCase)).ToArray();
+                }
+                _pastFilter = filter;
+            }
+
+            return _filteredOutfits;
+        }
         public void OutfitList()
         {
-        
 
-            if (ImGui.ListBox("Outfits", ref _currentItem, _outfits, _outfits.Count(), 10))
+             if( ImGui.InputTextWithHint("Filter", "Filter...", ref _filter, 64))
             {
-                _outfit = this.Plugin.Configuration.MyCharacter.Outfits[_outfits[_currentItem].ToLower()];
+              
+            }
+            if (ImGui.ListBox("Outfits", ref _currentItem, FilterOutfits(_filter), _filteredOutfits.Count(), 15))
+            {
+                _outfit = this.Plugin.Configuration.MyCharacter.Outfits[_filteredOutfits[_currentItem].ToLower()];
 
                 _newOutfitName = _outfit.DisplayName;
                 _penumbraCollection = _outfit.CollectionName;
@@ -113,6 +146,7 @@ namespace OutfitManager.Windows
                 _glamourerDesign = _outfit.DesignPath;
                 _notes = _outfit.Notes;
                 _tags = String.Join(",", _outfit.Tags);
+                _favourite = _outfit.IsFavourite;
             }
         }
 
@@ -125,8 +159,9 @@ namespace OutfitManager.Windows
             ImGui.InputTextWithHint("Glamourer Design", "Glamourer Design Path (E.g. /collections/outfit1) (optional)", ref _glamourerDesign, 64, ImGuiInputTextFlags.EnterReturnsTrue);
             ImGui.InputTextWithHint("Gearset", "Enter gearset number (e.g. 1 10 for gearset 1 glam plate 10)(optional)", ref _gearset, 64, ImGuiInputTextFlags.EnterReturnsTrue);
             ImGui.InputTextWithHint("Tags", "Enter tags for your gear comma separated (optional)", ref _tags, 64, ImGuiInputTextFlags.EnterReturnsTrue);
+            ImGui.Checkbox("Favourite ?", ref _favourite);
             ImGui.InputTextMultiline("Notes", ref _notes,512, new Vector2(440, 60));
-
+      
             if (ImGui.Button("Add / Update Outfit") && (!string.IsNullOrEmpty(_newOutfitName)))
             {
                 _outfit = new Outfit
@@ -137,7 +172,8 @@ namespace OutfitManager.Windows
                     GearSet = _gearset,
                     Name = _newOutfitName.ToLower().Replace(":",""),
                     Notes = _notes,
-                    Tags = _tags.ToLower().Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList()
+                    Tags = _tags.ToLower().Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList(),
+                    IsFavourite = _favourite
                 };
 
                 if (!this.Plugin.Configuration.MyCharacter.Outfits.ContainsKey(_outfit.Name))
@@ -152,7 +188,8 @@ namespace OutfitManager.Windows
                 _outfitList = this.Plugin.Configuration.MyCharacter.Outfits.Values.OrderBy(x => x.DisplayName).ToList();
 
                 _outfits = _outfitList.Select(f => f.DisplayName).ToArray();
-
+                _filteredOutfits = _outfits;
+                _filter = "";
                 if (!string.IsNullOrEmpty(_characterName))
                 {
                     this.Plugin.Configuration.MyCharacter.Name = _characterName;
@@ -163,24 +200,46 @@ namespace OutfitManager.Windows
                 Init();
             }
 
-            if (ImGui.Button("Delete Outfit"))
+            ImGui.SameLine();
+            if (ImGui.Button("Delete Outfit (shift)"))
             {
-                if (this.Plugin.Configuration.MyCharacter.Outfits.ContainsKey(_outfit.Name))
+                if (ImGui.IsKeyDown(ImGuiKey.ModShift))
                 {
-                    this.Plugin.Configuration.MyCharacter.Outfits.Remove(_outfit.Name);
+                    if (this.Plugin.Configuration.MyCharacter.Outfits.ContainsKey(_outfit.Name))
+                    {
+                        this.Plugin.Configuration.MyCharacter.Outfits.Remove(_outfit.Name);
 
-                    this.Plugin.Configuration.Save();
-                    _newOutfitName = "";
-                    _penumbraCollection = "";
-                    _glamourerDesign = "";
-                    _gearset = "";
-                    _notes = "";
-                    _tags = "";
-                    Init();
+                        this.Plugin.Configuration.Save();
+                        _newOutfitName = "";
+                        _penumbraCollection = "";
+                        _glamourerDesign = "";
+                        _gearset = "";
+                        _notes = "";
+                        _tags = "";
+                        _favourite = false;
+                        Init();
 
+                    }
+                }
+            }
+            ImGui.SameLine();
+            if (ImGui.Button(_favouritesText))
+            {
+                if (!_showFavourites)
+                {
+                    _favouritesText = "Show All";
+                    _showFavourites = true;
+                    _filteredOutfits = _outfitList.Where(x => x.IsFavourite).Select(f => f.DisplayName).ToArray();
+                }
+                else
+                {
+                    _favouritesText = "Show Favourites";
+                    _showFavourites = false;
+                    _filteredOutfits = _outfitList.Select(f => f.DisplayName).ToArray();
                 }
             }
 
+            ImGui.SameLine();
             if (ImGui.Button("Wear Outfit"))
             {
                 _newOutfitName = "";
@@ -189,6 +248,7 @@ namespace OutfitManager.Windows
                 _gearset = "";
                 _notes = "";
                 _tags = "";
+                _favourite = false;
                 this.Plugin.EquipOutfit(_outfit.Name);
             }
         }
