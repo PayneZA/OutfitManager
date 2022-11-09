@@ -44,6 +44,7 @@ namespace OutfitManager.Windows
 
         public void Init()
         {
+            _chatControl = this._Plugin.Configuration.ChatControl;
             _characterName = this._Plugin.Configuration.MyCharacter.Name;
             _worldName = this._Plugin.Configuration.MyCharacter.World;
             _characterExists = !string.IsNullOrEmpty(this._Plugin.Configuration.MyCharacter.Name);
@@ -54,8 +55,8 @@ namespace OutfitManager.Windows
         {
             if (ImGui.Checkbox("Allow Chat Control (Via Tell)",ref _chatControl))
             {
-                this._Plugin.Configuration.ChatControl = _chatControl;
-                this._Plugin.Configuration.Save();
+
+                this._Plugin.SetChatMonitoring(_chatControl);
             }
         }
         public void CharacterName()

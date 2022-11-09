@@ -79,9 +79,28 @@ namespace OutfitManager
             this.PluginInterface.UiBuilder.Draw += DrawUI;
             this.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
 
-            this.ChatGui.ChatMessage += OnChatMessage;
+            SetChatMonitoring(this.isCommandsEnabled);
+
         }
 
+        public void SetChatMonitoring(bool active)
+        {
+            if (active)
+            {
+                this.isCommandsEnabled = true;
+                this.Configuration.ChatControl = true;
+                this.Configuration.Save();
+                this.ChatGui.ChatMessage -= OnChatMessage;
+                this.ChatGui.ChatMessage += OnChatMessage;
+            }
+            else
+            {
+                this.isCommandsEnabled = false;
+                this.Configuration.ChatControl = false; ;
+                this.Configuration.Save();
+                this.ChatGui.ChatMessage -= OnChatMessage;
+            }
+        }
         public void Dispose()
         {
             this.ChatGui.ChatMessage -= OnChatMessage;
