@@ -78,7 +78,7 @@ namespace OutfitManager.Windows
                 _outfits = _outfitList.Select(f => f.DisplayName).ToArray();
                 _filteredOutfits = _outfits;
                 _filter = "";
-                _favourite = false;
+            
             }
         }
         public string Base64Encode(string plainText)
