@@ -8,6 +8,8 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using static FFXIVClientStructs.FFXIV.Client.UI.Misc.RaptureGearsetModule;
+
 namespace OutfitManager.Windows
 {
 
@@ -21,6 +23,9 @@ namespace OutfitManager.Windows
         private int _currentOutfit = 0;
         private string[] _characters;
         private string[] _outfits;
+        private string[] _filteredOutfits;
+        private string _filter = string.Empty;
+        private string _pastFilter = string.Empty;
         public void Dispose()
         {
 
@@ -65,6 +70,7 @@ namespace OutfitManager.Windows
                 if (ImGui.ListBox("Characters", ref _currentCharacter, _characters, _characters.Count(), 5))
                 {
                     _character = this.Plugin.Configuration.Characters[_characters[_currentCharacter]];
+                    _filteredOutfits = _character.Outfits.Keys.ToArray();
                     _outfits = _character.Outfits.Keys.ToArray();
                 }
             }
@@ -72,11 +78,16 @@ namespace OutfitManager.Windows
 
         public void OutfitList()
         {
+         
             if (_outfits != null)
             {
-                if (ImGui.ListBox("Outfits", ref _currentOutfit, _outfits, _outfits.Count(), 10))
+                if (ImGui.InputTextWithHint("Filter", "Filter...", ref _filter, 64))
                 {
-                    _selectedOutfit = _outfits[_currentOutfit].ToLower();
+
+                }
+                if (ImGui.ListBox("Outfits", ref _currentOutfit, FilterOutfits(_filter), _filteredOutfits.Count(), 15))
+                {
+                    _selectedOutfit = _filteredOutfits[_currentOutfit].ToLower();
                 }
 
                 if (ImGui.Button("Send Wear Outfit"))
@@ -85,6 +96,26 @@ namespace OutfitManager.Windows
                 }
             }
         }
+
+        public string[] FilterOutfits(string filter)
+        {
+            if (filter != _pastFilter)
+            {
+                if (string.IsNullOrEmpty(filter))
+                {
+                    _filteredOutfits = _outfits;
+
+                }
+                else
+                {
+                    _filteredOutfits = _outfits.Where(x => x.Contains(_filter, StringComparison.OrdinalIgnoreCase)).ToArray();
+                }
+                _pastFilter = filter;
+            }
+
+            return _filteredOutfits;
+        }
+
         public static string Base64Decode(string base64EncodedData)
         {
             var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
