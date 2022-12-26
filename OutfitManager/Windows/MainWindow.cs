@@ -4,6 +4,7 @@ using ImGuiNET;
 using ImGuiScene;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Numerics;
@@ -22,6 +23,8 @@ namespace OutfitManager.Windows
         private string _worldName = "";
         private bool _worldExists = false;
         private bool _chatControl = false;
+        private string _screenshotDirectory = "";
+        private string _previewDirectory = "";
         public MainWindow(Plugin plugin) : base(
             "OutfitManager", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
         {
@@ -49,6 +52,8 @@ namespace OutfitManager.Windows
             _worldName = this._Plugin.Configuration.MyCharacter.World;
             _characterExists = !string.IsNullOrEmpty(this._Plugin.Configuration.MyCharacter.Name);
             _worldExists = !string.IsNullOrEmpty(this._Plugin.Configuration.MyCharacter.Name);
+            _previewDirectory = this._Plugin.Configuration.PreviewDirectory;
+
         }
 
         public void RemoteControl()
@@ -99,10 +104,18 @@ namespace OutfitManager.Windows
                 {
                     this._Plugin.DrawAllowedUserUI();
                 }
+                if (ImGui.InputTextWithHint("Preview Directory", "Enter your outfit preview directory and press enter...", ref _previewDirectory, 64, ImGuiInputTextFlags.EnterReturnsTrue))
+                {
+                    if (Directory.Exists(this._previewDirectory))
+                    {
+                        this._Plugin.Configuration.PreviewDirectory = this._previewDirectory;
+                        this._Plugin.Configuration.Save();
+                    }
+                }
 
                 RemoteControl();
             }
-        
+    
         }
 
         public void OutFitList()

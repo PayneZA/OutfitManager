@@ -2,6 +2,7 @@ using Dalamud.Configuration;
 using Dalamud.Plugin;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace OutfitManager
 {
@@ -14,6 +15,9 @@ namespace OutfitManager
         public Dictionary<string,Character> SafeSenders { get; set; } = new Dictionary<string, Character>();
         public bool ChatControl { get; set; }
 
+        public bool ShowPreview { get; set; }
+        public string PreviewDirectory { get; set; } = "";
+
         // the below exist just to make saving less cumbersome
         [NonSerialized]
         private DalamudPluginInterface? PluginInterface;
@@ -25,6 +29,19 @@ namespace OutfitManager
 
         public void Save()
         {
+           
+            if (!string.IsNullOrEmpty(this.PreviewDirectory))
+            {
+                if (!this.PreviewDirectory.EndsWith("\\"))
+                {
+                    this.PreviewDirectory = this.PreviewDirectory + "\\";
+                }
+
+                if (!Directory.Exists(this.PreviewDirectory))
+                {
+                    this.PreviewDirectory = "";
+                }
+            }
             this.PluginInterface!.SavePluginConfig(this);
         }
     }

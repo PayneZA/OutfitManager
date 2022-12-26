@@ -15,6 +15,8 @@ using System.Collections.Generic;
 using Dalamud.Game.Text.SeStringHandling;
 using System.Threading.Tasks;
 using System.Linq;
+using ImGuiScene;
+using System.Runtime.CompilerServices;
 
 namespace OutfitManager
 {
@@ -27,6 +29,7 @@ namespace OutfitManager
         public Configuration Configuration { get; init; }
         private bool isCommandsEnabled { get; set; }
 
+        public TextureWrap OutfitPreview;
         private ChatGui ChatGui { get; init; }
         private WindowSystem WindowSystem = new("OutfitManager");
         private XivCommonBase Common { get; init; }
@@ -45,7 +48,7 @@ namespace OutfitManager
        
             this.CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
             {
-                HelpMessage = $"No arguments to bring up UI (Will take you to outfits if you have added any otherwise config){Environment.NewLine}config = bring up configuration window{Environment.NewLine}wear OUTFITNAME = wear saved outfit name{Environment.NewLine}random TAGNAME = wear random outfit with tag{Environment.NewLine}other = bring up remote outfit control.{Environment.NewLine}"
+                HelpMessage = $"No arguments to bring up UI (Will take you to outfits if you have added any otherwise config){Environment.NewLine}config = bring up configuration window{Environment.NewLine}wear OUTFITNAME = wear saved outfit name{Environment.NewLine}random TAGNAME = wear random outfit with tag{Environment.NewLine}other = bring up remote outfit control.{Environment.NewLine}{Environment.NewLine}The outfit preview system requires images with the same name as your outfit to exist in the preview directory you set in config. (Experimental)"
             });
 
 
@@ -75,6 +78,7 @@ namespace OutfitManager
             WindowSystem.AddWindow(new AllowedCharacterWindow(this));
             WindowSystem.AddWindow(new OutfitListWindow(this));
             WindowSystem.AddWindow(new OtherCharactersWindow(this));
+            WindowSystem.AddWindow(new OutfitPreviewWindow(this));
 
             this.PluginInterface.UiBuilder.Draw += DrawUI;
             this.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
@@ -234,6 +238,35 @@ namespace OutfitManager
         {
             Task task = Task.Delay(delay);
             await task;
+        }
+
+  
+
+        public void SetImagePreview(string name)
+        {
+            var imagePath = Path.Combine(this.Configuration.PreviewDirectory, $"{name}.png");
+
+            if (File.Exists(imagePath))
+            {
+                ShowOrHideWindow("Outfit Preview Window", true);
+                this.OutfitPreview = this.PluginInterface.UiBuilder.LoadImage(imagePath);
+            }
+
+            else
+            {
+                this.OutfitPreview = null;
+            }
+        }
+
+        public void ShowOrHideWindow(string name, bool visible)
+        {
+            WindowSystem.GetWindow(name).IsOpen = visible;
+
+
+            if(name == "Outfit Preview Window" && !visible)
+            {
+                this.OutfitPreview = null;
+            }
         }
 
         private void OnChatMessage(XivChatType type, uint id, ref SeString sender, ref SeString message,

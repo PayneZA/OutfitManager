@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using OutfitManager;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -33,17 +34,26 @@ namespace OutfitManager.Windows
         private string[] _outfits;
         private string[] _filteredOutfits;
         private string _pastFilter = string.Empty;
+        private string _previewDirectory = string.Empty;
         string _favouritesText = "Show Favourites";
+        private bool _showPreview = false;
 
-
+        public override void OnClose()
+        {
+            Dispose();
+        }
 
         public void Dispose()
         {
-          
+            this.Plugin.ShowOrHideWindow("Outfit Preview Window", false);
+            this.Plugin.OutfitPreview = null;
         }
         public OutfitListWindow(Plugin plugin) : base(
            "OutfitManager Outfit List Window", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
         {
+
+            Dalamud.PluginInterface.UiBuilder.DisableGposeUiHide = true;
+
             this.SizeConstraints = new WindowSizeConstraints
             {
                 MinimumSize = new Vector2(675, 630),
@@ -51,7 +61,7 @@ namespace OutfitManager.Windows
             };
 
             this.Plugin = plugin;
-            
+        
             Init();
        
         }
@@ -61,10 +71,16 @@ namespace OutfitManager.Windows
 
             if (this.Plugin.Configuration.MyCharacter != null && this.Plugin.Configuration.MyCharacter.FullName != "")
             {
-
+              
                 OutfitAddition();
+                
+                if (!string.IsNullOrEmpty(_previewDirectory))
+                {
+                    PreviewImage();
+                }
                 OutfitList();
                 ExportToClipboard();
+
             }
 
         }
@@ -78,7 +94,12 @@ namespace OutfitManager.Windows
                 _outfits = _outfitList.Select(f => f.DisplayName).ToArray();
                 _filteredOutfits = _outfits;
                 _filter = "";
-            
+
+                if (!string.IsNullOrEmpty(this.Plugin.Configuration.PreviewDirectory) && Directory.Exists(this.Plugin.Configuration.PreviewDirectory))
+                {
+                    _previewDirectory = this.Plugin.Configuration.PreviewDirectory;
+                }
+                _showPreview = this.Plugin.Configuration.ShowPreview;
             }
         }
         public string Base64Encode(string plainText)
@@ -107,6 +128,29 @@ namespace OutfitManager.Windows
             }
         }
 
+        public void PreviewImage()
+        {
+          
+                if (ImGui.Checkbox("Show Preview Window.", ref _showPreview))
+                {
+
+                    if (this.Plugin.OutfitPreview != null && _showPreview)
+                    {
+                        this.Plugin.ShowOrHideWindow("Outfit Preview Window", true);
+                    }
+                    else
+                    {
+                        this.Plugin.ShowOrHideWindow("Outfit Preview Window", false);
+                    }
+
+                    if (this.Plugin.Configuration.ShowPreview != this._showPreview)
+                    {
+                        this.Plugin.Configuration.ShowPreview = _showPreview;
+                        this.Plugin.Configuration.Save();
+                    }
+                }
+            
+        }
         public string[] FilterOutfits(string filter)
         {
             if (filter != _pastFilter)
@@ -147,6 +191,11 @@ namespace OutfitManager.Windows
                 _notes = _outfit.Notes;
                 _tags = String.Join(",", _outfit.Tags);
                 _favourite = _outfit.IsFavourite;
+
+                if (this._showPreview)
+                {
+                    this.Plugin.SetImagePreview(_outfit.Name);
+                }
             }
         }
 
