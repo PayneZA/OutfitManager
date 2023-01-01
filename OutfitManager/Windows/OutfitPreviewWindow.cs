@@ -20,18 +20,13 @@ namespace OutfitManager.Windows
 
             if (this.Plugin.OutfitPreview != null)
             {
-
-
                 var aspectRatio = (float)this.Plugin.OutfitPreview.Width / (float)this.Plugin.OutfitPreview.Height;
-
 
                 this.SizeConstraints = new WindowSizeConstraints
                 {
                     MinimumSize = new Vector2(600, (int)(600 / aspectRatio)),
                     MaximumSize = new Vector2(float.MaxValue, float.MaxValue)
                 };
-
-
             }
         }
  
@@ -42,8 +37,6 @@ namespace OutfitManager.Windows
 
         public override void Draw()
         {
-
-
             ImGui.Image(this.Plugin.OutfitPreview.ImGuiHandle, ImGui.GetWindowSize());
         }
     }

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Authors></Authors>
     <Company></Company>
-    <Version>0.0.2.0</Version>
+    <Version>0.0.2.1</Version>
     <Description>A plugin to link a penumbra collection, glamourer design and gearset into one chat command.</Description>
     <Copyright></Copyright>
     <PackageProjectUrl>https://github.com/PayneZA/OutfitManager</PackageProjectUrl>

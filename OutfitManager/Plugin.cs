@@ -203,7 +203,7 @@ namespace OutfitManager
 
                 if (!string.IsNullOrEmpty(outfit.CollectionName.Trim()))
                 {
-                    commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/penumbra collection yourself {outfit.CollectionName}" });
+                    commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/penumbra collection Your Character | {outfit.CollectionName} | p | yourself" });
                 }
                 if (!string.IsNullOrEmpty(outfit.DesignPath.Trim()))
                 {
