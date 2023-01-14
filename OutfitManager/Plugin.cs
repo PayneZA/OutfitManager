@@ -17,7 +17,6 @@ using System.Threading.Tasks;
 using System.Linq;
 using ImGuiScene;
 using System.Runtime.CompilerServices;
-using XivCommon;
 
 namespace OutfitManager
 {
@@ -33,7 +32,7 @@ namespace OutfitManager
         public TextureWrap OutfitPreview;
         private ChatGui ChatGui { get; init; }
         private WindowSystem WindowSystem = new("OutfitManager");
-        private XivCommonBase Common { get; init; }
+      //  private XivCommonBase Common { get; init; }
         public Plugin(DalamudPluginInterface pluginInterface, CommandManager commandManager, ChatGui chatGui)
         {
             Dalamud.Initialize(pluginInterface);
@@ -41,7 +40,7 @@ namespace OutfitManager
             this.CommandManager = commandManager;
 
             this.ChatGui = chatGui;
-            this.Common = new XivCommonBase(Hooks.None);
+        //    this.Common = new XivCommonBase(Hooks.None);
 
             this.Configuration = this.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             this.Configuration.Initialize(this.PluginInterface);
@@ -174,7 +173,7 @@ namespace OutfitManager
 
         public async Task SendEquipOutfit(string character, string characterFirstname, string outfit)
         {
-            this.Common.Functions.Chat.SendMessage($"/tell {character} wear:{outfit}");
+        //    this.Common.Functions.Chat.SendMessage($"/tell {character} wear:{outfit}");
         }
 
         public void EquipOutfit(string outfitName = "", string tag = "")
@@ -213,7 +212,8 @@ namespace OutfitManager
                 int delay = 0;
                 if (!string.IsNullOrEmpty(outfit.GearSet))
                 {
-                    this.Common.Functions.Chat.SendMessage("/gearset change " + outfit.GearSet.Trim());
+                    Dalamud.Chat.Print("Gearset changing temporarily unsupported.");
+                //    this.Common.Functions.Chat.SendMessage("/gearset change " + outfit.GearSet.Trim());
 
                     delay = 300;
                 }

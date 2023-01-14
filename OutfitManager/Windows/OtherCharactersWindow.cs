@@ -90,10 +90,10 @@ namespace OutfitManager.Windows
                     _selectedOutfit = _filteredOutfits[_currentOutfit].ToLower();
                 }
 
-                if (ImGui.Button("Send Wear Outfit"))
-                {
-                    this.Plugin.SendEquipOutfit(_character.FullName,_character.Name, _selectedOutfit);
-                }
+                //if (ImGui.Button("Send Wear Outfit"))
+                //{
+                //    this.Plugin.SendEquipOutfit(_character.FullName,_character.Name, _selectedOutfit);
+                //}
             }
         }
 

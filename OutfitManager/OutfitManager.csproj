@@ -63,9 +63,6 @@
       <HintPath>$(DalamudLibPath)Lumina.Excel.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="XivCommon">
-      <HintPath>..\..\XivCommon\XivCommon\bin\Release\net7.0\XivCommon.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>
