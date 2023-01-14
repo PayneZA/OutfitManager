@@ -3,14 +3,14 @@
   <PropertyGroup>
     <Authors></Authors>
     <Company></Company>
-    <Version>0.0.2.1</Version>
+    <Version>0.0.2.2</Version>
     <Description>A plugin to link a penumbra collection, glamourer design and gearset into one chat command.</Description>
     <Copyright></Copyright>
     <PackageProjectUrl>https://github.com/PayneZA/OutfitManager</PackageProjectUrl>
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <Platforms>x64</Platforms>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
@@ -28,10 +28,13 @@
    <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'">
     <DalamudLibPath>$(DALAMUD_HOME)/</DalamudLibPath>
   </PropertyGroup>
-
+    
+    <PropertyGroup Condition="'$(IsCI)' == 'true'">
+        <Dalamud>$(HOME)/dalamud</Dalamud>
+    </PropertyGroup>
+    
   <ItemGroup>
-    <PackageReference Include="DalamudPackager" Version="2.1.8" />
-    <PackageReference Include="XivCommon" Version="6.0.2" />
+    <PackageReference Include="DalamudPackager" Version="2.1.10" />
     <Reference Include="FFXIVClientStructs">
       <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
       <Private>false</Private>
@@ -59,6 +62,9 @@
     <Reference Include="Lumina.Excel">
       <HintPath>$(DalamudLibPath)Lumina.Excel.dll</HintPath>
       <Private>false</Private>
+    </Reference>
+    <Reference Include="XivCommon">
+      <HintPath>..\..\XivCommon\XivCommon\bin\Release\net7.0\XivCommon.dll</HintPath>
     </Reference>
   </ItemGroup>
 
