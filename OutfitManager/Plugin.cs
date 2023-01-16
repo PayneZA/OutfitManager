@@ -9,7 +9,6 @@ using Dalamud.Game.Gui;
 using Dalamud.Hooking;
 using Newtonsoft.Json;
 using System;
-using XivCommon;
 using Dalamud.Game.Text;
 using System.Collections.Generic;
 using Dalamud.Game.Text.SeStringHandling;
@@ -17,6 +16,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using ImGuiScene;
 using System.Runtime.CompilerServices;
+using XivCommon;
 
 namespace OutfitManager
 {
