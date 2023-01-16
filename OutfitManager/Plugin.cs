@@ -9,6 +9,7 @@ using Dalamud.Game.Gui;
 using Dalamud.Hooking;
 using Newtonsoft.Json;
 using System;
+using XivCommon;
 using Dalamud.Game.Text;
 using System.Collections.Generic;
 using Dalamud.Game.Text.SeStringHandling;
@@ -212,7 +213,7 @@ namespace OutfitManager
                 int delay = 0;
                 if (!string.IsNullOrEmpty(outfit.GearSet))
                 {
-                    this.Common.Functions.Chat.SendMessage("/gearset change " + outfit.GearSet.Trim());
+                /   this.Common.Functions.Chat.SendMessage("/gearset change " + outfit.GearSet.Trim());
 
                     delay = 300;
                 }
