@@ -15,6 +15,8 @@ namespace OutfitManager
         public Dictionary<string,Character> SafeSenders { get; set; } = new Dictionary<string, Character>();
         public bool ChatControl { get; set; }
 
+
+        public bool Persist { get; set; }
         public bool ShowPreview { get; set; }
         public string PreviewDirectory { get; set; } = "";
 

@@ -25,6 +25,7 @@ namespace OutfitManager.Windows
         private bool _chatControl = false;
         private string _screenshotDirectory = "";
         private string _previewDirectory = "";
+        private bool _persist = false;
         public MainWindow(Plugin plugin) : base(
             "OutfitManager", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
         {
@@ -53,6 +54,7 @@ namespace OutfitManager.Windows
             _characterExists = !string.IsNullOrEmpty(this._Plugin.Configuration.MyCharacter.Name);
             _worldExists = !string.IsNullOrEmpty(this._Plugin.Configuration.MyCharacter.Name);
             _previewDirectory = this._Plugin.Configuration.PreviewDirectory;
+            _persist = this._Plugin.Configuration.Persist;
 
         }
 
@@ -114,6 +116,8 @@ namespace OutfitManager.Windows
                 }
 
                 RemoteControl();
+
+                Persist();
             }
     
         }
@@ -123,6 +127,16 @@ namespace OutfitManager.Windows
             if (ImGui.Button("Add/Edit/View Outfits"))
             {
                 this._Plugin.DrawOutfitListUI();
+            }
+        }
+
+        public void Persist()
+        {
+            if (ImGui.Checkbox("Re-wear outfit between zones.", ref _persist))
+            {
+
+                this._Plugin.PersistOutfit = _persist;
+                this._Plugin.Configuration.Save();
             }
         }
     }

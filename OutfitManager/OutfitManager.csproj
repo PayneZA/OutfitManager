@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Authors></Authors>
     <Company></Company>
-    <Version>0.0.2.3</Version>
+    <Version>0.0.2.4</Version>
     <Description>A plugin to link a penumbra collection, glamourer design and gearset into one chat command.</Description>
     <Copyright></Copyright>
     <PackageProjectUrl>https://github.com/PayneZA/OutfitManager</PackageProjectUrl>
@@ -32,7 +32,6 @@
 
   <ItemGroup>
     <PackageReference Include="DalamudPackager" Version="2.1.10" />
-    <PackageReference Include="XivCommon" Version="7.0.0-alpha.1" />
     <Reference Include="FFXIVClientStructs">
       <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
       <Private>false</Private>
@@ -60,6 +59,9 @@
     <Reference Include="Lumina.Excel">
       <HintPath>$(DalamudLibPath)Lumina.Excel.dll</HintPath>
       <Private>false</Private>
+    </Reference>
+    <Reference Include="XivCommon">
+      <HintPath>..\..\xivcommon\XivCommon\bin\Release\net7.0\XivCommon.dll</HintPath>
     </Reference>
   </ItemGroup>
 

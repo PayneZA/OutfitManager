@@ -18,6 +18,7 @@ using System.Linq;
 using ImGuiScene;
 using System.Runtime.CompilerServices;
 using XivCommon;
+using Dalamud.Game.ClientState.Conditions;
 
 namespace OutfitManager
 {
@@ -30,10 +31,36 @@ namespace OutfitManager
         public Configuration Configuration { get; init; }
         private bool isCommandsEnabled { get; set; }
 
+        public bool PersistOutfit { get; set; }
+
         public TextureWrap OutfitPreview;
         private ChatGui ChatGui { get; init; }
         private WindowSystem WindowSystem = new("OutfitManager");
         private XivCommonBase Common { get; init; }
+
+        private bool _transition;
+        private bool _previousTransition;
+
+        private string OutfitName { get; set; }
+
+        public bool Property
+        {
+            get { return _transition; }
+            set
+            {
+                _previousTransition = _transition;
+                _transition = value;
+
+                // Check if the value has changed
+                if (_previousTransition == true)
+                {
+                    // Trigger the second event
+                    OnTransitionChanged();
+                }
+            }
+        }
+        public event EventHandler Transition;
+
         public Plugin(DalamudPluginInterface pluginInterface, CommandManager commandManager, ChatGui chatGui)
         {
             Dalamud.Initialize(pluginInterface);
@@ -49,7 +76,7 @@ namespace OutfitManager
        
             this.CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
             {
-                HelpMessage = $"No arguments to bring up UI (Will take you to outfits if you have added any otherwise config){Environment.NewLine}config = bring up configuration window{Environment.NewLine}wear OUTFITNAME = wear saved outfit name{Environment.NewLine}random TAGNAME = wear random outfit with tag{Environment.NewLine}other = bring up remote outfit control.{Environment.NewLine}{Environment.NewLine}The outfit preview system requires images with the same name as your outfit to exist in the preview directory you set in config. (Experimental)"
+                HelpMessage = $"No arguments to bring up UI (Will take you to outfits if you have added any otherwise config){Environment.NewLine}config = bring up configuration window{Environment.NewLine}wear OUTFITNAME = wear saved outfit name{Environment.NewLine}random TAGNAME = wear random outfit with tag{Environment.NewLine}other = bring up remote outfit control.{Environment.NewLine}{Environment.NewLine}The outfit preview system requires images with the same name as your outfit to exist in the preview directory you set in config. (Experimental){Environment.NewLine}{Environment.NewLine}persist - will re-apply your outfit between zone changes."
             });
 
 
@@ -84,10 +111,33 @@ namespace OutfitManager
             this.PluginInterface.UiBuilder.Draw += DrawUI;
             this.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
 
+            Dalamud.Conditions.ConditionChange += OnTransitionChange;
             SetChatMonitoring(this.isCommandsEnabled);
 
         }
+        protected void OnTransitionChanged()
+        {
+            if (PersistOutfit)
+            {
+                if (!string.IsNullOrEmpty(this.OutfitName.Trim()))
+                {
+                    EquipOutfit(this.OutfitName);
+                }
+            }
 
+        }
+
+        private void OnTransitionChange(ConditionFlag flag, bool value)
+        {
+
+       
+            if (flag == ConditionFlag.BetweenAreas51)
+            {
+                Property = !Property;
+
+
+            }
+        }
         public void SetChatMonitoring(bool active)
         {
             if (active)
@@ -108,6 +158,7 @@ namespace OutfitManager
         }
         public void Dispose()
         {
+            Dalamud.Conditions.ConditionChange -= OnTransitionChange;
             this.ChatGui.ChatMessage -= OnChatMessage;
             this.WindowSystem.RemoveAllWindows();
             this.CommandManager.RemoveHandler(CommandName);
@@ -150,6 +201,19 @@ namespace OutfitManager
                 else if (args.StartsWith("other"))
                 {
                     WindowSystem.GetWindow("OutfitManager Other Character Window").IsOpen = true;
+                }
+                else if (args.StartsWith("persist"))
+                {
+                    args = args.Remove(0, 7).Trim();
+                 
+                    if (args == "true" || args == "on")
+                    {
+                        this.PersistOutfit = true;
+                    }
+                    else
+                    {
+                        this.PersistOutfit = false;
+                    }
                 }
             }
         }
@@ -222,6 +286,8 @@ namespace OutfitManager
                 {
                     RelayCommand(recievedCommand.Command, delay += 100);
                 }
+
+                this.OutfitName = outfitName;
             }
         }
 
