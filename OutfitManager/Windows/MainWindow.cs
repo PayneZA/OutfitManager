@@ -136,6 +136,7 @@ namespace OutfitManager.Windows
             {
 
                 this._Plugin.PersistOutfit = _persist;
+                this._Plugin.Configuration.Persist = _persist;
                 this._Plugin.Configuration.Save();
             }
         }

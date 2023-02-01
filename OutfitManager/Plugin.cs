@@ -117,7 +117,7 @@ namespace OutfitManager
         }
         protected void OnTransitionChanged()
         {
-            if (PersistOutfit)
+            if (this.PersistOutfit)
             {
                 if (!string.IsNullOrEmpty(this.OutfitName.Trim()))
                 {

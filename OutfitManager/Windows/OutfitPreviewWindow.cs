@@ -37,7 +37,10 @@ namespace OutfitManager.Windows
 
         public override void Draw()
         {
-            ImGui.Image(this.Plugin.OutfitPreview.ImGuiHandle, ImGui.GetWindowSize());
+            if (this.Plugin.OutfitPreview != null)
+            {
+                ImGui.Image(this.Plugin.OutfitPreview.ImGuiHandle, ImGui.GetWindowSize());
+            }
         }
     }
 }
