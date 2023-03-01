@@ -117,11 +117,11 @@ namespace OutfitManager
         }
         protected void OnTransitionChanged()
         {
-            if (this.PersistOutfit)
+            if (this.Configuration.Persist)
             {
                 if (!string.IsNullOrEmpty(this.OutfitName.Trim()))
                 {
-                    EquipOutfit(this.OutfitName);
+                    EquipOutfit(this.OutfitName, "", false);
                 }
             }
 
@@ -241,7 +241,7 @@ namespace OutfitManager
             this.Common.Functions.Chat.SendMessage($"/tell {character} wear:{outfit}");
         }
 
-        public void EquipOutfit(string outfitName = "", string tag = "")
+        public void EquipOutfit(string outfitName = "", string tag = "", bool gearset = true)
         {
             Outfit outfit = null;
 
@@ -275,7 +275,7 @@ namespace OutfitManager
                     commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/glamour apply,{this.Configuration.MyCharacter.Name},{outfit.DesignPath}" });
                 }
                 int delay = 0;
-                if (!string.IsNullOrEmpty(outfit.GearSet))
+                if (!string.IsNullOrEmpty(outfit.GearSet) && gearset)
                 {
                   this.Common.Functions.Chat.SendMessage("/gearset change " + outfit.GearSet.Trim());
 
