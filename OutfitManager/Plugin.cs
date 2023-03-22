@@ -126,14 +126,21 @@ namespace OutfitManager
             Dalamud.Conditions.ConditionChange += OnTransitionChange;
             SetChatMonitoring(this.isCommandsEnabled);
 
+            if (this.OutfitName == null)
+            {
+                this.OutfitName = "";
+            }
         }
         protected void OnTransitionChanged()
         {
             if (this.Configuration.Persist || this._outfitLock)
             {
-                if (!string.IsNullOrEmpty(this.OutfitName.Trim()))
+                if (this.OutfitName != null)
                 {
-                    EquipOutfit(this.OutfitName, "", false);
+                    if (!string.IsNullOrEmpty(this.OutfitName.Trim()))
+                    {
+                        EquipOutfit(this.OutfitName, "", false);
+                    }
                 }
             }
 
