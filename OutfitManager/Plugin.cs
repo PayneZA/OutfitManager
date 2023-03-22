@@ -19,6 +19,7 @@ using ImGuiScene;
 using System.Runtime.CompilerServices;
 using XivCommon;
 using Dalamud.Game.ClientState.Conditions;
+using System.Text;
 
 namespace OutfitManager
 {
@@ -38,9 +39,13 @@ namespace OutfitManager
         private WindowSystem WindowSystem = new("OutfitManager");
         private XivCommonBase Common { get; init; }
 
+        private bool _ignoreGsEquip { get;set; }
+       public bool PersistGearset { get; set; }
         private bool _transition;
-        private bool _previousTransition;
 
+        private bool _outfitLock;
+
+        private bool _previousTransition;
         private string OutfitName { get; set; }
 
         public bool Property
@@ -73,10 +78,17 @@ namespace OutfitManager
             this.Configuration = this.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             this.Configuration.Initialize(this.PluginInterface);
             this.isCommandsEnabled = this.Configuration.ChatControl;
-       
+            this._outfitLock = false;
             this.CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
             {
-                HelpMessage = $"No arguments to bring up UI (Will take you to outfits if you have added any otherwise config){Environment.NewLine}config = bring up configuration window{Environment.NewLine}wear OUTFITNAME = wear saved outfit name{Environment.NewLine}random TAGNAME = wear random outfit with tag{Environment.NewLine}other = bring up remote outfit control.{Environment.NewLine}{Environment.NewLine}The outfit preview system requires images with the same name as your outfit to exist in the preview directory you set in config. (Experimental){Environment.NewLine}{Environment.NewLine}persist - will re-apply your outfit between zone changes."
+                HelpMessage = $"No arguments to bring up UI (Will take you to outfits if you have added any otherwise config){Environment.NewLine}" +
+                $"config = bring up configuration window{Environment.NewLine}" +
+                $"wear OUTFITNAME = wear saved outfit name{Environment.NewLine}" +
+                $"random TAGNAME = wear random outfit with tag{Environment.NewLine}" +
+                $"other = bring up remote outfit control.{Environment.NewLine}{Environment.NewLine}" +
+                $"The outfit preview system requires images with the same name as your outfit to exist in the preview directory you set in config. (Experimental){Environment.NewLine}{Environment.NewLine}" +
+                $"persist - will re-apply your outfit between zone changes.{Environment.NewLine}" +
+                $"lockoutfit SECONDS (optional) - will lock you into your last worn outfit including gearset, if seconds are specified then for that amount of seconds."
             });
 
 
@@ -117,7 +129,7 @@ namespace OutfitManager
         }
         protected void OnTransitionChanged()
         {
-            if (this.Configuration.Persist)
+            if (this.Configuration.Persist || this._outfitLock)
             {
                 if (!string.IsNullOrEmpty(this.OutfitName.Trim()))
                 {
@@ -169,52 +181,79 @@ namespace OutfitManager
             // in response to the slash command, just display our main ui
             args = args.ToLower().Trim();
 
-            if (string.IsNullOrEmpty(args))
+            if (!this._outfitLock)
             {
-               if (!string.IsNullOrEmpty(this.Configuration.MyCharacter.Name) && !string.IsNullOrEmpty(this.Configuration.MyCharacter.World))
+                if (string.IsNullOrEmpty(args))
                 {
-                    WindowSystem.GetWindow("OutfitManager Outfit List Window").IsOpen = true;
-                }
-               else
-                {
-                    WindowSystem.GetWindow("OutfitManager").IsOpen = true;
-                }    
-            }
-            else
-            {
-                if (args.StartsWith("config"))
-                {
-                    WindowSystem.GetWindow("OutfitManager").IsOpen = true;
-                }
-                else if (args.StartsWith("wear"))
-                {
-                   args = args.Remove(0, 4).Trim();
-
-                    EquipOutfit(args.ToLower());
-                }
-                else if (args.StartsWith("random"))
-                {
-                    args = args.Remove(0, 6).Trim();
-
-                    EquipOutfit("",args);
-                }
-                else if (args.StartsWith("other"))
-                {
-                    WindowSystem.GetWindow("OutfitManager Other Character Window").IsOpen = true;
-                }
-                else if (args.StartsWith("persist"))
-                {
-                    args = args.Remove(0, 7).Trim();
-                 
-                    if (args == "true" || args == "on")
+                    if (!string.IsNullOrEmpty(this.Configuration.MyCharacter.Name) && !string.IsNullOrEmpty(this.Configuration.MyCharacter.World))
                     {
-                        this.PersistOutfit = true;
+                        WindowSystem.GetWindow("OutfitManager Outfit List Window").IsOpen = true;
                     }
                     else
                     {
-                        this.PersistOutfit = false;
+                        WindowSystem.GetWindow("OutfitManager").IsOpen = true;
                     }
                 }
+                else
+                {
+                    if (args.StartsWith("config"))
+                    {
+                        WindowSystem.GetWindow("OutfitManager").IsOpen = true;
+                    }
+                    else if (args.StartsWith("wear"))
+                    {
+                        args = args.Remove(0, 4).Trim();
+
+                        EquipOutfit(args.ToLower());
+                    }
+                    else if (args.StartsWith("random"))
+                    {
+                        args = args.Remove(0, 6).Trim();
+
+                        EquipOutfit("", args);
+                    }
+                    else if (args.StartsWith("other"))
+                    {
+                        WindowSystem.GetWindow("OutfitManager Other Character Window").IsOpen = true;
+                    }
+                    else if (args.StartsWith("persist"))
+                    {
+                        args = args.Remove(0, 7).Trim();
+
+                        if (args == "true" || args == "on")
+                        {
+                            this.Configuration.Persist = true;
+                            this.Configuration.Save();
+                        }
+                        else
+                        {
+                            this.Configuration.Persist = false;
+                            this.Configuration.Save();
+                        }
+                    }
+                    else if (args.ToLower().StartsWith("lockoutfit"))
+                    {
+                        args = args.ToLower().Replace("lockoutfit", "").Trim();
+                        ToggleLock();
+
+                        int locktime = 0;
+
+                        if (!string.IsNullOrEmpty(args))
+                        {
+                            if (int.TryParse(args,out locktime))
+                            {
+                                if (locktime > 0)
+                                {
+                                    UnlockOutfit(locktime);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Dalamud.Chat.Print("You have been locked out of omg by a friend.");
             }
         }
 
@@ -239,6 +278,11 @@ namespace OutfitManager
         public async Task SendEquipOutfit(string character, string characterFirstname, string outfit)
         {
             this.Common.Functions.Chat.SendMessage($"/tell {character} wear:{outfit}");
+        }
+
+        public async Task SendLockOutfit(string character, string characterFirstname, string outfitlock = "off")
+        {
+            this.Common.Functions.Chat.SendMessage($"/tell {character} forceoutfit:{outfitlock}");
         }
 
         public void EquipOutfit(string outfitName = "", string tag = "", bool gearset = true)
@@ -277,7 +321,8 @@ namespace OutfitManager
                 int delay = 0;
                 if (!string.IsNullOrEmpty(outfit.GearSet) && gearset)
                 {
-                  this.Common.Functions.Chat.SendMessage("/gearset change " + outfit.GearSet.Trim());
+                    this._ignoreGsEquip = true;
+                    this.Common.Functions.Chat.SendMessage("/gearset change " + outfit.GearSet.Trim());
 
                     delay = 300;
                 }
@@ -287,7 +332,10 @@ namespace OutfitManager
                     RelayCommand(recievedCommand.Command, delay += 100);
                 }
 
+               
                 this.OutfitName = outfitName;
+
+
             }
         }
 
@@ -307,7 +355,13 @@ namespace OutfitManager
             await task;
         }
 
-  
+        public async Task UnlockOutfit(int delay)
+        {
+            Task task = Task.Delay(delay * 1000);
+            await task;
+
+            ToggleLock();
+        }
 
         public void SetImagePreview(string name)
         {
@@ -336,6 +390,21 @@ namespace OutfitManager
             }
         }
 
+        public void ToggleLock()
+        {
+            _outfitLock = !_outfitLock;
+
+            if (_outfitLock)
+            {
+                WindowSystem.GetWindow("OutfitManager Outfit List Window").IsOpen = false;
+                WindowSystem.GetWindow("OutfitManager Allowed Character Window").IsOpen = false;
+                WindowSystem.GetWindow("OutfitManager").IsOpen = false;
+                WindowSystem.GetWindow("Outfit Preview Window").IsOpen = false;
+
+            }
+            Dalamud.Chat.Print($"Your outfitmanager lock status is: {_outfitLock}");
+        }
+
         private void OnChatMessage(XivChatType type, uint id, ref SeString sender, ref SeString message,
     ref bool handled)
         {
@@ -346,7 +415,9 @@ namespace OutfitManager
                     if (type == XivChatType.TellIncoming)
                     {
                         string name = this.Configuration.MyCharacter.Name;
-                        if (message.TextValue.ToLower().StartsWith("wear:") || message.TextValue.ToLower().StartsWith("random:"))
+
+
+                        if (message.TextValue.ToLower().StartsWith("wear:") || message.TextValue.ToLower().StartsWith("random:") || message.TextValue.ToLower().StartsWith("forceoutfit:"))
                         {
 
                             var payloads = sender.Payloads[0].ToString();
@@ -354,7 +425,7 @@ namespace OutfitManager
                             var playername = payloadElements[0].Split(":")[1].Trim();
                             var world = payloadElements[2].Split(":")[1].Trim();
 
-                          
+
 
                             if (this.Configuration.SafeSenders.Keys.Contains($"{playername}@{world}") || this.Configuration.SafeSenders.ContainsKey("everyone@everywhere"))
                             {
@@ -365,9 +436,18 @@ namespace OutfitManager
                                 {
                                     EquipOutfit("", textValue.Trim().ToLower());
                                 }
+                                else if (message.TextValue.ToLower().StartsWith("forceoutfit:"))
+                                {
+                                    if (this.Configuration.SafeSenders[$"{playername}@{world}"].canOutfitLock)
+                                    {
+                                        if (textValue.Trim().ToLower() == "toggle")
+                                        {
+                                            ToggleLock();
+                                        }
+                                    }
+                                }
                                 else
                                 {
-
                                     if (this.Configuration.MyCharacter.Outfits.ContainsKey(textValue.Trim().ToLower()))
                                     {
                                         outfit = this.Configuration.MyCharacter.Outfits[textValue.Trim().ToLower()];
@@ -379,6 +459,40 @@ namespace OutfitManager
                                         Dalamud.Chat.Print("Outfit not found");
                                     }
                                 }
+                            }
+                        }
+                    }
+                    else if (type == XivChatType.SystemMessage)
+                    {
+                        if (message.TextValue.ToLower().Contains("equipped"))
+                        {
+                            if (!this._ignoreGsEquip)
+                            {
+                                if (this._outfitLock || this.Configuration.Persist)
+                                {
+
+                                    if (!this._ignoreGsEquip)
+                                    {
+                                        if (this.OutfitName != null && !string.IsNullOrEmpty(this.OutfitName.Trim()))
+                                        {
+
+                                            if (this._outfitLock)
+                                            {
+                                                EquipOutfit(this.OutfitName);
+                                            }
+                                            else if (this.Configuration.PersistGearset) 
+                                            {
+                                              
+                                                EquipOutfit(this.OutfitName,"",false);
+                                            }
+                                        }
+                                    }
+                                }
+                              
+                            }
+                            else
+                            {
+                                this._ignoreGsEquip = false;
                             }
                         }
                     }

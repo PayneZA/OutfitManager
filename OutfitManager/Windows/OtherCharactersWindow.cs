@@ -35,7 +35,7 @@ namespace OutfitManager.Windows
         {
             this.SizeConstraints = new WindowSizeConstraints
             {
-                MinimumSize = new Vector2(675, 630),
+                MinimumSize = new Vector2(675, 650),
                 MaximumSize = new Vector2(float.MaxValue, float.MaxValue)
             };
 
@@ -93,6 +93,11 @@ namespace OutfitManager.Windows
                 if (ImGui.Button("Send Wear Outfit"))
                 {
                     this.Plugin.SendEquipOutfit(_character.FullName, _character.Name, _selectedOutfit);
+                }
+
+                if (ImGui.Button("Toggle Outfit Lock"))
+                {
+                    this.Plugin.SendLockOutfit(_character.FullName, _character.Name, "toggle");
                 }
             }
         }

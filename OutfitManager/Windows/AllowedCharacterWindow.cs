@@ -17,6 +17,7 @@ namespace OutfitManager.Windows
         private string _worldName = string.Empty;
         private Character _character = new Character();
         private int _currentItem = 0;
+        private bool _outfitLock = false;
         public void Dispose()
         {
 
@@ -59,20 +60,22 @@ namespace OutfitManager.Windows
         {
             ImGui.InputTextWithHint("Character Name", "Enter character name that can dress you...", ref this._characterName, 64, ImGuiInputTextFlags.EnterReturnsTrue);
             ImGui.InputTextWithHint("World Name", "Enter world of character (optional but reccomended).", ref this._worldName, 64, ImGuiInputTextFlags.EnterReturnsTrue);
+            ImGui.Checkbox("Character can lock my outfit manager.", ref this._outfitLock);
            
 
             if (ImGui.Button("Add / Update Character") && (!string.IsNullOrEmpty(_characterName)))
             {
                 this._character = new Character
                 {
-                 Name = this._characterName,
-                 World = this._worldName,
-                 FullName = $"{_characterName}@{_worldName}"
+                    Name = this._characterName,
+                    World = this._worldName,
+                    FullName = $"{_characterName}@{_worldName}",
+                    canOutfitLock = this._outfitLock
                 };
 
                 if (!string.IsNullOrEmpty(_characterName))
                 {
-                    if (!this.Plugin.Configuration.SafeSenders.ContainsKey(_characterName))
+                    if (!this.Plugin.Configuration.SafeSenders.ContainsKey(_character.FullName))
                     {
                         this.Plugin.Configuration.SafeSenders.Add(_character.FullName, this._character);
                     }

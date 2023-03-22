@@ -17,6 +17,8 @@ namespace OutfitManager
 
 
         public bool Persist { get; set; }
+
+        public bool PersistGearset { get; set; }
         public bool ShowPreview { get; set; }
         public string PreviewDirectory { get; set; } = "";
 

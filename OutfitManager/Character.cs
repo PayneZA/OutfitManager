@@ -16,6 +16,7 @@ namespace OutfitManager
         public Dictionary<string, Outfit> Outfits { get; set; }
         public bool isUserCharacter { get; set; }
 
+        public bool canOutfitLock { get; set; }
         public Character()
         {
             Name = "";
@@ -23,6 +24,7 @@ namespace OutfitManager
             FullName = "";
             Outfits = new Dictionary<string, Outfit>();
             isUserCharacter = false;
+            canOutfitLock = false;
         }
     }
 }

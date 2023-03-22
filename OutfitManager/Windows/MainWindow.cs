@@ -26,6 +26,7 @@ namespace OutfitManager.Windows
         private string _screenshotDirectory = "";
         private string _previewDirectory = "";
         private bool _persist = false;
+        private bool _persistGearset = false;
         public MainWindow(Plugin plugin) : base(
             "OutfitManager", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
         {
@@ -55,6 +56,7 @@ namespace OutfitManager.Windows
             _worldExists = !string.IsNullOrEmpty(this._Plugin.Configuration.MyCharacter.Name);
             _previewDirectory = this._Plugin.Configuration.PreviewDirectory;
             _persist = this._Plugin.Configuration.Persist;
+            _persistGearset = this._Plugin.Configuration.PersistGearset;
 
         }
 
@@ -132,12 +134,27 @@ namespace OutfitManager.Windows
 
         public void Persist()
         {
-            if (ImGui.Checkbox("Re-wear outfit between zones.", ref _persist))
+            if (ImGui.Checkbox("Re-wear outfit between zones. (Gearset changes will not be re-applied)", ref _persist))
             {
 
                 this._Plugin.PersistOutfit = _persist;
                 this._Plugin.Configuration.Persist = _persist;
                 this._Plugin.Configuration.Save();
+            }
+
+            if (_persist)
+            {
+                if (ImGui.Checkbox("Re-wear outfit between gearsets. (Outfit will be re-applied on gearset change)", ref _persistGearset))
+                {
+
+                    this._Plugin.PersistGearset = _persistGearset;
+                    this._Plugin.Configuration.PersistGearset = _persistGearset;
+
+                    if (_persist)
+                    {
+                        this._Plugin.Configuration.Save();
+                    }
+                }
             }
         }
     }
