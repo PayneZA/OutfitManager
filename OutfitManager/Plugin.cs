@@ -48,6 +48,7 @@ namespace OutfitManager
         private bool _previousTransition;
         private string OutfitName { get; set; }
 
+      
         public bool Property
         {
             get { return _transition; }
@@ -87,8 +88,9 @@ namespace OutfitManager
                 $"random TAGNAME = wear random outfit with tag{Environment.NewLine}" +
                 $"other = bring up remote outfit control.{Environment.NewLine}{Environment.NewLine}" +
                 $"The outfit preview system requires images with the same name as your outfit to exist in the preview directory you set in config. (Experimental){Environment.NewLine}{Environment.NewLine}" +
-                $"persist - will re-apply your outfit between zone changes.{Environment.NewLine}" +
-                $"lockoutfit SECONDS (optional) - will lock you into your last worn outfit including gearset, if seconds are specified then for that amount of seconds."
+                $"persist - will re-apply your outfit whenever it would be needed zone change, login.{Environment.NewLine}" +
+                $"lockoutfit SECONDS (optional) - will lock you into your last worn outfit including gearset, if seconds are specified then for that amount of seconds." +
+                $"reset - will clear your last equipped outfit and if present set your primary penumbra collection you set."
             });
 
 
@@ -123,23 +125,25 @@ namespace OutfitManager
             this.PluginInterface.UiBuilder.Draw += DrawUI;
             this.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
 
+             
             Dalamud.Conditions.ConditionChange += OnTransitionChange;
             SetChatMonitoring(this.isCommandsEnabled);
 
-            if (this.OutfitName == null)
+            if (this.Configuration.OutfitName == null)
             {
-                this.OutfitName = "";
+                this.Configuration.OutfitName = "";
             }
+
         }
         protected void OnTransitionChanged()
         {
             if (this.Configuration.Persist || this._outfitLock)
             {
-                if (this.OutfitName != null)
+                if (this.Configuration.OutfitName != null)
                 {
-                    if (!string.IsNullOrEmpty(this.OutfitName.Trim()))
+                    if (!string.IsNullOrEmpty(this.Configuration.OutfitName.Trim()))
                     {
-                        EquipOutfit(this.OutfitName, "", false);
+                        EquipOutfit(this.Configuration.OutfitName, "", false);
                     }
                 }
             }
@@ -256,6 +260,25 @@ namespace OutfitManager
                             }
                         }
                     }
+                    else if (args.ToLower().StartsWith("reset"))
+                    {
+                        args = args.ToLower().Replace("reset", "").Trim();
+
+                        this.OutfitName = "";
+                        this.Configuration.OutfitName = "";
+
+                        if (!string.IsNullOrEmpty(this.Configuration.PrimaryCollection))
+                        {
+                            RelayCommand($"/penumbra collection Your Character | {this.Configuration.PrimaryCollection} | p | yourself");
+                            Dalamud.Chat.Print($"Your last worn outfit has been cleared and collection set to {this.Configuration.PrimaryCollection}");
+                        }
+                        else
+                        {
+                            Dalamud.Chat.Print($"Your last worn outfit has been cleared.");
+                        }
+                        this.Configuration.Save();
+                      
+                    }
                 }
             }
             else
@@ -340,8 +363,8 @@ namespace OutfitManager
                 }
 
                
-                this.OutfitName = outfitName;
-
+                this.Configuration.OutfitName = outfitName;
+                this.Configuration.Save();
 
             }
         }
@@ -480,17 +503,17 @@ namespace OutfitManager
 
                                     if (!this._ignoreGsEquip)
                                     {
-                                        if (this.OutfitName != null && !string.IsNullOrEmpty(this.OutfitName.Trim()))
+                                        if (this.Configuration.OutfitName != null && !string.IsNullOrEmpty(this.Configuration.OutfitName.Trim()))
                                         {
 
                                             if (this._outfitLock)
                                             {
-                                                EquipOutfit(this.OutfitName);
+                                                EquipOutfit(this.Configuration.OutfitName);
                                             }
                                             else if (this.Configuration.PersistGearset) 
                                             {
                                               
-                                                EquipOutfit(this.OutfitName,"",false);
+                                                EquipOutfit(this.Configuration.OutfitName,"",false);
                                             }
                                         }
                                     }

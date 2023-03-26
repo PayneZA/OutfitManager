@@ -15,13 +15,13 @@ namespace OutfitManager
         public Dictionary<string,Character> SafeSenders { get; set; } = new Dictionary<string, Character>();
         public bool ChatControl { get; set; }
 
-
+        public string OutfitName { get; set; }
         public bool Persist { get; set; }
 
         public bool PersistGearset { get; set; }
         public bool ShowPreview { get; set; }
         public string PreviewDirectory { get; set; } = "";
-
+        public string PrimaryCollection { get; set; } = "";
         // the below exist just to make saving less cumbersome
         [NonSerialized]
         private DalamudPluginInterface? PluginInterface;

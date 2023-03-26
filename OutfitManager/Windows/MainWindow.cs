@@ -27,12 +27,13 @@ namespace OutfitManager.Windows
         private string _previewDirectory = "";
         private bool _persist = false;
         private bool _persistGearset = false;
+        private string _primaryCollection = "";
         public MainWindow(Plugin plugin) : base(
             "OutfitManager", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
         {
             this.SizeConstraints = new WindowSizeConstraints
             {
-                MinimumSize = new Vector2(375, 330),
+                MinimumSize = new Vector2(575, 430),
                 MaximumSize = new Vector2(float.MaxValue, float.MaxValue)
             };
 
@@ -57,7 +58,7 @@ namespace OutfitManager.Windows
             _previewDirectory = this._Plugin.Configuration.PreviewDirectory;
             _persist = this._Plugin.Configuration.Persist;
             _persistGearset = this._Plugin.Configuration.PersistGearset;
-
+            _primaryCollection = this._Plugin.Configuration.PrimaryCollection;
         }
 
         public void RemoteControl()
@@ -120,6 +121,12 @@ namespace OutfitManager.Windows
                 RemoteControl();
 
                 Persist();
+
+                if (ImGui.InputTextWithHint("Primary Collection (optional)", "Enter your default 'go to ' collection and press enter...", ref _primaryCollection, 64, ImGuiInputTextFlags.EnterReturnsTrue))
+                {
+                    this._Plugin.Configuration.PrimaryCollection= this._primaryCollection;
+                    this._Plugin.Configuration.Save();
+                }
             }
     
         }
