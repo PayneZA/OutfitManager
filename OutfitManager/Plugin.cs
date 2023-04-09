@@ -82,6 +82,7 @@ namespace OutfitManager
             this.Configuration.Initialize(this.PluginInterface);
             this.isCommandsEnabled = this.Configuration.ChatControl;
             this._outfitLock = false;
+
             this.CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
             {
                 HelpMessage = $"No arguments to bring up UI (Will take you to outfits if you have added any otherwise config){Environment.NewLine}" +
@@ -344,7 +345,7 @@ namespace OutfitManager
 
                 if (!string.IsNullOrEmpty(outfit.CollectionName.Trim()) && !ignoreCollection)
                 {
-                    commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/penumbra collection Your Character | {outfit.CollectionName} | p | yourself" });
+                    commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/penumbra collection Your Character | {outfit.CollectionName} | <me>" });
                 }
                 if (!string.IsNullOrEmpty(outfit.DesignPath.Trim()))
                 {

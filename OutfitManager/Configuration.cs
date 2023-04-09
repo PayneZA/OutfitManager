@@ -23,7 +23,7 @@ namespace OutfitManager
         public string PreviewDirectory { get; set; } = "";
         public string PrimaryCollection { get; set; } = "";
 
-        public bool IgnorePersistCollection { get; set; }
+        public bool IgnorePersistCollection { get; set; }   
         // the below exist just to make saving less cumbersome
         [NonSerialized]
         private DalamudPluginInterface? PluginInterface;
@@ -35,7 +35,7 @@ namespace OutfitManager
 
         public void Save()
         {
-           
+   
             if (!string.IsNullOrEmpty(this.PreviewDirectory))
             {
                 if (!this.PreviewDirectory.EndsWith("\\"))
