@@ -41,6 +41,8 @@ namespace OutfitManager
 
         private bool _ignoreGsEquip { get;set; }
        public bool PersistGearset { get; set; }
+
+        public bool IgnorePersistCollection { get; set; }
         private bool _transition;
 
         private bool _outfitLock;
@@ -143,7 +145,7 @@ namespace OutfitManager
                 {
                     if (!string.IsNullOrEmpty(this.Configuration.OutfitName.Trim()))
                     {
-                        EquipOutfit(this.Configuration.OutfitName, "", false);
+                        EquipOutfit(this.Configuration.OutfitName, "", false,this.Configuration.IgnorePersistCollection);
                     }
                 }
             }
@@ -315,7 +317,7 @@ namespace OutfitManager
             this.Common.Functions.Chat.SendMessage($"/tell {character} forceoutfit:{outfitlock}");
         }
 
-        public void EquipOutfit(string outfitName = "", string tag = "", bool gearset = true)
+        public void EquipOutfit(string outfitName = "", string tag = "", bool gearset = true, bool ignoreCollection = false)
         {
             Outfit outfit = null;
 
@@ -340,7 +342,7 @@ namespace OutfitManager
 
                 List<RecievedCommand> commands = new List<RecievedCommand>();
 
-                if (!string.IsNullOrEmpty(outfit.CollectionName.Trim()))
+                if (!string.IsNullOrEmpty(outfit.CollectionName.Trim()) && !ignoreCollection)
                 {
                     commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/penumbra collection Your Character | {outfit.CollectionName} | p | yourself" });
                 }

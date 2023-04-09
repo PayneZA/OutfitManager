@@ -27,6 +27,7 @@ namespace OutfitManager.Windows
         private string _previewDirectory = "";
         private bool _persist = false;
         private bool _persistGearset = false;
+        private bool _ignorePersistCollection = false;
         private string _primaryCollection = "";
         public MainWindow(Plugin plugin) : base(
             "OutfitManager", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
@@ -58,6 +59,7 @@ namespace OutfitManager.Windows
             _previewDirectory = this._Plugin.Configuration.PreviewDirectory;
             _persist = this._Plugin.Configuration.Persist;
             _persistGearset = this._Plugin.Configuration.PersistGearset;
+            _ignorePersistCollection = this._Plugin.Configuration.IgnorePersistCollection;
             _primaryCollection = this._Plugin.Configuration.PrimaryCollection;
         }
 
@@ -161,6 +163,14 @@ namespace OutfitManager.Windows
                     {
                         this._Plugin.Configuration.Save();
                     }
+                }
+
+                if (ImGui.Checkbox("Do not Re-Apply collection on automatic Re-Wear. (Only design will be re-applied)", ref _ignorePersistCollection))
+                {
+
+                    this._Plugin.IgnorePersistCollection = _ignorePersistCollection;
+                    this._Plugin.Configuration.IgnorePersistCollection = _ignorePersistCollection;
+                    this._Plugin.Configuration.Save();
                 }
             }
         }
