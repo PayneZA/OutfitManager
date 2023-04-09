@@ -23,6 +23,7 @@ namespace OutfitManager
         public string PreviewDirectory { get; set; } = "";
         public string PrimaryCollection { get; set; } = "";
 
+        public string PenumbraCollectionType { get; set; } = "Your Character";
         public bool IgnorePersistCollection { get; set; }   
         // the below exist just to make saving less cumbersome
         [NonSerialized]

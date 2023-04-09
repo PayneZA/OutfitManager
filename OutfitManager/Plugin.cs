@@ -49,8 +49,6 @@ namespace OutfitManager
 
         private bool _previousTransition;
         private string OutfitName { get; set; }
-
-      
         public bool Property
         {
             get { return _transition; }
@@ -93,7 +91,8 @@ namespace OutfitManager
                 $"The outfit preview system requires images with the same name as your outfit to exist in the preview directory you set in config. (Experimental){Environment.NewLine}{Environment.NewLine}" +
                 $"persist - will re-apply your outfit whenever it would be needed zone change, login.{Environment.NewLine}" +
                 $"lockoutfit SECONDS (optional) - will lock you into your last worn outfit including gearset, if seconds are specified then for that amount of seconds." +
-                $"reset - will clear your last equipped outfit and if present set your primary penumbra collection you set."
+                $"reset - will clear your last equipped outfit and if present set your primary penumbra collection you set." +
+                $"setcollectiontype COLLECTIONTYPE - will set your penumbra collection type away from the default 'Your Character' to what you wish, enter 'reset' to go to default option."
             });
 
 
@@ -136,7 +135,6 @@ namespace OutfitManager
             {
                 this.Configuration.OutfitName = "";
             }
-
         }
         protected void OnTransitionChanged()
         {
@@ -193,6 +191,9 @@ namespace OutfitManager
         private void OnCommand(string command, string args)
         {
             // in response to the slash command, just display our main ui
+
+            string originalArgs = args;
+
             args = args.ToLower().Trim();
 
             if (!this._outfitLock)
@@ -272,7 +273,7 @@ namespace OutfitManager
 
                         if (!string.IsNullOrEmpty(this.Configuration.PrimaryCollection))
                         {
-                            RelayCommand($"/penumbra collection Your Character | {this.Configuration.PrimaryCollection} | p | yourself");
+                            RelayCommand($"/penumbra collection {this.Configuration.PenumbraCollectionType} | {this.Configuration.PrimaryCollection} | <me>");
                             Dalamud.Chat.Print($"Your last worn outfit has been cleared and collection set to {this.Configuration.PrimaryCollection}");
                         }
                         else
@@ -281,6 +282,20 @@ namespace OutfitManager
                         }
                         this.Configuration.Save();
                       
+                    }
+                    else if (args.ToLower().StartsWith("setcollectiontype"))
+                    {
+                        if (args.ToLower().Contains("reset"))
+                        {
+                            this.Configuration.PenumbraCollectionType = "Your Character";
+                        }
+                        else
+                        {
+                            this.Configuration.PenumbraCollectionType = originalArgs.Trim().Remove(0, 17).Trim();
+                        }
+                            this.Configuration.Save();
+
+                        Dalamud.Chat.Print($"Set penumbra collection type to {this.Configuration.PenumbraCollectionType}");
                     }
                 }
             }
@@ -345,11 +360,11 @@ namespace OutfitManager
 
                 if (!string.IsNullOrEmpty(outfit.CollectionName.Trim()) && !ignoreCollection)
                 {
-                    commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/penumbra collection Your Character | {outfit.CollectionName} | <me>" });
+                    commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/penumbra collection {this.Configuration.PenumbraCollectionType} | {outfit.CollectionName} | <me>" });
                 }
                 if (!string.IsNullOrEmpty(outfit.DesignPath.Trim()))
                 {
-                    commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/glamour apply,{this.Configuration.MyCharacter.Name},{outfit.DesignPath}" });
+                    commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/glamour apply,<me>,{outfit.DesignPath}" });
                 }
                 int delay = 0;
                 if (!string.IsNullOrEmpty(outfit.GearSet) && gearset)
@@ -371,7 +386,6 @@ namespace OutfitManager
 
             }
         }
-
         public async Task RelayCommand(string command, int delay = 100)
         {
             if (!string.IsNullOrEmpty(command.Trim()))
