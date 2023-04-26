@@ -1,5 +1,6 @@
-# OutfitManager
+# Outfit Manager
 `https://raw.githubusercontent.com/PayneZA/OutfitManager/main/OutfitManager/latest/OutfitManager.json`
+
 # User Guide
 
 ## 1. Introduction
@@ -39,7 +40,7 @@ The plugin has several UI windows to manage different aspects of your outfits:
 - Config Window: Configuration settings
 - Main Window: General outfit management
 - Allowed Character Window: Manage allowed characters for outfit control
-- Outfit List Window: A list of all saved outfits
+- Outfit List Window: A list of all saved outfits as well as adding new ones.
 - Other Characters Window: Manage outfit control for other characters
 - Outfit Preview Window: Preview your outfits before equipping
 
@@ -48,4 +49,4 @@ The plugin has several UI windows to manage different aspects of your outfits:
 - To use the outfit preview system, you need to have images with the same name as your outfit in the preview directory you set in the configuration window.
 - The plugin may not work properly if you are locked out by a friend using the outfit lock feature.
 
-That's it! You're now ready to use the Outfit Manager plugin to manage your character's outfits in-game. 
+That's it! You're now ready to use the Outfit Manager plugin to manage your character's outfits in-game.
