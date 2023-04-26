@@ -1,5 +1,5 @@
 # OutfitManager
-
+`https://raw.githubusercontent.com/PayneZA/OutfitManager/main/OutfitManager/latest/OutfitManager.json`
 # User Guide
 
 ## 1. Introduction
