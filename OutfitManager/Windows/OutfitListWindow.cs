@@ -37,7 +37,7 @@ namespace OutfitManager.Windows
         private string _previewDirectory = string.Empty;
         string _favouritesText = "Show Favourites";
         private bool _showPreview = false;
-
+        private bool _showErrorPopup = false;
         public override void OnClose()
         {
             Dispose();
@@ -73,7 +73,7 @@ namespace OutfitManager.Windows
             {
               
                 OutfitAddition();
-                
+                DrawCurrentOutfitName();
                 if (!string.IsNullOrEmpty(_previewDirectory))
                 {
                     PreviewImage();
@@ -82,7 +82,21 @@ namespace OutfitManager.Windows
                 ExportToClipboard();
 
             }
-
+            if (_showErrorPopup)
+            {
+                ImGui.OpenPopup("Error");
+            }
+            if (ImGui.BeginPopupModal("Error", ref _showErrorPopup, ImGuiWindowFlags.AlwaysAutoResize))
+            {
+                ImGui.Text("The Penumbra collection does not exist.");
+                if (ImGui.Button("OK"))
+                {
+                    _showErrorPopup = false;
+                    ImGui.CloseCurrentPopup();
+                }
+                ImGui.EndPopup();
+            }
+         
         }
 
         public void Init()
@@ -169,6 +183,37 @@ namespace OutfitManager.Windows
 
             return _filteredOutfits;
         }
+        public void DrawCurrentOutfitName()
+        {
+            if (this.Plugin.Configuration.OutfitName != null && this.Plugin.Configuration.MyCharacter.Outfits.ContainsKey(this.Plugin.Configuration.OutfitName))
+            {
+                ImGui.Separator();
+                Outfit currentOutfit = this.Plugin.Configuration.MyCharacter.Outfits[this.Plugin.Configuration.OutfitName];
+
+                if (ImGui.Selectable($"Currently Equipped Outfit: {currentOutfit.DisplayName}"))
+                {
+                    SelectOutfit(currentOutfit);
+                }
+            }
+        }
+
+        private void SelectOutfit(Outfit outfit)
+        {
+            _outfit = outfit;
+            _newOutfitName = _outfit.DisplayName;
+            _penumbraCollection = _outfit.CollectionName;
+            _glamourerDesign = _outfit.DesignPath;
+            _gearset = _outfit.GearSet;
+            _notes = _outfit.Notes;
+            _tags = String.Join(",", _outfit.Tags);
+            _favourite = _outfit.IsFavourite;
+
+            if (_showPreview)
+            {
+                this.Plugin.SetImagePreview(_outfit.Name);
+            }
+        }
+
         public void OutfitList()
         {
 
@@ -179,23 +224,7 @@ namespace OutfitManager.Windows
             if (ImGui.ListBox("Outfits", ref _currentItem, FilterOutfits(_filter), _filteredOutfits.Count(), 15))
             {
                 _outfit = this.Plugin.Configuration.MyCharacter.Outfits[_filteredOutfits[_currentItem].ToLower()];
-
-                _newOutfitName = _outfit.DisplayName;
-                _penumbraCollection = _outfit.CollectionName;
-                if (_outfit.GearSet == null)
-                {
-                    _outfit.GearSet = "";
-                }
-                _gearset = _outfit.GearSet;
-                _glamourerDesign = _outfit.DesignPath;
-                _notes = _outfit.Notes;
-                _tags = String.Join(",", _outfit.Tags);
-                _favourite = _outfit.IsFavourite;
-
-                if (this._showPreview)
-                {
-                    this.Plugin.SetImagePreview(_outfit.Name);
-                }
+                SelectOutfit(_outfit);
             }
         }
 
@@ -213,6 +242,14 @@ namespace OutfitManager.Windows
       
             if (ImGui.Button("Add / Update Outfit") && (!string.IsNullOrEmpty(_newOutfitName)))
             {
+                if (!string.IsNullOrEmpty(_penumbraCollection))
+                {
+                    if (!this.Plugin.GetAvailableCollections().Contains(_penumbraCollection, StringComparer.OrdinalIgnoreCase))
+                    {
+                        _showErrorPopup = true;
+                        return;
+                    }
+                }
                 _outfit = new Outfit
                 {
                     CollectionName = _penumbraCollection,

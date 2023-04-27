@@ -22,6 +22,7 @@ using Dalamud.Game.ClientState.Conditions;
 using System.Text;
 using static Penumbra.Api.Ipc;
 using Penumbra.Api.Enums;
+using System.Reflection.Metadata.Ecma335;
 
 namespace OutfitManager
 {
@@ -307,11 +308,6 @@ namespace OutfitManager
 
                         Dalamud.Chat.Print($"Set penumbra collection type to {this.Configuration.PenumbraCollectionType}");
                     }
-                    else if (args.ToLower().StartsWith("col"))
-                    {
-                        SetCollectionForType.Subscriber(PluginInterface).Invoke(ApiCollectionType.Yourself, args.Remove(0, 3).Trim(), true, false);
-                //        SetCollectionForObject.Subscriber(PluginInterface).Invoke(0, args.Remove(0, 3).Trim(), true, true);
-                    }
                 }
             }
             else
@@ -336,6 +332,19 @@ namespace OutfitManager
         public void DrawOutfitListUI()
         {
             WindowSystem.GetWindow("OutfitManager Outfit List Window").IsOpen = true;
+        }
+
+        public List<string> GetAvailableCollections()
+        {
+            var collections = GetCollections.Subscriber(PluginInterface).Invoke().ToList();
+
+
+            return collections;
+        }
+
+        public string GetCurrentCollection()
+        {
+            return GetCurrentCollectionName.Subscriber(PluginInterface).Invoke();
         }
 
         public async Task SendEquipOutfit(string character, string characterFirstname, string outfit)
