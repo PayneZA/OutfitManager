@@ -20,6 +20,8 @@ using System.Runtime.CompilerServices;
 using XivCommon;
 using Dalamud.Game.ClientState.Conditions;
 using System.Text;
+using static Penumbra.Api.Ipc;
+using Penumbra.Api.Enums;
 
 namespace OutfitManager
 {
@@ -92,7 +94,7 @@ namespace OutfitManager
                 $"persist - will re-apply your outfit whenever it would be needed zone change, login.{Environment.NewLine}" +
                 $"lockoutfit SECONDS (optional) - will lock you into your last worn outfit including gearset, if seconds are specified then for that amount of seconds." +
                 $"reset - will clear your last equipped outfit and if present set your primary penumbra collection you set." +
-                $"setcollectiontype COLLECTIONTYPE - will set your penumbra collection type away from the default 'Your Character' to what you wish, enter 'reset' to go to default option."
+                $"setcollectiontype Individual - will set your penumbra collection type away from the default 'Your Character' to Individual, if you want to go back to 'Your Character' just put Reset instead of individual."
             });
 
 
@@ -273,7 +275,15 @@ namespace OutfitManager
 
                         if (!string.IsNullOrEmpty(this.Configuration.PrimaryCollection))
                         {
-                            RelayCommand($"/penumbra collection {this.Configuration.PenumbraCollectionType} | {this.Configuration.PrimaryCollection} | <me>");
+                            if (this.Configuration.PenumbraCollectionType != "Your Character")
+                            {
+                                SetCollectionForObject.Subscriber(PluginInterface).Invoke(0, this.Configuration.PrimaryCollection, true,false);
+                            }
+                            else
+                            {
+                                SetCollectionForType.Subscriber(PluginInterface).Invoke(ApiCollectionType.Yourself, this.Configuration.PrimaryCollection, true, false);
+                            }
+                          //  RelayCommand($"/penumbra collection {this.Configuration.PenumbraCollectionType} | {this.Configuration.PrimaryCollection} | <me>");
                             Dalamud.Chat.Print($"Your last worn outfit has been cleared and collection set to {this.Configuration.PrimaryCollection}");
                         }
                         else
@@ -296,6 +306,11 @@ namespace OutfitManager
                             this.Configuration.Save();
 
                         Dalamud.Chat.Print($"Set penumbra collection type to {this.Configuration.PenumbraCollectionType}");
+                    }
+                    else if (args.ToLower().StartsWith("col"))
+                    {
+                        SetCollectionForType.Subscriber(PluginInterface).Invoke(ApiCollectionType.Yourself, args.Remove(0, 3).Trim(), true, false);
+                //        SetCollectionForObject.Subscriber(PluginInterface).Invoke(0, args.Remove(0, 3).Trim(), true, true);
                     }
                 }
             }
@@ -360,7 +375,16 @@ namespace OutfitManager
 
                 if (!string.IsNullOrEmpty(outfit.CollectionName.Trim()) && !ignoreCollection)
                 {
-                    commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/penumbra collection {this.Configuration.PenumbraCollectionType} | {outfit.CollectionName} | <me>" });
+                    if (this.Configuration.PenumbraCollectionType != "Your Character")
+                    {
+                        SetCollectionForObject.Subscriber(PluginInterface).Invoke(0, outfit.CollectionName, true, false);
+                    }
+                    else
+                    {
+                        SetCollectionForType.Subscriber(PluginInterface).Invoke(ApiCollectionType.Yourself, outfit.CollectionName, true, false);
+                    }
+
+                  //  commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/penumbra collection {this.Configuration.PenumbraCollectionType} | {outfit.CollectionName} | <me>" });
                 }
                 if (!string.IsNullOrEmpty(outfit.DesignPath.Trim()))
                 {

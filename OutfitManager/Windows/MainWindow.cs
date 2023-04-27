@@ -29,6 +29,10 @@ namespace OutfitManager.Windows
         private bool _persistGearset = false;
         private bool _ignorePersistCollection = false;
         private string _primaryCollection = "";
+
+        private int _currentCollectionTypeIndex;
+
+        string[] collectionTypes = new string[] { "Individual", "Your Character" };
         public MainWindow(Plugin plugin) : base(
             "OutfitManager", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
         {
@@ -61,7 +65,9 @@ namespace OutfitManager.Windows
             _persistGearset = this._Plugin.Configuration.PersistGearset;
             _ignorePersistCollection = this._Plugin.Configuration.IgnorePersistCollection;
             _primaryCollection = this._Plugin.Configuration.PrimaryCollection;
+            _currentCollectionTypeIndex = Array.IndexOf(collectionTypes, this._Plugin.Configuration.PenumbraCollectionType);
         }
+    
 
         public void RemoteControl()
         {
@@ -124,6 +130,8 @@ namespace OutfitManager.Windows
 
                 Persist();
 
+                PenumbraCollectionTypeSelection();
+
                 if (ImGui.InputTextWithHint("Primary Collection (optional)", "Enter your default 'go to ' collection and press enter...", ref _primaryCollection, 64, ImGuiInputTextFlags.EnterReturnsTrue))
                 {
                     this._Plugin.Configuration.PrimaryCollection= this._primaryCollection;
@@ -140,7 +148,16 @@ namespace OutfitManager.Windows
                 this._Plugin.DrawOutfitListUI();
             }
         }
+        public void PenumbraCollectionTypeSelection()
+        {
+  
 
+            if (ImGui.Combo("Penumbra Collection Type", ref _currentCollectionTypeIndex, collectionTypes, collectionTypes.Length))
+            {
+                this._Plugin.Configuration.PenumbraCollectionType = collectionTypes[_currentCollectionTypeIndex];
+                this._Plugin.Configuration.Save();
+            }
+        }
         public void Persist()
         {
             if (ImGui.Checkbox("Re-wear outfit between zones. (Gearset changes will not be re-applied)", ref _persist))
