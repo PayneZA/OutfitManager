@@ -57,7 +57,7 @@ namespace OutfitManager.Windows
 
             // Remove the minimum size constraint
             this.SizeConstraints = new WindowSizeConstraints
-            {   MinimumSize = new Vector2(275, 290),
+            {   MinimumSize = new Vector2(385, 290),
                 MaximumSize = new Vector2(float.MaxValue, float.MaxValue)
             };
 
@@ -327,7 +327,17 @@ namespace OutfitManager.Windows
                     }
                 }
             }
-            ImGui.SameLine();
+
+            if (ImGui.GetWindowSize().X < 485)
+            {
+                float currentY = ImGui.GetCursorPosY();
+                float spacing = 1.0f; // Adjust the value to change the spacing between the buttons
+                ImGui.SetCursorPosY(currentY + spacing);
+            }
+            else
+            {
+                ImGui.SameLine();
+            }
             if (ImGui.Button(_favouritesText))
             {
                 if (!_showFavourites)
