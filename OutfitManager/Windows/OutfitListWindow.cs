@@ -38,6 +38,7 @@ namespace OutfitManager.Windows
         string _favouritesText = "Show Favourites";
         private bool _showPreview = false;
         private bool _showErrorPopup = false;
+        private bool _firstDraw = true;
         public override void OnClose()
         {
             Dispose();
@@ -54,20 +55,35 @@ namespace OutfitManager.Windows
 
             Dalamud.PluginInterface.UiBuilder.DisableGposeUiHide = true;
 
+            // Remove the minimum size constraint
             this.SizeConstraints = new WindowSizeConstraints
-            {
-                MinimumSize = new Vector2(675, 630),
+            {   MinimumSize = new Vector2(275, 290),
                 MaximumSize = new Vector2(float.MaxValue, float.MaxValue)
             };
 
             this.Plugin = plugin;
-        
+
             Init();
-       
+
         }
         public override void Draw()
         {
+            if (_firstDraw)
+            {
+                if (this.Plugin.Configuration.MyCharacter != null && this.Plugin.Configuration.MyCharacter.Outfits != null)
+                {
+                    if (this.Plugin.Configuration.MyCharacter.Outfits.Count == 0)
+                    {
+                    
+                            this.Size = new Vector2(775, 790); // Replace with your desired initial size
+                            _firstDraw = false;
+                        
+                    }
+                }
+            }
             //   List<String> outfitList = this.Plugin.CustomConfig.Outfits.Keys.ToList();
+            // Wrap the content in ImGui.BeginChild() and ImGui.EndChild()
+            ImGui.BeginChild("OutfitListWindowContent", new Vector2(-1, -1), false, ImGuiWindowFlags.AlwaysHorizontalScrollbar | ImGuiWindowFlags.AlwaysVerticalScrollbar);
 
             if (this.Plugin.Configuration.MyCharacter != null && this.Plugin.Configuration.MyCharacter.FullName != "")
             {
@@ -82,6 +98,9 @@ namespace OutfitManager.Windows
                 ExportToClipboard();
 
             }
+
+
+            ImGui.EndChild();
             if (_showErrorPopup)
             {
                 ImGui.OpenPopup("Error");

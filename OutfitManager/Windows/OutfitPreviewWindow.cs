@@ -12,7 +12,6 @@ namespace OutfitManager.Windows
     public class OutfitPreviewWindow : Window, IDisposable
     {
         private Plugin Plugin;
-        // private TextureWrap ImagePreview;
         public OutfitPreviewWindow(Plugin plugin) : base(
             "Outfit Preview Window", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
         {
@@ -29,17 +28,29 @@ namespace OutfitManager.Windows
                 };
             }
         }
- 
+
         public void Dispose()
         {
-   
+
         }
 
         public override void Draw()
         {
             if (this.Plugin.OutfitPreview != null)
             {
-                ImGui.Image(this.Plugin.OutfitPreview.ImGuiHandle, ImGui.GetWindowSize());
+                var windowSize = ImGui.GetWindowSize();
+                var aspectRatio = (float)this.Plugin.OutfitPreview.Width / (float)this.Plugin.OutfitPreview.Height;
+                var imageSize = new Vector2(windowSize.X, windowSize.X / aspectRatio);
+
+                if (imageSize.Y > windowSize.Y)
+                {
+                    imageSize = new Vector2(windowSize.Y * aspectRatio, windowSize.Y);
+                }
+
+                var imagePosition = new Vector2((windowSize.X - imageSize.X) * 0.5f, (windowSize.Y - imageSize.Y) * 0.5f);
+
+                ImGui.SetCursorPos(imagePosition);
+                ImGui.Image(this.Plugin.OutfitPreview.ImGuiHandle, imageSize);
             }
         }
     }

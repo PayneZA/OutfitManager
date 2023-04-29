@@ -43,7 +43,7 @@ namespace OutfitManager
         private XivCommonBase Common { get; init; }
 
         private bool _ignoreGsEquip { get;set; }
-       public bool PersistGearset { get; set; }
+        public bool PersistGearset { get; set; }
 
         public bool IgnorePersistCollection { get; set; }
         private bool _transition;
@@ -52,6 +52,8 @@ namespace OutfitManager
 
         private bool _previousTransition;
         private string OutfitName { get; set; }
+
+      
         public bool Property
         {
             get { return _transition; }
@@ -138,6 +140,9 @@ namespace OutfitManager
             {
                 this.Configuration.OutfitName = "";
             }
+
+          
+          //  SetCharacterAndWorld();
         }
         protected void OnTransitionChanged()
         {
@@ -152,6 +157,41 @@ namespace OutfitManager
                 }
             }
 
+        }
+
+        private void SetCharacterAndWorld()
+        {
+            try
+            {
+                if (Dalamud.ClientState.IsLoggedIn)
+                {
+                    if (this.Configuration.MyCharacter == null || string.IsNullOrEmpty(this.Configuration.MyCharacter.Name) || string.IsNullOrEmpty(this.Configuration.MyCharacter.World) || string.IsNullOrEmpty(this.Configuration.MyCharacter.FullName))
+                    {
+                        if (this.Configuration.MyCharacter == null)
+                        {
+                            this.Configuration.MyCharacter = new Character();
+                        }
+                        if (string.IsNullOrEmpty(this.Configuration.MyCharacter.Name))
+                        {
+
+                            this.Configuration.MyCharacter.Name = Dalamud.ClientState.LocalPlayer.Name.TextValue;
+                            this.Configuration.MyCharacter.World = Dalamud.ClientState.LocalPlayer.HomeWorld.GameData.Name;
+                        }
+                        if (string.IsNullOrEmpty(this.Configuration.MyCharacter.World))
+                        {
+                            this.Configuration.MyCharacter.Name = Dalamud.ClientState.LocalPlayer.Name.TextValue;
+                            this.Configuration.MyCharacter.World = Dalamud.ClientState.LocalPlayer.HomeWorld.GameData.Name;
+                        }
+
+                        this.Configuration.MyCharacter.FullName = $"{this.Configuration.MyCharacter.Name}@{this.Configuration.MyCharacter.World}";
+                        this.Configuration.Save();
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+
+            }
         }
 
         private void OnTransitionChange(ConditionFlag flag, bool value)
