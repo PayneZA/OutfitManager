@@ -117,7 +117,7 @@ namespace OutfitManager.Windows
                 {
                     this._Plugin.DrawAllowedUserUI();
                 }
-                if (ImGui.InputTextWithHint("Preview Directory", "Enter your outfit preview directory and press enter...", ref _previewDirectory, 64, ImGuiInputTextFlags.EnterReturnsTrue))
+                if (ImGui.InputTextWithHint("Preview Directory (Optional)", "Enter your outfit preview directory and press enter...", ref _previewDirectory, 64, ImGuiInputTextFlags.EnterReturnsTrue))
                 {
                     if (Directory.Exists(this._previewDirectory))
                     {
