@@ -16,7 +16,7 @@ namespace OutfitManager.Windows
     public class OtherCharactersWindow : Window, IDisposable
     {
         private Plugin Plugin;
-        private Character _character;
+        private OmgCharacter _character;
         private string _characterName = string.Empty;
         private string _selectedOutfit = string.Empty;
         private int _currentCharacter = 0;
@@ -137,9 +137,9 @@ namespace OutfitManager.Windows
 
                     if (this.Plugin.Configuration.Characters == null)
                     {
-                        this.Plugin.Configuration.Characters = new Dictionary<string, Character>();
+                        this.Plugin.Configuration.Characters = new Dictionary<string, OmgCharacter>();
                     }
-                    Character character = outfitExport.Character;
+                    OmgCharacter character = outfitExport.Character;
 
                     foreach (string s in outfitExport.Outfits)
                     {

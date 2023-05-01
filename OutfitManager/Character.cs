@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OutfitManager
 {
-    public class Character
+    public class OmgCharacter
     {
         public string Name { get; set; }
         public string World { get; set; }
@@ -17,7 +17,7 @@ namespace OutfitManager
         public bool isUserCharacter { get; set; }
 
         public bool canOutfitLock { get; set; }
-        public Character()
+        public OmgCharacter()
         {
             Name = "";
             World = "";

@@ -15,7 +15,7 @@ namespace OutfitManager.Windows
         private string _characterName = string.Empty;
         private string _fullName = string.Empty;
         private string _worldName = string.Empty;
-        private Character _character = new Character();
+        private OmgCharacter _character = new OmgCharacter();
         private int _currentItem = 0;
         private bool _outfitLock = false;
         public void Dispose()
@@ -45,7 +45,7 @@ namespace OutfitManager.Windows
             {
 
                 var names = this.Plugin.Configuration.SafeSenders.Keys.ToArray();
-                Character c = this.Plugin.Configuration.SafeSenders[names[_currentItem]];
+                OmgCharacter c = this.Plugin.Configuration.SafeSenders[names[_currentItem]];
 
                 this._characterName = c.Name;
                 this._worldName = c.World;
@@ -65,7 +65,7 @@ namespace OutfitManager.Windows
 
             if (ImGui.Button("Add / Update Character") && (!string.IsNullOrEmpty(_characterName)))
             {
-                this._character = new Character
+                this._character = new OmgCharacter
                 {
                     Name = this._characterName,
                     World = this._worldName,

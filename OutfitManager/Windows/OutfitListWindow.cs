@@ -53,7 +53,7 @@ namespace OutfitManager.Windows
            "OutfitManager Outfit List Window", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
         {
 
-            Dalamud.PluginInterface.UiBuilder.DisableGposeUiHide = true;
+            DalamudService.PluginInterface.UiBuilder.DisableGposeUiHide = true;
 
             // Remove the minimum size constraint
             this.SizeConstraints = new WindowSizeConstraints
@@ -149,7 +149,7 @@ namespace OutfitManager.Windows
             {
                 OutfitExport outfitExport = new OutfitExport();
 
-                Character character = new Character { FullName = this.Plugin.Configuration.MyCharacter.FullName, isUserCharacter = false, Name = this.Plugin.Configuration.MyCharacter.Name, World = this.Plugin.Configuration.MyCharacter.World };
+                OmgCharacter character = new OmgCharacter { FullName = this.Plugin.Configuration.MyCharacter.FullName, isUserCharacter = false, Name = this.Plugin.Configuration.MyCharacter.Name, World = this.Plugin.Configuration.MyCharacter.World };
                 character.Outfits = new Dictionary<string, Outfit>();
 
                 outfitExport.Outfits = this._outfits;

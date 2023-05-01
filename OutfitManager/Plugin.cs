@@ -23,6 +23,12 @@ using System.Text;
 using static Penumbra.Api.Ipc;
 using Penumbra.Api.Enums;
 using System.Reflection.Metadata.Ecma335;
+using FFXIVClientStructs.FFXIV.Client.Game.Character;
+using Dalamud.Game.ClientState.Objects.Types;
+using Dalamud.Logging;
+using System.Text.RegularExpressions;
+using OutfitManager.Ipc;
+using Newtonsoft.Json.Linq;
 
 namespace OutfitManager
 {
@@ -74,7 +80,8 @@ namespace OutfitManager
 
         public Plugin(DalamudPluginInterface pluginInterface, CommandManager commandManager, ChatGui chatGui)
         {
-            Dalamud.Initialize(pluginInterface);
+            pluginInterface.Create<DalamudService>();
+          //  DalamudService.Initialize(pluginInterface);
             this.PluginInterface = pluginInterface;
             this.CommandManager = commandManager;
 
@@ -108,7 +115,7 @@ namespace OutfitManager
                 {
                     var first = this.Configuration.Characters.First();
                     string key = first.Key;
-                    Character val = first.Value;
+                    OmgCharacter val = first.Value;
 
                     this.Configuration.MyCharacter = val;
                     this.Configuration.MyCharacter.Name = first.Key;
@@ -132,8 +139,8 @@ namespace OutfitManager
             this.PluginInterface.UiBuilder.Draw += DrawUI;
             this.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
 
-             
-            Dalamud.Conditions.ConditionChange += OnTransitionChange;
+
+            DalamudService.Conditions.ConditionChange += OnTransitionChange;
             SetChatMonitoring(this.isCommandsEnabled);
 
             if (this.Configuration.OutfitName == null)
@@ -141,9 +148,11 @@ namespace OutfitManager
                 this.Configuration.OutfitName = "";
             }
 
-          
-          //  SetCharacterAndWorld();
+
+            //  SetCharacterAndWorld();
         }
+
+
         protected void OnTransitionChanged()
         {
             if (this.Configuration.Persist || this._outfitLock)
@@ -152,35 +161,37 @@ namespace OutfitManager
                 {
                     if (!string.IsNullOrEmpty(this.Configuration.OutfitName.Trim()))
                     {
-                        EquipOutfit(this.Configuration.OutfitName, "", false,this.Configuration.IgnorePersistCollection);
+                        EquipOutfit(this.Configuration.OutfitName, "", false, this.Configuration.IgnorePersistCollection);
                     }
                 }
             }
 
+
         }
 
+     
         private void SetCharacterAndWorld()
         {
             try
             {
-                if (Dalamud.ClientState.IsLoggedIn)
+                if (DalamudService.ClientState.IsLoggedIn)
                 {
                     if (this.Configuration.MyCharacter == null || string.IsNullOrEmpty(this.Configuration.MyCharacter.Name) || string.IsNullOrEmpty(this.Configuration.MyCharacter.World) || string.IsNullOrEmpty(this.Configuration.MyCharacter.FullName))
                     {
                         if (this.Configuration.MyCharacter == null)
                         {
-                            this.Configuration.MyCharacter = new Character();
+                            this.Configuration.MyCharacter = new OmgCharacter();
                         }
                         if (string.IsNullOrEmpty(this.Configuration.MyCharacter.Name))
                         {
 
-                            this.Configuration.MyCharacter.Name = Dalamud.ClientState.LocalPlayer.Name.TextValue;
-                            this.Configuration.MyCharacter.World = Dalamud.ClientState.LocalPlayer.HomeWorld.GameData.Name;
+                            this.Configuration.MyCharacter.Name = DalamudService.ClientState.LocalPlayer.Name.TextValue;
+                            this.Configuration.MyCharacter.World = DalamudService.ClientState.LocalPlayer.HomeWorld.GameData.Name;
                         }
                         if (string.IsNullOrEmpty(this.Configuration.MyCharacter.World))
                         {
-                            this.Configuration.MyCharacter.Name = Dalamud.ClientState.LocalPlayer.Name.TextValue;
-                            this.Configuration.MyCharacter.World = Dalamud.ClientState.LocalPlayer.HomeWorld.GameData.Name;
+                            this.Configuration.MyCharacter.Name = DalamudService.ClientState.LocalPlayer.Name.TextValue;
+                            this.Configuration.MyCharacter.World = DalamudService.ClientState.LocalPlayer.HomeWorld.GameData.Name;
                         }
 
                         this.Configuration.MyCharacter.FullName = $"{this.Configuration.MyCharacter.Name}@{this.Configuration.MyCharacter.World}";
@@ -225,7 +236,7 @@ namespace OutfitManager
         }
         public void Dispose()
         {
-            Dalamud.Conditions.ConditionChange -= OnTransitionChange;
+            DalamudService.Conditions.ConditionChange -= OnTransitionChange;
             this.ChatGui.ChatMessage -= OnChatMessage;
             this.WindowSystem.RemoveAllWindows();
             this.CommandManager.RemoveHandler(CommandName);
@@ -324,12 +335,12 @@ namespace OutfitManager
                             {
                                 SetCollectionForType.Subscriber(PluginInterface).Invoke(ApiCollectionType.Yourself, this.Configuration.PrimaryCollection, true, false);
                             }
-                          //  RelayCommand($"/penumbra collection {this.Configuration.PenumbraCollectionType} | {this.Configuration.PrimaryCollection} | <me>");
-                            Dalamud.Chat.Print($"Your last worn outfit has been cleared and collection set to {this.Configuration.PrimaryCollection}");
+                            //  RelayCommand($"/penumbra collection {this.Configuration.PenumbraCollectionType} | {this.Configuration.PrimaryCollection} | <me>");
+                            DalamudService.Chat.Print($"Your last worn outfit has been cleared and collection set to {this.Configuration.PrimaryCollection}");
                         }
                         else
                         {
-                            Dalamud.Chat.Print($"Your last worn outfit has been cleared.");
+                            DalamudService.Chat.Print($"Your last worn outfit has been cleared.");
                         }
                         this.Configuration.Save();
                       
@@ -346,13 +357,13 @@ namespace OutfitManager
                         }
                             this.Configuration.Save();
 
-                        Dalamud.Chat.Print($"Set penumbra collection type to {this.Configuration.PenumbraCollectionType}");
+                        DalamudService.Chat.Print($"Set penumbra collection type to {this.Configuration.PenumbraCollectionType}");
                     }
                 }
             }
             else
             {
-                Dalamud.Chat.Print("You have been locked out of omg by a friend.");
+                DalamudService.Chat.Print("You have been locked out of omg by a friend.");
             }
         }
 
@@ -522,8 +533,9 @@ namespace OutfitManager
                 WindowSystem.GetWindow("Outfit Preview Window").IsOpen = false;
 
             }
-            Dalamud.Chat.Print($"Your outfitmanager lock status is: {_outfitLock}");
+            DalamudService.Chat.Print($"Your outfitmanager lock status is: {_outfitLock}");
         }
+
 
         private void OnChatMessage(XivChatType type, uint id, ref SeString sender, ref SeString message,
     ref bool handled)
@@ -576,7 +588,7 @@ namespace OutfitManager
                                     }
                                     else
                                     {
-                                        Dalamud.Chat.Print("Outfit not found");
+                                        DalamudService.Chat.Print("Outfit not found");
                                     }
                                 }
                             }

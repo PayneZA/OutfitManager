@@ -10,6 +10,6 @@ namespace OutfitManager
     {
 
         public string[] Outfits { get; set; }
-        public Character Character { get; set; }
+        public OmgCharacter Character { get; set; }
     }
 }
