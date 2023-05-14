@@ -162,7 +162,7 @@ namespace OutfitManager.Handlers
             SaveOutfits(oldOutfits);
 
             // Clear the old outfits from the configuration and save the configuration
-            this._plugin.Configuration.MyCharacter.Outfits.Clear();
+        //    this._plugin.Configuration.MyCharacter.Outfits.Clear();
             this._plugin.Configuration.Save();
         }
 

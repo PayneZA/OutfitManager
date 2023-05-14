@@ -116,9 +116,11 @@ namespace OutfitManager
                 $"persist - will re-apply your outfit whenever it would be needed zone change, login.{Environment.NewLine}" +
                 $"lockoutfit SECONDS (optional) - will lock you into your last worn outfit including gearset, if seconds are specified then for that amount of seconds." +
                 $"reset - will clear your last equipped outfit and if present set your primary penumbra collection you set." +
-                $"setcollectiontype Individual - will set your penumbra collection type away from the default 'Your Character' to Individual, if you want to go back to 'Your Character' just put Reset instead of individual."
+                $"setcollectiontype Individual - will set your penumbra collection type away from the default 'Your Character' to Individual, if you want to go back to 'Your Character' just put Reset instead of individual." +
+                $"snapshot - will have a temporary penumbra / glamourer combination that will re-apply if re-apply is enabled and be lost on wear outfit or restart." +
+                $"clearsnapshot - will manually clear the snapshot."
             });
-
+       
 
             if (this.Configuration.MyCharacter == null || string.IsNullOrEmpty(this.Configuration.MyCharacter.Name))
             { 
