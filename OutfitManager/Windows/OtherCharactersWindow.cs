@@ -2,6 +2,7 @@ using Dalamud.Interface.Windowing;
 using FFXIVClientStructs.Havok;
 using ImGuiNET;
 using Newtonsoft.Json;
+using OutfitManager.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -143,7 +144,7 @@ namespace OutfitManager.Windows
 
                     foreach (string s in outfitExport.Outfits)
                     {
-                        character.Outfits.Add(s,new Outfit { CharacterName = character.FullName, Name = s });
+                        character.Outfits.Add(s,new OmgOutfit { CharacterName = character.FullName, Name = s });
                     }
 
                     if (this.Plugin.Configuration.Characters.ContainsKey(outfitExport.Character.FullName))

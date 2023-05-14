@@ -16,8 +16,9 @@ using Dalamud.Game;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.DutyState;
 using Dalamud.Game.Gui.Toast;
+using Dalamud.Interface.Windowing;
 
-namespace OutfitManager
+namespace OutfitManager.Services
 {
     public sealed class DalamudService
     {
@@ -37,8 +38,6 @@ namespace OutfitManager
         [PluginService] public static ObjectTable Objects { get; private set; } = null!;
         [PluginService] public static TitleScreenMenu TitleScreenMenu { get; private set; } = null!;
         [PluginService] public static KeyState KeyState { get; private set; } = null!;
-
-
 
     }
 }

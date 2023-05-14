@@ -1,6 +1,7 @@
 using System;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Plugin.Ipc;
+using OutfitManager.Services;
 
 namespace OutfitManager.Ipc
 {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OutfitManager
+namespace OutfitManager.Models
 {
     public class OmgCharacter
     {
@@ -13,7 +13,7 @@ namespace OutfitManager
 
         public string FullName { get; set; }
 
-        public Dictionary<string, Outfit> Outfits { get; set; }
+        public Dictionary<string, OmgOutfit> Outfits { get; set; }
         public bool isUserCharacter { get; set; }
 
         public bool canOutfitLock { get; set; }
@@ -22,7 +22,7 @@ namespace OutfitManager
             Name = "";
             World = "";
             FullName = "";
-            Outfits = new Dictionary<string, Outfit>();
+            Outfits = new Dictionary<string, OmgOutfit>();
             isUserCharacter = false;
             canOutfitLock = false;
         }

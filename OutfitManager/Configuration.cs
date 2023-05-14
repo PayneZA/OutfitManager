@@ -1,5 +1,6 @@
 using Dalamud.Configuration;
 using Dalamud.Plugin;
+using OutfitManager.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;

@@ -3,6 +3,7 @@ using Dalamud.Plugin.Ipc;
 using Dalamud.Plugin.Ipc.Exceptions;
 using System;
 using Dalamud.Game.ClientState.Objects.Types;
+using OutfitManager.Services;
 
 namespace OutfitManager.Ipc
 {

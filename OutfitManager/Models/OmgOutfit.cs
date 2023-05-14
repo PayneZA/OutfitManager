@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OutfitManager
+namespace OutfitManager.Models
 {
-    public class Outfit
+    public class OmgOutfit
     {
         public string Name { get; set; }
 
@@ -24,5 +25,13 @@ namespace OutfitManager
 
         public List<string> Tags { get; set; }
         public bool IsFavourite { get; set; }
+
+        public string GlamourerData { get; set; }
+
+        public string PalettePlusData { get;}
+
+        public string HeelsData { get; set; }
+
+        public bool IsSnapshot { get; set; }
     }
 }

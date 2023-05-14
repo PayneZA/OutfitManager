@@ -1,5 +1,6 @@
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
+using OutfitManager.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
