@@ -26,6 +26,8 @@ To access the features of the plugin, use the following commands:
 - `/omg lockoutfit SECONDS`: Locks your last worn outfit, including gearset, for a specified amount of seconds (optional)
 - `/omg reset`: Clears your last equipped outfit and sets your primary Penumbra collection, if specified
 - `/omg setcollectiontype COLLECTIONTYPE`: Sets your Penumbra collection type away from the default 'Your Character' to a custom type or 'reset' to go to the default option
+- `/omg snapshot`: Will have a temporary penumbra / glamourer combination that will re-apply if re-apply is enabled and be lost on wear outfit or restart.
+- `/omg clearsnapshot`: Will manually clear the snapshot.
 
 ## 4. Configuration
 The configuration window allows you to set up the plugin's settings, such as:
