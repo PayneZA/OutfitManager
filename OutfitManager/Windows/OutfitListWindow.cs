@@ -44,6 +44,7 @@ namespace OutfitManager.Windows
         private bool _showErrorPopup = false;
         private bool _firstDraw = true;
         private string _errorText = "";
+        private int _itemsToShow = 15;
         public override void OnClose()
         {
             Dispose();
@@ -88,24 +89,65 @@ namespace OutfitManager.Windows
             }
             //   List<String> outfitList = this.Plugin.CustomConfig.Outfits.Keys.ToList();
             // Wrap the content in ImGui.BeginChild() and ImGui.EndChild()
-            ImGui.BeginChild("OutfitListWindowContent", new Vector2(-1, -1), false, ImGuiWindowFlags.AlwaysHorizontalScrollbar | ImGuiWindowFlags.AlwaysVerticalScrollbar);
+         
 
-            if (this.Plugin.Configuration.MyCharacter != null && this.Plugin.Configuration.MyCharacter.FullName != "")
-            {
-              
-                OutfitAddition();
-                DrawCurrentOutfitName();
-                if (!string.IsNullOrEmpty(_previewDirectory))
-                {
-                    PreviewImage();
-                }
-                OutfitList();
-                ExportToClipboard();
+       //     if (ImGui.BeginTabBar("OutfitTabBar"))
+         //   {
+          //      if (ImGui.BeginTabItem("View All"))
+           //     {
+                    ImGui.BeginChild("OutfitListWindowContent", new Vector2(-1, -1), false, ImGuiWindowFlags.AlwaysHorizontalScrollbar | ImGuiWindowFlags.AlwaysVerticalScrollbar);
+                    _itemsToShow = 15;
+                    if (this.Plugin.Configuration.MyCharacter != null && this.Plugin.Configuration.MyCharacter.FullName != "")
+                    {
+                        if (ImGui.CollapsingHeader("Add / Manage",ImGuiTreeNodeFlags.DefaultOpen))
+                        {
+                            OutfitAddition();
+                       AddOutfitButton();
 
-            }
+                ImGui.SameLine();
+                        }
 
+                      
+                            ButtonRow();
+                          if (ImGui.CollapsingHeader("Outfit Listing", ImGuiTreeNodeFlags.DefaultOpen))
+                        {
+                            DrawCurrentOutfitName();
+                            if (!string.IsNullOrEmpty(_previewDirectory))
+                            {
+                                PreviewImage();
+                            }
+                            OutfitList();
+                            ExportToClipboard();
+                        }
 
-            ImGui.EndChild();
+                    }
+                    ImGui.EndChild();
+                    ImGui.EndTabItem();
+         //       }
+    
+                //if (ImGui.BeginTabItem("Outfit List"))
+                //{
+               
+                //    _itemsToShow = 25;
+                //    ButtonRow(false);
+
+                //    DrawCurrentOutfitName();
+                //    if (!string.IsNullOrEmpty(_previewDirectory))
+                //    {
+                //        PreviewImage();
+                //    }
+                //    ImGui.BeginChild("OutfitListWindowContent", new Vector2(-1, -1), false, ImGuiWindowFlags.AlwaysHorizontalScrollbar | ImGuiWindowFlags.AlwaysVerticalScrollbar);
+                //    OutfitList();
+                //    ImGui.EndChild();
+                //    ImGui.EndTabItem();
+                //}
+            
+
+          //  }
+        }
+
+        public void ShowErrorPopupBox()
+        {
             if (_showErrorPopup)
             {
                 ImGui.OpenPopup("Error");
@@ -121,7 +163,6 @@ namespace OutfitManager.Windows
                 }
                 ImGui.EndPopup();
             }
-         
         }
 
         public void Init()
@@ -248,7 +289,7 @@ namespace OutfitManager.Windows
             {
               
             }
-            if (ImGui.ListBox("Outfits", ref _currentItem, FilterOutfits(_filter), _filteredOutfits.Count(), 15))
+            if (ImGui.ListBox("Outfits", ref _currentItem, FilterOutfits(_filter), _filteredOutfits.Count(), _itemsToShow))
             {
                 _outfit = this.Plugin.OutfitHandler.Outfits[_filteredOutfits[_currentItem].ToLower()];
                 SelectOutfit(_outfit);
@@ -267,32 +308,36 @@ namespace OutfitManager.Windows
             ImGui.Checkbox("Favourite ?", ref _favourite);
             ImGui.InputTextMultiline("Notes", ref _notes,512, new Vector2(440, 60));
 
-          
 
-            AddOutfitButton();
-            ImGui.SameLine();
-            if (ImGui.Button("Delete Outfit (shift)"))
-            {
-                if (ImGui.IsKeyDown(ImGuiKey.ModShift))
+
+            ShowErrorPopupBox();
+        }
+
+        public void ButtonRow()
+        {
+
+                if (ImGui.Button("Delete Outfit (shift)"))
                 {
-                    if (this.Plugin.OutfitHandler.Outfits.ContainsKey(_outfit.Name))
+                    if (ImGui.IsKeyDown(ImGuiKey.ModShift))
                     {
-                        this.Plugin.OutfitHandler.Outfits.Remove(_outfit.Name);
+                        if (this.Plugin.OutfitHandler.Outfits.ContainsKey(_outfit.Name))
+                        {
+                            this.Plugin.OutfitHandler.Outfits.Remove(_outfit.Name);
 
-                        this.Plugin.Configuration.Save();
-                        _newOutfitName = "";
-                        _penumbraCollection = "";
-                        _glamourerDesign = "";
-                        _gearset = "";
-                        _notes = "";
-                        _tags = "";
-                        _favourite = false;
-                        Init();
+                            this.Plugin.Configuration.Save();
+                            _newOutfitName = "";
+                            _penumbraCollection = "";
+                            _glamourerDesign = "";
+                            _gearset = "";
+                            _notes = "";
+                            _tags = "";
+                            _favourite = false;
+                            Init();
 
+                        }
                     }
                 }
-            }
-
+            
             if (ImGui.GetWindowSize().X < 485)
             {
                 float currentY = ImGui.GetCursorPosY();
@@ -301,7 +346,9 @@ namespace OutfitManager.Windows
             }
             else
             {
-                ImGui.SameLine();
+               
+                    ImGui.SameLine();
+                
             }
             if (ImGui.Button(_favouritesText))
             {
@@ -332,7 +379,6 @@ namespace OutfitManager.Windows
                 this.Plugin.OutfitHandler.EquipOutfit(_outfit.Name);
             }
         }
-
 
         public void AddOutfitButton()
         {
