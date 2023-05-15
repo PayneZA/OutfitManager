@@ -72,6 +72,7 @@ namespace OutfitManager.Windows
             Init();
 
         }
+
         public override void Draw()
         {
             if (_firstDraw)
@@ -80,36 +81,32 @@ namespace OutfitManager.Windows
                 {
                     if (this.Plugin.OutfitHandler.Outfits.Count == 0)
                     {
-                    
-                            this.Size = new Vector2(775, 790); // Replace with your desired initial size
-                            _firstDraw = false;
-                        
+                        this.Size = new Vector2(667, 871); // Replace with your desired initial size
+                        _firstDraw = false;
                     }
                 }
             }
-            //   List<String> outfitList = this.Plugin.CustomConfig.Outfits.Keys.ToList();
-            // Wrap the content in ImGui.BeginChild() and ImGui.EndChild()
-         
 
-       //     if (ImGui.BeginTabBar("OutfitTabBar"))
-         //   {
-          //      if (ImGui.BeginTabItem("View All"))
-           //     {
-                    ImGui.BeginChild("OutfitListWindowContent", new Vector2(-1, -1), false, ImGuiWindowFlags.AlwaysHorizontalScrollbar | ImGuiWindowFlags.AlwaysVerticalScrollbar);
+      
+            if (ImGui.BeginTabBar("OutfitTabBar"))
+            {
+                if (ImGui.BeginTabItem("Standard View"))
+                {
+                    ImGui.BeginChild("StandardViewContent", new Vector2(-1, -1), false, ImGuiWindowFlags.AlwaysHorizontalScrollbar | ImGuiWindowFlags.AlwaysVerticalScrollbar);
                     _itemsToShow = 15;
                     if (this.Plugin.Configuration.MyCharacter != null && this.Plugin.Configuration.MyCharacter.FullName != "")
                     {
-                        if (ImGui.CollapsingHeader("Add / Manage",ImGuiTreeNodeFlags.DefaultOpen))
+                        if (ImGui.CollapsingHeader("Add / Manage", ImGuiTreeNodeFlags.DefaultOpen))
                         {
                             OutfitAddition();
-                       AddOutfitButton();
+                            AddOutfitButton();
 
-                ImGui.SameLine();
+                            ImGui.SameLine();
                         }
 
-                      
-                            ButtonRow();
-                          if (ImGui.CollapsingHeader("Outfit Listing", ImGuiTreeNodeFlags.DefaultOpen))
+
+                        ButtonRow();
+                        if (ImGui.CollapsingHeader("Outfit Listing", ImGuiTreeNodeFlags.DefaultOpen))
                         {
                             DrawCurrentOutfitName();
                             if (!string.IsNullOrEmpty(_previewDirectory))
@@ -123,27 +120,104 @@ namespace OutfitManager.Windows
                     }
                     ImGui.EndChild();
                     ImGui.EndTabItem();
-         //       }
-    
-                //if (ImGui.BeginTabItem("Outfit List"))
-                //{
-               
-                //    _itemsToShow = 25;
-                //    ButtonRow(false);
+                }
 
-                //    DrawCurrentOutfitName();
-                //    if (!string.IsNullOrEmpty(_previewDirectory))
+                //if (ImGui.BeginTabItem("Advanced View"))
+                //{
+                //    ImGui.BeginChild("AdvancedViewContent", new Vector2(-1, -1), false, ImGuiWindowFlags.AlwaysHorizontalScrollbar | ImGuiWindowFlags.AlwaysVerticalScrollbar);
+                //    _itemsToShow = 5;
+                //    if (this.Plugin.Configuration.MyCharacter != null && this.Plugin.Configuration.MyCharacter.FullName != "")
                 //    {
-                //        PreviewImage();
+                //        if (ImGui.CollapsingHeader("Add / Manage", ImGuiTreeNodeFlags.DefaultOpen))
+                //        {
+                //            OutfitAddition();
+                //            AddOutfitButton();
+
+                //            ImGui.SameLine();
+                //        }
+
+
+                //        ButtonRow();
+                //        if (ImGui.CollapsingHeader("Outfit Listing", ImGuiTreeNodeFlags.DefaultOpen))
+                //        {
+                //            DrawCurrentOutfitName();
+                //            if (!string.IsNullOrEmpty(_previewDirectory))
+                //            {
+                //                PreviewImage();
+                //            }
+                //            OutfitList();
+                //            ExportToClipboard();
+                //        }
+
                 //    }
-                //    ImGui.BeginChild("OutfitListWindowContent", new Vector2(-1, -1), false, ImGuiWindowFlags.AlwaysHorizontalScrollbar | ImGuiWindowFlags.AlwaysVerticalScrollbar);
-                //    OutfitList();
                 //    ImGui.EndChild();
                 //    ImGui.EndTabItem();
                 //}
-            
 
-          //  }
+                if (ImGui.BeginTabItem("List Only"))
+                {
+                    ImGui.BeginChild("ListOnlyViewContent", new Vector2(-1, -1), false, ImGuiWindowFlags.AlwaysHorizontalScrollbar | ImGuiWindowFlags.AlwaysVerticalScrollbar);
+                    _itemsToShow = 25;
+                    if (this.Plugin.Configuration.MyCharacter != null && this.Plugin.Configuration.MyCharacter.FullName != "")
+                    {
+                      
+
+
+                        ButtonRow();
+                      
+                            DrawCurrentOutfitName();
+                            if (!string.IsNullOrEmpty(_previewDirectory))
+                            {
+                                PreviewImage();
+                            }
+                            OutfitList();
+                            ExportToClipboard();
+                        
+
+                    }
+                    ImGui.EndChild();
+                    ImGui.EndTabItem();
+                }
+                //if (ImGui.BeginTabItem("Help"))
+                //{
+                //    ImGui.BeginChild("HelpContent", new Vector2(-1, -1), false);
+                //    ImGui.Text("Help and Instructions");
+                //    ImGui.Separator();
+
+                //    ImGui.Text("Outfits:");
+                //    ImGui.BulletText("Outfits are collections of gear that your character can wear.");
+                //    ImGui.BulletText("You can create, edit, and delete outfits using the options in the 'Add / Manage' section.");
+                //    ImGui.BulletText("Click on an outfit in the list to select it. Selected outfits can be edited or deleted.");
+
+                //    ImGui.Separator();
+
+                //    ImGui.Text("Add / Manage Section:");
+                //    ImGui.BulletText("'Add Outfit' creates a new outfit with the name and gear you specify.");
+                //    ImGui.BulletText("'Update' saves any changes you've made to the selected outfit.");
+                //    ImGui.BulletText("'Delete' removes the selected outfit from the list. This cannot be undone.");
+
+                //    ImGui.Separator();
+
+                //    ImGui.Text("Advanced View:");
+                //    ImGui.BulletText("In the Advanced view, you can fine-tune your outfits with more options and settings.");
+                //    ImGui.BulletText("You can switch between Standard and Advanced views using the tabs at the top of the window.");
+
+                //    ImGui.Separator();
+
+                //    ImGui.Text("Outfit List:");
+                //    ImGui.BulletText("This is a list of all your saved outfits. Click on an outfit to select it.");
+                //    ImGui.BulletText("The 'Export to Clipboard' button will copy the selected outfit's information to your clipboard.");
+
+                //    ImGui.EndChild();
+                //    ImGui.EndTabItem();
+                //}
+
+            }
+
+            ImGui.EndTabBar();
+
+            float currentWindowHeight = ImGui.GetWindowHeight();
+            float currentWindoqWidth = ImGui.GetWindowWidth();
         }
 
         public void ShowErrorPopupBox()
@@ -323,8 +397,9 @@ namespace OutfitManager.Windows
                         if (this.Plugin.OutfitHandler.Outfits.ContainsKey(_outfit.Name))
                         {
                             this.Plugin.OutfitHandler.Outfits.Remove(_outfit.Name);
-
-                            this.Plugin.Configuration.Save();
+                             this.Plugin.Configuration.Save();
+                             this.Plugin.OutfitHandler.SaveOutfits(this.Plugin.OutfitHandler.Outfits);
+                
                             _newOutfitName = "";
                             _penumbraCollection = "";
                             _glamourerDesign = "";
