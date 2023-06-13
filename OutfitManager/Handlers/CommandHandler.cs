@@ -51,6 +51,9 @@ namespace OutfitManager.Handlers
             switch (action)
             {
                 case "config":
+                    this._plugin.WindowSystem.GetWindow("Outfit Manager Configuration Window").IsOpen = true;
+                    break;
+                case "menu":
                     this._plugin.WindowSystem.GetWindow("OutfitManager").IsOpen = true;
                     break;
                 case "wear":
@@ -130,6 +133,7 @@ namespace OutfitManager.Handlers
 
                     try
                     {
+                     
                         this._plugin.OutfitHandler.Snapshot = new Models.OmgOutfit();
                     }
                     catch (Exception ex)
@@ -138,6 +142,40 @@ namespace OutfitManager.Handlers
                     }
 
                     break;
+                //case "generatepreviews":
+
+                //    try
+                //    {
+                //        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                //        {
+                //          this._plugin.CaptureService = new OutfitCaptureService(this._plugin,this._plugin.OutfitHandler);
+                //          this._plugin.CaptureService.CaptureOutfits();
+                //        }
+                //        else
+                //        {
+                //            DalamudService.Chat.Print("This is only available to windows users.");
+                //        }
+                      
+                //    }
+                //    catch (Exception ex)
+                //    {
+
+                //    }
+
+                //    break;
+                //case "haltpreviews":
+
+                //    try
+                //    {
+                //        this._plugin.CaptureService.HaltScreenshots = true;
+
+                //    }
+                //    catch (Exception ex)
+                //    {
+
+                //    }
+
+                //    break;
 
             }
         }

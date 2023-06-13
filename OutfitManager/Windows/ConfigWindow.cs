@@ -2,6 +2,7 @@ using Dalamud.Interface.Windowing;
 using ImGuiNET;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -11,31 +12,202 @@ namespace OutfitManager.Windows
 {
     public class ConfigWindow : Window, IDisposable
     {
-        private Configuration Configuration;
+        private Plugin _Plugin;
+        private string _characterName = "";
+        private bool _characterExists = false;
+        private string _worldName = "";
+        private bool _worldExists = false;
+        private bool _chatControl = false;
+        private string _screenshotDirectory = "";
+        private string _previewDirectory = "";
+        private bool _persist = false;
+        private bool _persistGearset = false;
+        private bool _ignorePersistCollection = false;
+        private string _primaryCollection = "";
+        private bool _showErrorPopup = false;
+        private int _currentCollectionTypeIndex;
+
+        string[] collectionTypes = new string[] { "Individual", "Your Character" };
 
         public ConfigWindow(Plugin plugin) : base(
-            "A Wonderful Configuration Window",
-            ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar |
-            ImGuiWindowFlags.NoScrollWithMouse)
+            "Outfit Manager Configuration Window", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
         {
-            this.Size = new Vector2(232, 75);
-            this.SizeCondition = ImGuiCond.Always;
+            this.SizeConstraints = new WindowSizeConstraints
+            {
+                MinimumSize = new Vector2(575, 430),
+                MaximumSize = new Vector2(float.MaxValue, float.MaxValue)
+            };
 
-            this.Configuration = plugin.Configuration;
+
+            this._Plugin = plugin;
+
+            Init();
+        }
+        public void Dispose()
+        {
+
         }
 
-        public void Dispose() { }
+        public void Init()
+        {
+            _chatControl = this._Plugin.Configuration.ChatControl;
+            _characterName = this._Plugin.Configuration.MyCharacter.Name;
+            _worldName = this._Plugin.Configuration.MyCharacter.World;
+            _characterExists = !string.IsNullOrEmpty(this._Plugin.Configuration.MyCharacter.Name);
+            _worldExists = !string.IsNullOrEmpty(this._Plugin.Configuration.MyCharacter.Name);
+            _previewDirectory = this._Plugin.Configuration.PreviewDirectory;
+            _persist = this._Plugin.Configuration.Persist;
+            _persistGearset = this._Plugin.Configuration.PersistGearset;
+            _ignorePersistCollection = this._Plugin.Configuration.IgnorePersistCollection;
+            _primaryCollection = this._Plugin.Configuration.PrimaryCollection;
+            _currentCollectionTypeIndex = Array.IndexOf(collectionTypes, this._Plugin.Configuration.PenumbraCollectionType);
+        }
 
+
+        public void RemoteControl()
+        {
+            if (ImGui.Checkbox("Allow Chat Control (Via Tell)", ref _chatControl))
+            {
+
+                this._Plugin.SetChatMonitoring(_chatControl);
+            }
+        }
+        public void CharacterName()
+        {
+            if (ImGui.InputTextWithHint("Character Name", "Enter your character name and press enter...", ref _characterName, 64, ImGuiInputTextFlags.EnterReturnsTrue))
+            {
+                this._Plugin.Configuration.MyCharacter.Name = _characterName;
+                this._Plugin.Configuration.Save();
+                _characterExists = true;
+            }
+
+            if (_characterExists)
+            {
+                WorldName();
+            }
+        }
+
+        public void WorldName()
+        {
+            if (ImGui.InputTextWithHint("World Name", "Enter your world name and press enter...", ref _worldName, 64, ImGuiInputTextFlags.EnterReturnsTrue))
+            {
+                this._Plugin.Configuration.MyCharacter.World = _worldName;
+                this._Plugin.Configuration.MyCharacter.FullName = $"{this._Plugin.Configuration.MyCharacter.Name}@{this._Plugin.Configuration.MyCharacter.World}";
+                this._Plugin.Configuration.Save();
+                _worldExists = true;
+            }
+
+        }
+
+        public void ShowErrorPopupBox()
+        {
+            if (_showErrorPopup)
+            {
+                ImGui.OpenPopup("Error");
+            }
+            if (ImGui.BeginPopupModal("Error", ref _showErrorPopup, ImGuiWindowFlags.AlwaysAutoResize))
+            {
+         
+                ImGui.Text("The directory does not exist.");
+                if (ImGui.Button("OK"))
+                {
+                    _showErrorPopup = false;
+                    ImGui.CloseCurrentPopup();
+                }
+                ImGui.EndPopup();
+            }
+        }
         public override void Draw()
         {
-            // can't ref a property, so use a local copy
-       //     var configValue = this.Configuration.SomePropertyToBeSavedAndWithADefault;
-       //     if (ImGui.Checkbox("Random Config Bool", ref configValue))
-       //     {
-               // this.Configuration.SomePropertyToBeSavedAndWithADefault = configValue;
-                // can save immediately on change, if you don't want to provide a "Save and Close" button
-             //   this.Configuration.Save();
-         //   }
+            CharacterName();
+
+            if (_characterExists && _worldExists)
+            {
+                if (ImGui.Button("Add/Edit/View Outfits"))
+                {
+                    this._Plugin.DrawOutfitListUI();
+                }
+                if (ImGui.Button("Manage allow list"))
+                {
+                    this._Plugin.DrawAllowedUserUI();
+                }
+                if (ImGui.InputTextWithHint("Preview Directory (Optional)", "Enter your outfit preview directory and press enter...", ref _previewDirectory, 64, ImGuiInputTextFlags.EnterReturnsTrue))
+                {
+                    if (Directory.Exists(this._previewDirectory))
+                    {
+                        this._Plugin.Configuration.PreviewDirectory = this._previewDirectory;
+                        this._Plugin.Configuration.Save();
+                    }
+                    else
+                    {
+                        _showErrorPopup = true;
+                    }
+                }
+
+                RemoteControl();
+
+                Persist();
+
+                PenumbraCollectionTypeSelection();
+
+                if (ImGui.InputTextWithHint("Primary Collection (optional)", "Enter your default 'go to ' collection and press enter...", ref _primaryCollection, 64, ImGuiInputTextFlags.EnterReturnsTrue))
+                {
+                    this._Plugin.Configuration.PrimaryCollection = this._primaryCollection;
+                    this._Plugin.Configuration.Save();
+                }
+            }
+            ShowErrorPopupBox();
+        }
+
+        public void OutFitList()
+        {
+            if (ImGui.Button("Add/Edit/View Outfits"))
+            {
+                this._Plugin.DrawOutfitListUI();
+            }
+        }
+        public void PenumbraCollectionTypeSelection()
+        {
+
+
+            if (ImGui.Combo("Penumbra Collection Type", ref _currentCollectionTypeIndex, collectionTypes, collectionTypes.Length))
+            {
+                this._Plugin.Configuration.PenumbraCollectionType = collectionTypes[_currentCollectionTypeIndex];
+                this._Plugin.Configuration.Save();
+            }
+        }
+        public void Persist()
+        {
+            if (ImGui.Checkbox("Re-wear outfit between zones. (Gearset changes will not be re-applied)", ref _persist))
+            {
+
+                this._Plugin.PersistOutfit = _persist;
+                this._Plugin.Configuration.Persist = _persist;
+                this._Plugin.Configuration.Save();
+            }
+
+            if (_persist)
+            {
+                if (ImGui.Checkbox("Re-wear outfit between gearsets. (Outfit will be re-applied on gearset change)", ref _persistGearset))
+                {
+
+                    this._Plugin.PersistGearset = _persistGearset;
+                    this._Plugin.Configuration.PersistGearset = _persistGearset;
+
+                    if (_persist)
+                    {
+                        this._Plugin.Configuration.Save();
+                    }
+                }
+
+                if (ImGui.Checkbox("Do not Re-Apply collection on automatic Re-Wear. (Only design will be re-applied)", ref _ignorePersistCollection))
+                {
+
+                    this._Plugin.IgnorePersistCollection = _ignorePersistCollection;
+                    this._Plugin.Configuration.IgnorePersistCollection = _ignorePersistCollection;
+                    this._Plugin.Configuration.Save();
+                }
+            }
         }
     }
 

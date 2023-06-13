@@ -69,6 +69,8 @@ namespace OutfitManager
         public OutfitHandler OutfitHandler { get; }
 
         public CommandHandler commandHandler;
+
+        public OutfitCaptureService CaptureService;
         public bool Property
         {
             get { return _transition; }
@@ -103,12 +105,12 @@ namespace OutfitManager
             this.OutfitHandler = new OutfitHandler(this);
             this.commandHandler = new CommandHandler(this);
 
-         
-
+    
             this.CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
             {
                 HelpMessage = $"No arguments to bring up UI (Will take you to outfits if you have added any otherwise config){Environment.NewLine}" +
                 $"config = bring up configuration window{Environment.NewLine}" +
+                $"menu = bring up main menu window{Environment.NewLine}" +
                 $"wear OUTFITNAME = wear saved outfit name{Environment.NewLine}" +
                 $"random TAGNAME = wear random outfit with tag{Environment.NewLine}" +
                 $"other = bring up remote outfit control.{Environment.NewLine}{Environment.NewLine}" +

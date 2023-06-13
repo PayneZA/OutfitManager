@@ -16,6 +16,9 @@ namespace OutfitManager
         public Dictionary<string, OmgCharacter> SafeSenders { get; set; } = new Dictionary<string, OmgCharacter>();
         public bool ChatControl { get; set; }
 
+        public int ChangeDelay { get; set; } = 5;
+
+        public int ScreenshotDelay { get; set; } = 5;
         public string OutfitName { get; set; }
         public bool Persist { get; set; }
 

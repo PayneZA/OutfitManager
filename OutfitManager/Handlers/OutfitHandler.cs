@@ -28,6 +28,8 @@ namespace OutfitManager.Handlers
         public string SnapshotGlamourer { get; set; }
         public Dictionary<string,OmgOutfit> Outfits { get; set; }
 
+   
+
         public OutfitHandler(Plugin plugin)
         {
             this._plugin = plugin;

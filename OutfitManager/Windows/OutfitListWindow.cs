@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -45,6 +46,8 @@ namespace OutfitManager.Windows
         private bool _firstDraw = true;
         private string _errorText = "";
         private int _itemsToShow = 15;
+        private bool _replaceExisting = false;
+        private bool _cropToVertical = false;
         public override void OnClose()
         {
             Dispose();
@@ -178,40 +181,88 @@ namespace OutfitManager.Windows
                     ImGui.EndChild();
                     ImGui.EndTabItem();
                 }
-                //if (ImGui.BeginTabItem("Help"))
-                //{
-                //    ImGui.BeginChild("HelpContent", new Vector2(-1, -1), false);
-                //    ImGui.Text("Help and Instructions");
-                //    ImGui.Separator();
 
-                //    ImGui.Text("Outfits:");
-                //    ImGui.BulletText("Outfits are collections of gear that your character can wear.");
-                //    ImGui.BulletText("You can create, edit, and delete outfits using the options in the 'Add / Manage' section.");
-                //    ImGui.BulletText("Click on an outfit in the list to select it. Selected outfits can be edited or deleted.");
+                if (!string.IsNullOrEmpty(this.Plugin.Configuration.PreviewDirectory))
+                {
+                    if (ImGui.BeginTabItem("Preview Generation"))
+                    {
+                        ImGui.BeginChild("PreviewGenerationContent", new Vector2(-1, -1), false);
 
-                //    ImGui.Separator();
+                        ImGui.Text("Outfit Preview Generation");
+                        ImGui.Separator();
+                        if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                        {
+                            ImGui.Text("Welcome to the Outfit Preview Generation process.");
+                            ImGui.Text("Follow these steps to create previews of your outfits:");
+                            ImGui.BulletText("Step 1: Setup the camera angle for the preview. Make sure your character is in the frame.");
+                            ImGui.BulletText("Step 2: Verify that you can manually change outfits. If not, please check your settings and try again.");
+                            ImGui.BulletText("Step 3: Choose your options on this screen.");
+                            ImGui.BulletText("Step 4: Click on 'Generate Outfit Previews' to start the process.");
+                            ImGui.BulletText("Step 5: Hide the game interface by pressing the 'Scroll Lock' key on your keyboard.");
+                            ImGui.BulletText("During this process, the outfits your character is wearing will change automatically.");
+                            ImGui.BulletText("The process is complete when outfits stop changing for more than 5 seconds.");
+                            ImGui.BulletText("You can stop at any time by clicking on 'Stop Generating Outfit Previews'. (Remember to turn ui back on)");
+                            ImGui.Text("Enjoy your new outfit previews!");
 
-                //    ImGui.Text("Add / Manage Section:");
-                //    ImGui.BulletText("'Add Outfit' creates a new outfit with the name and gear you specify.");
-                //    ImGui.BulletText("'Update' saves any changes you've made to the selected outfit.");
-                //    ImGui.BulletText("'Delete' removes the selected outfit from the list. This cannot be undone.");
 
-                //    ImGui.Separator();
+                            ImGui.Separator();
 
-                //    ImGui.Text("Advanced View:");
-                //    ImGui.BulletText("In the Advanced view, you can fine-tune your outfits with more options and settings.");
-                //    ImGui.BulletText("You can switch between Standard and Advanced views using the tabs at the top of the window.");
+                            ImGui.Text("Options:");
 
-                //    ImGui.Separator();
+                            if (ImGui.Checkbox("Replace existing outfit previews", ref _replaceExisting))
+                            {
 
-                //    ImGui.Text("Outfit List:");
-                //    ImGui.BulletText("This is a list of all your saved outfits. Click on an outfit to select it.");
-                //    ImGui.BulletText("The 'Export to Clipboard' button will copy the selected outfit's information to your clipboard.");
+                            }
+                            ImGui.BulletText("If checked, the preview generator will replace existing screenshots for outfits.");
 
-                //    ImGui.EndChild();
-                //    ImGui.EndTabItem();
-                //}
+                            if (ImGui.Checkbox("Crop to vertical", ref _cropToVertical))
+                            {
 
+                            }
+                            ImGui.BulletText("If checked, the preview generator will keep window height but crop the image.");
+
+                            bool isCaptureInProgress = this.Plugin.CaptureService != null && this.Plugin.CaptureService.captureInProgress;
+
+                            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                            {
+                                if (!isCaptureInProgress)
+                                {
+                                    if (ImGui.Button("Generate Outfit Previews"))
+                                    {
+                                        if (this.Plugin.CaptureService == null)
+                                        {
+                                            this.Plugin.CaptureService = new OutfitCaptureService(this.Plugin, this.Plugin.OutfitHandler);
+                                        }
+                                        // Start the preview generation process here
+                                        this.Plugin.CaptureService.CaptureOutfits(_replaceExisting, _cropToVertical);
+                                    }
+                                    ImGui.BulletText("Click this button to start the outfit preview generation process.");
+                                }
+                                else
+                                {
+                                    if (ImGui.Button("Stop Generating Outfit Previews"))
+                                    {
+                                        this.Plugin.CaptureService.HaltScreenshots = true;
+                                    }
+                                    ImGui.BulletText("Click this button to stop the outfit preview generation process.");
+                                }
+                            }
+                            else
+                            {
+                                ImGui.Text("This feature is available only on Windows.");
+                            }
+
+
+                            ImGui.EndChild();
+                            ImGui.EndTabItem();
+                        }
+                        else
+                        {
+                            ImGui.Text("This feature is available only on Windows.");
+                        }
+                    }
+                }
+              
             }
 
             ImGui.EndTabBar();
