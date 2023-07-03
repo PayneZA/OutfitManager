@@ -8,6 +8,7 @@ using OutfitManager.Handlers;
 using OutfitManager.Ipc;
 using OutfitManager.Models;
 using OutfitManager.Services;
+using Penumbra.Api.Enums;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,6 +18,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using static Penumbra.Api.Ipc;
 
 namespace OutfitManager.Windows
 {
@@ -514,10 +516,36 @@ namespace OutfitManager.Windows
                 {
                     if (!this.Plugin.GetAvailableCollections().Contains(_penumbraCollection, StringComparer.OrdinalIgnoreCase))
                     {
+                        _errorText = "Penumbra collection not found.";
                         _showErrorPopup = true;
                         return;
                     }
                 }
+                else if (this.Plugin.Configuration.AutoCollection)
+                {
+                    try
+                    {
+                        if (this.Plugin.Configuration.PenumbraCollectionType != "Your Character")
+                        {
+                    
+                            _penumbraCollection = GetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Current);
+                        }
+                        else
+                        {
+                            _penumbraCollection = GetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Yourself);
+                        }
+
+                  
+                    }
+                    catch(Exception ex)
+                    {
+                        _errorText = "Problem auto fetching penumbra collection.";
+                        _showErrorPopup = true;
+
+                        return;
+                    }
+                }
+              
                 _outfit = new OmgOutfit
                 {
                     CollectionName = _penumbraCollection,
@@ -530,7 +558,25 @@ namespace OutfitManager.Windows
                     IsFavourite = _favourite
                 };
 
+                if (this.Plugin.Configuration.AutoCollection)
+                {
+                    _outfit.CollectionName = _penumbraCollection;
+                }
 
+                    if (string.IsNullOrEmpty(_glamourerDesign) && this.Plugin.Configuration.AutoGlamourer)
+                {
+                    try
+                    {
+                       _outfit.GlamourerData = GlamourerIpc.Instance.GetAllCustomizationFromCharacterIpc(DalamudService.ClientState.LocalPlayer);
+                    }
+                    catch(Exception ex)
+                    {
+                        _errorText = "Problem auto fetching glamourer data.";
+                        _showErrorPopup= true;
+
+                        return;
+                    }
+                }
 
 
                 if (!this.Plugin.OutfitHandler.Outfits.ContainsKey(_outfit.Name))

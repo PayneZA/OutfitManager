@@ -26,6 +26,9 @@ namespace OutfitManager.Windows
         private string _primaryCollection = "";
         private bool _showErrorPopup = false;
         private int _currentCollectionTypeIndex;
+        private bool _autoCollection = false;
+        private bool _autoGlamourer = false;
+
 
         string[] collectionTypes = new string[] { "Individual", "Your Character" };
 
@@ -61,6 +64,8 @@ namespace OutfitManager.Windows
             _ignorePersistCollection = this._Plugin.Configuration.IgnorePersistCollection;
             _primaryCollection = this._Plugin.Configuration.PrimaryCollection;
             _currentCollectionTypeIndex = Array.IndexOf(collectionTypes, this._Plugin.Configuration.PenumbraCollectionType);
+            _autoCollection = this._Plugin.Configuration.AutoCollection;
+            _autoGlamourer = this._Plugin.Configuration.AutoGlamourer;
         }
 
 
@@ -146,8 +151,6 @@ namespace OutfitManager.Windows
 
                 RemoteControl();
 
-                Persist();
-
                 PenumbraCollectionTypeSelection();
 
                 if (ImGui.InputTextWithHint("Primary Collection (optional)", "Enter your default 'go to ' collection and press enter...", ref _primaryCollection, 64, ImGuiInputTextFlags.EnterReturnsTrue))
@@ -155,6 +158,21 @@ namespace OutfitManager.Windows
                     this._Plugin.Configuration.PrimaryCollection = this._primaryCollection;
                     this._Plugin.Configuration.Save();
                 }
+
+                if (ImGui.CollapsingHeader("Re-Wear Settings", ImGuiTreeNodeFlags.DefaultOpen))
+                {
+                    Persist();
+
+            
+                }
+                if (ImGui.CollapsingHeader("Auto-Fill Settings", ImGuiTreeNodeFlags.DefaultOpen))
+                {
+                    AutoFill();
+
+           
+                }
+
+             
             }
             ShowErrorPopupBox();
         }
@@ -209,6 +227,22 @@ namespace OutfitManager.Windows
                 }
             }
         }
+
+        public void AutoFill()
+        {
+            if (ImGui.Checkbox("Set current collection on add/update outfit if not specified.", ref _autoCollection))
+            {
+                this._Plugin.Configuration.AutoCollection = _autoCollection;
+                this._Plugin.Configuration.Save();
+            }
+            if (ImGui.Checkbox("Store current glamourer equipment on add/update outfit if not specified.", ref _autoGlamourer))
+            {
+                this._Plugin.Configuration.AutoGlamourer = _autoGlamourer;
+                this._Plugin.Configuration.Save();
+            }
+        }
+
+
     }
 
 }

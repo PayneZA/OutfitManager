@@ -10,9 +10,9 @@
       },
       "Penumbra.Api": {
         "type": "Direct",
-        "requested": "[1.0.7, )",
-        "resolved": "1.0.7",
-        "contentHash": "NVntxQIaBPFyUmnFvIYF4G41i1at2U0efhEnqRSZYRJDxj2N4gmVivjJgjQuHxQlzFTDCCgphN8y/L/+Gr80fA=="
+        "requested": "[1.0.8, )",
+        "resolved": "1.0.8",
+        "contentHash": "lnpFGOuiyvKMRAUYtiA/oLBDYvnr+KPm6FMrAjLrfKCGFJpVMZlT4S8tAomhVCnYmGz2ada8wENwG06NJDvPpg=="
       },
       "System.Drawing.Common": {
         "type": "Direct",

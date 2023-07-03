@@ -101,6 +101,10 @@ namespace OutfitManager.Handlers
                 {
                     commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/glamour apply,<me>,{outfit.DesignPath}" });
                 }
+                else if (!string.IsNullOrEmpty(outfit.GlamourerData.Trim()))
+                {
+                    GlamourerIpc.Instance.ApplyOnlyEquipmentToCharacterIpc(outfit.GlamourerData, DalamudService.ClientState.LocalPlayer);
+                }
                 int delay = 0;
                 if (!string.IsNullOrEmpty(outfit.GearSet) && gearset)
                 {

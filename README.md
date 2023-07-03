@@ -46,7 +46,11 @@ The plugin has several UI windows to manage different aspects of your outfits:
 - Other Characters Window: Manage outfit control for other characters
 - Outfit Preview Window: Preview your outfits before equipping
 
-## 6. Notes
+## 5. Auto-Fill Option In Configuration
+- Collection Option: Will check which collection is currently applied to your character with penumbra and auto fill it into the outfit if it iis not present.
+- Glamourer Option: Store the glamourer data within Outfit Manager removing the need for a design, this will be equipped as equipment only, no customizations.
+  
+## 7. Notes
 
 - To use the outfit preview system, you need to have images with the same name as your outfit in the preview directory you set in the configuration window.
 - The plugin may not work properly if you are locked out by a friend using the outfit lock feature.

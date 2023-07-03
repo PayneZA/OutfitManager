@@ -28,7 +28,10 @@ namespace OutfitManager
         public string PrimaryCollection { get; set; } = "";
 
         public string PenumbraCollectionType { get; set; } = "Your Character";
-        public bool IgnorePersistCollection { get; set; }   
+        public bool IgnorePersistCollection { get; set; }
+        public bool AutoGlamourer { get; set; } 
+
+        public bool AutoCollection { get; set; }
         // the below exist just to make saving less cumbersome
         [NonSerialized]
         private DalamudPluginInterface? PluginInterface;

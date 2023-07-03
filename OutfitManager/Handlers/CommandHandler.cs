@@ -142,6 +142,7 @@ namespace OutfitManager.Handlers
                     }
 
                     break;
+
                 //case "generatepreviews":
 
                 //    try
