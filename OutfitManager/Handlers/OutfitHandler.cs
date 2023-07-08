@@ -1,4 +1,5 @@
 using Dalamud.Interface.Windowing;
+using Dalamud.Logging;
 using Dalamud.Plugin;
 using Newtonsoft.Json;
 using OutfitManager.Ipc;
@@ -61,70 +62,99 @@ namespace OutfitManager.Handlers
 
         public void EquipOutfit(string outfitName = "", string tag = "", bool gearset = true, bool ignoreCollection = false)
         {
-            OmgOutfit outfit = null;
-            this.Snapshot = new OmgOutfit();
-            if (!string.IsNullOrEmpty(tag))
+            try
             {
-                List<OmgOutfit> outfits = this._plugin.OutfitHandler.Outfits.Values.Where(x => x.Tags.Contains(tag)).ToList();
+                OmgOutfit outfit = null;
+                this.Snapshot = new OmgOutfit();
 
-                if (outfits.Count > 0)
+                if (this._plugin == null)
                 {
-                    Random random = new Random();
-                    int index = random.Next(outfits.Count);
-                    outfit = outfits[index];
+                    throw new NullReferenceException("Plugin is not initialized");
                 }
-            }
-            else
-            {
-                outfit = this._plugin.OutfitHandler.Outfits[outfitName];
-            }
 
-            if (outfit != null)
-            {
-
-                List<RecievedCommand> commands = new List<RecievedCommand>();
-
-                if (!string.IsNullOrEmpty(outfit.CollectionName.Trim()) && !ignoreCollection)
+                if (!string.IsNullOrEmpty(tag))
                 {
-                    if (this._plugin.Configuration.PenumbraCollectionType != "Your Character")
+                    List<OmgOutfit> outfits = this._plugin.OutfitHandler.Outfits.Values.Where(x => x.Tags.Contains(tag)).ToList();
+
+                    if (outfits.Count > 0)
                     {
-                        SetCollectionForObject.Subscriber(DalamudService.PluginInterface).Invoke(0, outfit.CollectionName, true, false);
+                        Random random = new Random();
+                        int index = random.Next(outfits.Count);
+                        outfit = outfits[index];
                     }
                     else
                     {
-                        SetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Yourself, outfit.CollectionName, true, false);
+                        throw new Exception("No outfits found with the provided tag");
+                    }
+                }
+                else
+                {
+                    if (!this._plugin.OutfitHandler.Outfits.ContainsKey(outfitName))
+                    {
+                        throw new KeyNotFoundException($"No outfit found with the name {outfitName}");
+                    }
+                    outfit = this._plugin.OutfitHandler.Outfits[outfitName];
+                }
+
+                if (outfit != null)
+                {
+                    List<RecievedCommand> commands = new List<RecievedCommand>();
+
+                    if (!string.IsNullOrEmpty(outfit.CollectionName.Trim()) && !ignoreCollection)
+                    {
+                        if (this._plugin.Configuration.PenumbraCollectionType != "Your Character")
+                        {
+                            SetCollectionForObject.Subscriber(DalamudService.PluginInterface).Invoke(0, outfit.CollectionName, true, false);
+                        }
+                        else
+                        {
+                            SetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Yourself, outfit.CollectionName, true, false);
+                        }
                     }
 
-                    //  commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/penumbra collection {this.Configuration.PenumbraCollectionType} | {outfit.CollectionName} | <me>" });
-                }
-                if (!string.IsNullOrEmpty(outfit.DesignPath.Trim()))
-                {
-                    commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/glamour apply,<me>,{outfit.DesignPath}" });
-                }
-                else if (outfit.GlamourerData != null && !string.IsNullOrEmpty(outfit.GlamourerData.Trim()))
-                {
-                    GlamourerIpc.Instance.ApplyOnlyEquipmentToCharacterIpc(outfit.GlamourerData, DalamudService.ClientState.LocalPlayer);
-                }
-                int delay = 0;
-                if (!string.IsNullOrEmpty(outfit.GearSet) && gearset)
-                {
-                    this.IgnoreGsEquip = true;
-                    this._plugin.Common.Functions.Chat.SendMessage("/gearset change " + outfit.GearSet.Trim());
+                    if (!string.IsNullOrEmpty(outfit.DesignPath.Trim()))
+                    {
+                        commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/glamour apply,<me>,{outfit.DesignPath}" });
+                    }
+                    else if (outfit.GlamourerData != null && !string.IsNullOrEmpty(outfit.GlamourerData.Trim()))
+                    {
+                        GlamourerIpc.Instance?.ApplyOnlyEquipmentToCharacterIpc(outfit.GlamourerData, DalamudService.ClientState.LocalPlayer);
+                    }
 
-                    delay = 300;
+                    int delay = 0;
+                    if (!string.IsNullOrEmpty(outfit.GearSet) && gearset)
+                    {
+                        this.IgnoreGsEquip = true;
+                        this._plugin.Common.Functions.Chat.SendMessage("/gearset change " + outfit.GearSet.Trim());
+                        delay = 300;
+                    }
+
+                    foreach (RecievedCommand recievedCommand in commands)
+                    {
+                        _plugin.RelayCommand(recievedCommand.Command, delay += 100);
+                    }
+
+                    this._plugin.Configuration.OutfitName = outfitName;
+                    this._plugin.Configuration.Save();
                 }
-
-                foreach (RecievedCommand recievedCommand in commands)
-                {
-                    _plugin.RelayCommand(recievedCommand.Command, delay += 100);
-                }
-
-
-                this._plugin.Configuration.OutfitName = outfitName;
-                this._plugin.Configuration.Save();
-
+            }
+            catch (NullReferenceException ex)
+            {
+                // Log the error
+                PluginLog.Error(ex, "Error: NullReferenceException caught.");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                // Log the error
+                PluginLog.Error(ex, "Error: KeyNotFoundException caught.");
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                PluginLog.Error(ex, "Error: An unexpected error occurred.");
             }
         }
+
 
         public string GetOutfitJsonFilePath()
         {

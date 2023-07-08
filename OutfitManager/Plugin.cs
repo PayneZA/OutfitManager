@@ -95,7 +95,21 @@ namespace OutfitManager
             this.PluginInterface = pluginInterface;
             this.CommandManager = commandManager;
             this.ChatGui = chatGui;
-            this.Common = new XivCommonBase(Hooks.None);
+            try
+            {
+                this.Common = new XivCommonBase(Hooks.None);
+            }
+            catch (NullReferenceException ex)
+            {
+                // Log the error
+                PluginLog.Error(ex, "Failed to initialize XivCommonBase due to a NullReferenceException.");
+            }
+            catch (Exception ex)
+            {
+                // Catch any other unexpected exceptions
+                PluginLog.Error(ex, "An unexpected error occurred while initializing XivCommonBase.");
+            }
+
 
             this.Configuration = this.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             this.Configuration.Initialize(this.PluginInterface);
