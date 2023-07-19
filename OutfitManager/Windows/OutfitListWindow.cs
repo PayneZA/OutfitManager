@@ -50,6 +50,7 @@ namespace OutfitManager.Windows
         private int _itemsToShow = 15;
         private bool _replaceExisting = false;
         private bool _cropToVertical = false;
+        private string _scaleName = "";
         public override void OnClose()
         {
             Dispose();
@@ -68,7 +69,7 @@ namespace OutfitManager.Windows
 
             // Remove the minimum size constraint
             this.SizeConstraints = new WindowSizeConstraints
-            {   MinimumSize = new Vector2(385, 290),
+            {   MinimumSize = new Vector2(385, 310),
                 MaximumSize = new Vector2(float.MaxValue, float.MaxValue)
             };
 
@@ -379,10 +380,10 @@ namespace OutfitManager.Windows
         }
         public void DrawCurrentOutfitName()
         {
-            if (this.Plugin.Configuration.OutfitName != null && this.Plugin.OutfitHandler.Outfits.ContainsKey(this.Plugin.Configuration.OutfitName))
+            if (this.Plugin.Configuration.LastOutfits[DalamudService.ClientState.LocalPlayer.Name.TextValue] != "")
             {
                 ImGui.Separator();
-                OmgOutfit currentOutfit = this.Plugin.OutfitHandler.Outfits[this.Plugin.Configuration.OutfitName];
+                OmgOutfit currentOutfit = this.Plugin.OutfitHandler.Outfits[this.Plugin.Configuration.LastOutfits[DalamudService.ClientState.LocalPlayer.Name.TextValue]];
 
                 if (ImGui.Selectable($"Currently Equipped Outfit: {currentOutfit.DisplayName}"))
                 {
@@ -401,7 +402,7 @@ namespace OutfitManager.Windows
             _notes = _outfit.Notes;
             _tags = String.Join(",", _outfit.Tags);
             _favourite = _outfit.IsFavourite;
-
+            _scaleName = _outfit.CustomizeScaleName;
             if (_showPreview)
             {
                 this.Plugin.SetImagePreview(_outfit.Name);
@@ -431,6 +432,10 @@ namespace OutfitManager.Windows
             ImGui.InputTextWithHint("Penumbra Collection", "Enter penumbra collection name (e.g. character name)", ref _penumbraCollection, 64, ImGuiInputTextFlags.EnterReturnsTrue);
             ImGui.InputTextWithHint("Glamourer Design", "Glamourer Design Path (E.g. /collections/outfit1) (optional)", ref _glamourerDesign, 64, ImGuiInputTextFlags.EnterReturnsTrue);
             ImGui.InputTextWithHint("Gearset", "Enter gearset number (e.g. 1 10 for gearset 1 glam plate 10)(optional)", ref _gearset, 64, ImGuiInputTextFlags.EnterReturnsTrue);
+            if (this.Plugin.Configuration.EnableCustomizeSupport)
+            {
+                ImGui.InputTextWithHint("Customize Scale", "Customize Scale name (optional)", ref _scaleName, 64, ImGuiInputTextFlags.EnterReturnsTrue);
+            }
             ImGui.InputTextWithHint("Tags", "Enter tags for your gear comma separated (optional)", ref _tags, 64, ImGuiInputTextFlags.EnterReturnsTrue);
             ImGui.Checkbox("Favourite ?", ref _favourite);
             ImGui.InputTextMultiline("Notes", ref _notes,512, new Vector2(440, 60));
@@ -455,6 +460,7 @@ namespace OutfitManager.Windows
                 
                             _newOutfitName = "";
                             _penumbraCollection = "";
+                            _scaleName = "";
                             _glamourerDesign = "";
                             _gearset = "";
                             _notes = "";
@@ -504,6 +510,7 @@ namespace OutfitManager.Windows
                 _notes = "";
                 _tags = "";
                 _favourite = false;
+                _scaleName = "";
                 this.Plugin.OutfitHandler.EquipOutfit(_outfit.Name);
             }
         }
@@ -545,7 +552,7 @@ namespace OutfitManager.Windows
                         return;
                     }
                 }
-              
+
                 _outfit = new OmgOutfit
                 {
                     CollectionName = _penumbraCollection,
@@ -555,7 +562,8 @@ namespace OutfitManager.Windows
                     Name = _newOutfitName.ToLower().Replace(":", ""),
                     Notes = _notes,
                     Tags = _tags.ToLower().Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList(),
-                    IsFavourite = _favourite
+                    IsFavourite = _favourite,
+                    CustomizeScaleName = _scaleName
                 };
 
                 if (this.Plugin.Configuration.AutoCollection)
@@ -632,7 +640,8 @@ namespace OutfitManager.Windows
                     Notes = _notes,
                     Tags = _tags.ToLower().Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList(),
                     IsFavourite = _favourite,
-                    IsSnapshot = true
+                    IsSnapshot = true,
+                    CustomizeScaleName = _scaleName
                 };
 
                 try

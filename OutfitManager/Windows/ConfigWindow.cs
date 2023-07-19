@@ -1,5 +1,7 @@
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
+using OutfitManager.Ipc;
+using OutfitManager.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,7 +30,8 @@ namespace OutfitManager.Windows
         private int _currentCollectionTypeIndex;
         private bool _autoCollection = false;
         private bool _autoGlamourer = false;
-
+        private bool _customizeSupport = false;
+        private bool _resetScalesToDefault = true;
 
         string[] collectionTypes = new string[] { "Individual", "Your Character" };
 
@@ -37,7 +40,7 @@ namespace OutfitManager.Windows
         {
             this.SizeConstraints = new WindowSizeConstraints
             {
-                MinimumSize = new Vector2(575, 430),
+                MinimumSize = new Vector2(575, 490),
                 MaximumSize = new Vector2(float.MaxValue, float.MaxValue)
             };
 
@@ -66,6 +69,8 @@ namespace OutfitManager.Windows
             _currentCollectionTypeIndex = Array.IndexOf(collectionTypes, this._Plugin.Configuration.PenumbraCollectionType);
             _autoCollection = this._Plugin.Configuration.AutoCollection;
             _autoGlamourer = this._Plugin.Configuration.AutoGlamourer;
+            _customizeSupport = this._Plugin.Configuration.EnableCustomizeSupport;
+            _resetScalesToDefault = this._Plugin.Configuration.ResetScalesToDefault;
         }
 
 
@@ -151,6 +156,27 @@ namespace OutfitManager.Windows
 
                 RemoteControl();
 
+
+
+                if (ImGui.CollapsingHeader("Customize Settings", ImGuiTreeNodeFlags.DefaultOpen))
+                {
+                    if (ImGui.Checkbox("Enable Customize Support (Requires a default-omg-scale scale to switch back to normal.", ref _customizeSupport))
+                    {
+                        this._Plugin.Configuration.EnableCustomizeSupport = _customizeSupport;
+                        this._Plugin.Configuration.Save();
+                    }
+
+                    if (_customizeSupport)
+                    {
+                        if (ImGui.Checkbox("Reset scale to default if none specified ?", ref _resetScalesToDefault))
+                        {
+                            this._Plugin.Configuration.ResetScalesToDefault = _resetScalesToDefault;
+                            this._Plugin.Configuration.Save();
+                        }
+                    }
+                }
+             
+              
                 PenumbraCollectionTypeSelection();
 
                 if (ImGui.InputTextWithHint("Primary Collection (optional)", "Enter your default 'go to ' collection and press enter...", ref _primaryCollection, 64, ImGuiInputTextFlags.EnterReturnsTrue))

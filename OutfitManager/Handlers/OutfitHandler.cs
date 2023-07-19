@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using XivCommon;
 using static Penumbra.Api.Ipc;
 
 namespace OutfitManager.Handlers
@@ -121,6 +122,23 @@ namespace OutfitManager.Handlers
                         GlamourerIpc.Instance?.ApplyOnlyEquipmentToCharacterIpc(outfit.GlamourerData, DalamudService.ClientState.LocalPlayer);
                     }
 
+                   if (this._plugin.Configuration.EnableCustomizeSupport)
+                    {
+                                if (outfit.CustomizeScaleName != null && outfit.CustomizeScaleName.Trim() != "")
+                                {
+                                 
+                                        this._plugin.Configuration.LastAppliedScale = outfit.CustomizeScaleName;
+                                        commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/capply {DalamudService.ClientState.LocalPlayer.Name.TextValue},{outfit.CustomizeScaleName}" });
+
+                                }
+                                else if (this._plugin.Configuration.ResetScalesToDefault)
+                                {
+                                        this._plugin.Configuration.LastAppliedScale = "default-omg-scale";
+                                       commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/capply {DalamudService.ClientState.LocalPlayer.Name.TextValue},default-omg-scale" });
+                                
+                                }
+                    }
+
                     int delay = 0;
                     if (!string.IsNullOrEmpty(outfit.GearSet) && gearset)
                     {
@@ -134,7 +152,16 @@ namespace OutfitManager.Handlers
                         _plugin.RelayCommand(recievedCommand.Command, delay += 100);
                     }
 
-                    this._plugin.Configuration.OutfitName = outfitName;
+                    if (this._plugin.Configuration.LastOutfits.ContainsKey(DalamudService.ClientState.LocalPlayer.Name.TextValue))
+                    {
+                        this._plugin.Configuration.LastOutfits[DalamudService.ClientState.LocalPlayer.Name.TextValue] = outfitName;
+                    }
+                    else
+                    {
+                        this._plugin.Configuration.LastOutfits.Add(DalamudService.ClientState.LocalPlayer.Name.TextValue, outfitName);
+                    }
+                 
+                 //   this._plugin.Configuration.OutfitName = outfitName;
                     this._plugin.Configuration.Save();
                 }
             }

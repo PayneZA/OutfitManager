@@ -1,13 +1,17 @@
 using Dalamud.Interface.Windowing;
+using Dalamud.Logging;
 using OutfitManager.Ipc;
+using OutfitManager.Models;
 using OutfitManager.Services;
 using Penumbra.Api.Enums;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using XivCommon.Functions;
 using static Penumbra.Api.Ipc;
 
 namespace OutfitManager.Handlers
@@ -81,7 +85,7 @@ namespace OutfitManager.Handlers
                     args = args.ToLower().Replace("reset", "").Trim();
 
                     this._plugin.OutfitName = "";
-                    this._plugin.Configuration.OutfitName = "";
+                    this._plugin.Configuration.LastOutfits[DalamudService.ClientState.LocalPlayer.Name.TextValue] = "";
                     this._plugin.OutfitHandler.Snapshot = new Models.OmgOutfit();
                     if (!string.IsNullOrEmpty(this._plugin.Configuration.PrimaryCollection))
                     {
@@ -99,6 +103,23 @@ namespace OutfitManager.Handlers
                     else
                     {
                         DalamudService.Chat.Print($"Your last worn outfit has been cleared.");
+                    }
+
+                    if (this._plugin.Configuration.EnableCustomizeSupport && this._plugin.Configuration.ResetScalesToDefault)
+                    {
+                        try
+                        {
+                 
+                            this._plugin.RelayCommand($"/capply {this._plugin.CurrentCharacter},default-omg-scale", 100);
+    
+                               //     CustomizeIPC.Instance?.SetBodyScaleToCharacterIpc("default-omg-scale", DalamudService.ClientState.LocalPlayer);
+                            
+                        }
+                        catch (Exception ex)
+                        {
+                            // Log the error
+                            PluginLog.Error(ex, "Failed to apply scales.");
+                        }
                     }
                     this._plugin.Configuration.Save();
 
@@ -140,44 +161,7 @@ namespace OutfitManager.Handlers
                     {
 
                     }
-
                     break;
-
-                //case "generatepreviews":
-
-                //    try
-                //    {
-                //        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-                //        {
-                //          this._plugin.CaptureService = new OutfitCaptureService(this._plugin,this._plugin.OutfitHandler);
-                //          this._plugin.CaptureService.CaptureOutfits();
-                //        }
-                //        else
-                //        {
-                //            DalamudService.Chat.Print("This is only available to windows users.");
-                //        }
-                      
-                //    }
-                //    catch (Exception ex)
-                //    {
-
-                //    }
-
-                //    break;
-                //case "haltpreviews":
-
-                //    try
-                //    {
-                //        this._plugin.CaptureService.HaltScreenshots = true;
-
-                //    }
-                //    catch (Exception ex)
-                //    {
-
-                //    }
-
-                //    break;
-
             }
         }
     }

@@ -1,4 +1,5 @@
 using OutfitManager.Handlers;
+using OutfitManager.Ipc;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -59,6 +60,10 @@ namespace OutfitManager.Services
 
                                 var screenshotTask = TakeScreenshotAsync(imagePath, gameWindowHandle,cropToVerical);
                                 await Task.Delay(TimeSpan.FromSeconds(screenshotDelay));
+
+                                outfit.Value.GlamourerData = GlamourerIpc.Instance.GetAllCustomizationFromCharacterIpc(DalamudService.ClientState.LocalPlayer);
+                                this._outfitHandler.Outfits[outfit.Key] = outfit.Value;
+
                             }
                         }
                     }

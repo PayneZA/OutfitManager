@@ -76,15 +76,15 @@ namespace OutfitManager.Handlers
                 }
                 else if (this._plugin.OutfitHandler.OutfitLock || this._plugin.Configuration.Persist)
                 {
-                    if (!string.IsNullOrEmpty(this._plugin.Configuration.OutfitName?.Trim()))
+                    if (!string.IsNullOrEmpty(this._plugin.Configuration.LastOutfits[DalamudService.ClientState.LocalPlayer.Name.TextValue]))
                     {
                         if (this._plugin.OutfitHandler.OutfitLock)
                         {
-                            this._plugin.OutfitHandler.EquipOutfit(this._plugin.Configuration.OutfitName);
+                            this._plugin.OutfitHandler.EquipOutfit(this._plugin.Configuration.LastOutfits[DalamudService.ClientState.LocalPlayer.Name.TextValue]);
                         }
                         else if (this._plugin.Configuration.PersistGearset)
                         {
-                            this._plugin.OutfitHandler.EquipOutfit(this._plugin.Configuration.OutfitName, "", false);
+                            this._plugin.OutfitHandler.EquipOutfit(this._plugin.Configuration.LastOutfits[DalamudService.ClientState.LocalPlayer.Name.TextValue], "", false);
                         }
                     }
                 }

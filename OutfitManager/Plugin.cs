@@ -71,6 +71,8 @@ namespace OutfitManager
         public CommandHandler commandHandler;
 
         public OutfitCaptureService CaptureService;
+
+        public string CurrentCharacter { get; set; }
         public bool Property
         {
             get { return _transition; }
@@ -113,12 +115,15 @@ namespace OutfitManager
 
             this.Configuration = this.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             this.Configuration.Initialize(this.PluginInterface);
+          
+
             this.isCommandsEnabled = this.Configuration.ChatControl;
             pluginInterface.Create<DalamudService>();
+          
             this.chatHandler = new ChatHandler(this);
             this.OutfitHandler = new OutfitHandler(this);
             this.commandHandler = new CommandHandler(this);
-
+       
     
             this.CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
             {
@@ -153,6 +158,8 @@ namespace OutfitManager
                 }
             }
 
+                 
+
             if (string.IsNullOrEmpty(this.Configuration.MyCharacter.FullName) && !string.IsNullOrEmpty(this.Configuration.MyCharacter.Name) && !string.IsNullOrEmpty(this.Configuration.MyCharacter.World))
             {
                 this.Configuration.MyCharacter.FullName = $"{this.Configuration.MyCharacter.Name}@{this.Configuration.MyCharacter.World}";
@@ -171,12 +178,14 @@ namespace OutfitManager
             DalamudService.Conditions.ConditionChange += OnTransitionChange;
             SetChatMonitoring(this.isCommandsEnabled);
 
-            if (this.Configuration.OutfitName == null)
-            {
-                this.Configuration.OutfitName = "";
-            }
+            //if (this.Configuration.OutfitName == null)
+            //{
+            //    this.Configuration.OutfitName = "";
+            //}
 
             SetCharacterAndWorld();
+
+   
         }
 
         public void HideAllWindows()
@@ -191,7 +200,8 @@ namespace OutfitManager
         {
             if (this.Configuration.Persist || this.OutfitHandler.OutfitLock)
             {
-                if (this.Configuration.OutfitName != null || this.OutfitHandler.Snapshot.IsSnapshot)
+              
+                if (this.Configuration.LastOutfits.ContainsKey(DalamudService.ClientState.LocalPlayer.Name.TextValue) && this.Configuration.LastOutfits[DalamudService.ClientState.LocalPlayer.Name.TextValue] != "" || this.OutfitHandler.Snapshot.IsSnapshot)
                 {
                     if (this.OutfitHandler.Snapshot.IsSnapshot)
                     {
@@ -199,9 +209,11 @@ namespace OutfitManager
                     }
                     else
                     {
-                        if (!string.IsNullOrEmpty(this.Configuration.OutfitName.Trim()))
+
+                        if (this.Configuration.LastOutfits[DalamudService.ClientState.LocalPlayer.Name.TextValue] != "")
                         {
-                            this.OutfitHandler.EquipOutfit(this.Configuration.OutfitName, "", false, this.Configuration.IgnorePersistCollection);
+
+                            this.OutfitHandler.EquipOutfit(this.Configuration.LastOutfits[DalamudService.ClientState.LocalPlayer.Name.TextValue], "", false, this.Configuration.IgnorePersistCollection);
                         }
                     }
                 }
@@ -217,6 +229,35 @@ namespace OutfitManager
             {
                 if (DalamudService.ClientState.IsLoggedIn)
                 {
+                    this.CurrentCharacter = DalamudService.ClientState.LocalPlayer.Name.TextValue;
+
+
+
+                    if (this.Configuration.LastOutfits == null)
+                    {
+                        this.Configuration.LastOutfits = new Dictionary<string, string>
+                {
+                    { DalamudService.ClientState.LocalPlayer.Name.TextValue, "" }
+                };
+                        this.Configuration.Save();
+                    }
+                    else if (!this.Configuration.LastOutfits.ContainsKey(DalamudService.ClientState.LocalPlayer.Name.TextValue))
+                    {
+                        this.Configuration.LastOutfits.Add(DalamudService.ClientState.LocalPlayer.Name.TextValue, "");
+                        this.Configuration.Save();
+                    }
+
+
+
+
+                    if (this.CurrentCharacter != this.Configuration.LastAppliedCharacter)
+                    {
+                        this.Configuration.LastOutfits[DalamudService.ClientState.LocalPlayer.Name.TextValue] = "";
+                        this.CurrentCharacter = DalamudService.ClientState.LocalPlayer.Name.TextValue;
+                        this.Configuration.LastAppliedCharacter = this.CurrentCharacter;
+                        this.Configuration.Save();
+                    }
+
                     if (this.Configuration.MyCharacter == null)
                     {
                         this.Configuration.MyCharacter = new OmgCharacter
@@ -226,14 +267,17 @@ namespace OutfitManager
                             FullName = $"{DalamudService.ClientState.LocalPlayer.Name.TextValue}@{DalamudService.ClientState.LocalPlayer.HomeWorld.GameData.Name}"
                         };
                         this.Configuration.Save();
-                    }
 
+
+                    }
                 }
             }
             catch(Exception ex)
             {
 
             }
+
+           
         }
 
         private void OnTransitionChange(ConditionFlag flag, bool value)

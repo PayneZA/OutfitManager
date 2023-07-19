@@ -4,6 +4,7 @@ using OutfitManager.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection.Emit;
 
 namespace OutfitManager
 {
@@ -19,7 +20,7 @@ namespace OutfitManager
         public int ChangeDelay { get; set; } = 5;
 
         public int ScreenshotDelay { get; set; } = 5;
-        public string OutfitName { get; set; }
+        public string OutfitNamee { get; set; }
         public bool Persist { get; set; }
 
         public bool PersistGearset { get; set; }
@@ -30,8 +31,18 @@ namespace OutfitManager
         public string PenumbraCollectionType { get; set; } = "Your Character";
         public bool IgnorePersistCollection { get; set; }
         public bool AutoGlamourer { get; set; } 
+        public bool EnableCustomizeSupport { get; set; }
 
+        public bool ResetScalesToDefault { get; set; }
         public bool AutoCollection { get; set; }
+
+
+        public string LastAppliedScale { get; set; } = "";
+
+        public string LastAppliedCharacter { get; set; } = "";
+
+
+        public Dictionary<string, string> LastOutfits { get; set; } = new Dictionary<string, string>();
         // the below exist just to make saving less cumbersome
         [NonSerialized]
         private DalamudPluginInterface? PluginInterface;

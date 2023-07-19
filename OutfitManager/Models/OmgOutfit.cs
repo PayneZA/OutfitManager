@@ -33,5 +33,7 @@ namespace OutfitManager.Models
         public string HeelsData { get; set; }
 
         public bool IsSnapshot { get; set; }
+
+        public string CustomizeScaleName { get; set; } = "";
     }
 }
