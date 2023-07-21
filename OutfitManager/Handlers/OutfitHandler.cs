@@ -174,7 +174,7 @@ namespace OutfitManager.Handlers
             {
                 // Log the error
                 PluginLog.Error(ex, "Error: KeyNotFoundException caught.");
-            }
+            } 
             catch (Exception ex)
             {
                 // Log the error

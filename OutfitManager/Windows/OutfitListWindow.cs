@@ -380,17 +380,37 @@ namespace OutfitManager.Windows
         }
         public void DrawCurrentOutfitName()
         {
-            if (this.Plugin.Configuration.LastOutfits[DalamudService.ClientState.LocalPlayer.Name.TextValue] != "")
-            {
-                ImGui.Separator();
-                OmgOutfit currentOutfit = this.Plugin.OutfitHandler.Outfits[this.Plugin.Configuration.LastOutfits[DalamudService.ClientState.LocalPlayer.Name.TextValue]];
+            string playerName = DalamudService.ClientState.LocalPlayer.Name.TextValue;
+            string outfitKey = "";
 
-                if (ImGui.Selectable($"Currently Equipped Outfit: {currentOutfit.DisplayName}"))
-                {
-                    SelectOutfit(currentOutfit);
-                }
+            if (this.Plugin.Configuration.LastOutfits.ContainsKey(playerName))
+            {
+                outfitKey = this.Plugin.Configuration.LastOutfits[playerName];
+            }
+
+            ImGui.Separator();
+
+            OmgOutfit currentOutfit = new OmgOutfit();
+
+            if (outfitKey != "" && this.Plugin.OutfitHandler.Outfits.ContainsKey(outfitKey))
+            {
+                currentOutfit = this.Plugin.OutfitHandler.Outfits[outfitKey];
+            }
+            else
+            {
+                // Set the player's outfit in LastOutfits to an empty outfit
+                this.Plugin.Configuration.LastOutfits[playerName] = "";  // This assumes that "" corresponds to an empty outfit
+                this.Plugin.Configuration.Save();
+            }
+
+            if (ImGui.Selectable($"Currently Equipped Outfit: {currentOutfit.DisplayName}"))
+            {
+                SelectOutfit(currentOutfit);
             }
         }
+
+
+
 
         private void SelectOutfit(OmgOutfit outfit)
         {
