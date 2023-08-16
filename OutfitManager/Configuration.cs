@@ -20,7 +20,7 @@ namespace OutfitManager
         public int ChangeDelay { get; set; } = 5;
 
         public int ScreenshotDelay { get; set; } = 5;
-        public string OutfitNamee { get; set; }
+        public string OutfitName { get; set; }
         public bool Persist { get; set; }
 
         public bool PersistGearset { get; set; }

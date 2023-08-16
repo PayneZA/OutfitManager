@@ -30,7 +30,7 @@ namespace OutfitManager.Handlers
         public string SnapshotGlamourer { get; set; }
         public Dictionary<string,OmgOutfit> Outfits { get; set; }
 
-   
+        public bool AutoGlamourerUsed { get; set; }
 
         public OutfitHandler(Plugin plugin)
         {
@@ -41,6 +41,23 @@ namespace OutfitManager.Handlers
             // Load outfits from the JSON file
             this.Outfits = LoadOutfits();
             this.Snapshot = new OmgOutfit();
+
+            try
+            {
+                foreach (var fit in this.Outfits)
+                {
+                    if (!string.IsNullOrEmpty(fit.Value.GlamourerData))
+                    {
+                        this.AutoGlamourerUsed = true;
+                    }
+                
+
+                }
+            }
+            catch(Exception ex)
+            {
+
+            }
         }
 
         public async Task UnlockOutfit(int delay)
@@ -188,6 +205,70 @@ namespace OutfitManager.Handlers
             string configDirectory = DalamudService.PluginInterface.GetPluginConfigDirectory();
             return Path.Combine(configDirectory, "Outfits.json");
         }
+
+        public string GetGlamourerDesignFilePath()
+        {
+            string configDirectory = DalamudService.PluginInterface.GetPluginConfigDirectory().Replace("OutfitManager","Glamourer");
+            if(Directory.Exists(configDirectory))
+            {
+                return Path.Combine(configDirectory, "Designs.json");
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        public void MigrateToGlamourer()
+        {
+            // Fetch paths using your existing methods
+            string designsPath = GetGlamourerDesignFilePath();
+            string outfitsPath = GetOutfitJsonFilePath();
+
+            if (!string.IsNullOrEmpty(designsPath))
+            {
+                // Read Designs.json
+                var designs = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(designsPath));
+
+                // Read Outfits.json
+                var outfits = this.Outfits;
+
+                try
+                {
+                    foreach (var outfitEntry in this.Outfits)
+                    {
+                        var outfit = outfitEntry.Value;
+                        if (string.IsNullOrEmpty(outfit.DesignPath) && !string.IsNullOrEmpty(outfit.GlamourerData))
+                        {
+                            var baseKey = $"omgoutfits/{outfit.Name.ToLower()}";
+                            var newDesignKey = baseKey;
+                            int counter = 1;
+
+                            while (designs.ContainsKey(newDesignKey))
+                            {
+                                newDesignKey = baseKey + counter;
+                                counter++;
+                            }
+
+                            designs[newDesignKey] = outfit.GlamourerData;
+                            outfit.DesignPath = $"/{newDesignKey}"; // Removing 'Collections/' prefix
+                        }
+
+                        outfitEntry.Value.GlamourerData = "";
+                    }
+
+               
+                    // Save back to the files
+                    File.WriteAllText(designsPath, JsonConvert.SerializeObject(designs, Formatting.Indented));
+                    File.WriteAllText(outfitsPath, JsonConvert.SerializeObject(outfits, Formatting.Indented));
+             
+                    this.LoadOutfits();
+                }
+                catch(Exception ex) { 
+                }
+            }
+        }
+
 
         public Dictionary<string, OmgOutfit> LoadOutfits()
         {

@@ -33,6 +33,7 @@ using OutfitManager.Handlers;
 using OutfitManager.Models;
 using OutfitManager.Services;
 using Lumina.Excel.GeneratedSheets;
+using Dalamud.Game;
 
 namespace OutfitManager
 {
@@ -176,16 +177,25 @@ namespace OutfitManager
             this.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
 
             DalamudService.Conditions.ConditionChange += OnTransitionChange;
+            DalamudService.ClientState.Login += OnLogin;
+
             SetChatMonitoring(this.isCommandsEnabled);
 
-            //if (this.Configuration.OutfitName == null)
-            //{
-            //    this.Configuration.OutfitName = "";
-            //}
+            if (this.Configuration.OutfitName == null)
+            {
+                this.Configuration.OutfitName = "";
+            }
+
 
             SetCharacterAndWorld();
+        
 
    
+        }
+
+        public void OnLogin(object? sender, EventArgs e)
+        {
+            SetCharacterAndWorld();
         }
 
         public void HideAllWindows()
@@ -201,7 +211,7 @@ namespace OutfitManager
             if (this.Configuration.Persist || this.OutfitHandler.OutfitLock)
             {
               
-                if (this.Configuration.LastOutfits.ContainsKey(DalamudService.ClientState.LocalPlayer.Name.TextValue) && this.Configuration.LastOutfits[DalamudService.ClientState.LocalPlayer.Name.TextValue] != "" || this.OutfitHandler.Snapshot.IsSnapshot)
+                if ((this.Configuration.LastOutfits.ContainsKey(DalamudService.ClientState.LocalPlayer.Name.TextValue) && this.Configuration.LastOutfits[DalamudService.ClientState.LocalPlayer.Name.TextValue] != "") || this.OutfitHandler.Snapshot.IsSnapshot)
                 {
                     if (this.OutfitHandler.Snapshot.IsSnapshot)
                     {
@@ -222,73 +232,52 @@ namespace OutfitManager
 
         }
 
-     
         private void SetCharacterAndWorld()
         {
             try
             {
-                if (DalamudService.ClientState.IsLoggedIn)
+           
+                this.CurrentCharacter = DalamudService.ClientState?.LocalPlayer?.Name?.TextValue ?? "";
+
+                if (this.Configuration.MyCharacter == null)
                 {
-                    this.CurrentCharacter = DalamudService.ClientState.LocalPlayer.Name.TextValue;
+                    this.Configuration.MyCharacter = new OmgCharacter
+                    {
+                        Name = this.CurrentCharacter,
+                        World = DalamudService.ClientState.LocalPlayer.HomeWorld.GameData.Name,
+                        FullName = $"{this.CurrentCharacter}@{DalamudService.ClientState.LocalPlayer.HomeWorld.GameData.Name}"
+                    };
+                }
 
 
-
+                if (this.CurrentCharacter != "")
+                {
                     if (this.Configuration.LastOutfits == null)
                     {
-                        this.Configuration.LastOutfits = new Dictionary<string, string>
-                {
-                    { DalamudService.ClientState.LocalPlayer.Name.TextValue, "" }
-                };
-                        this.Configuration.Save();
+                        this.Configuration.LastOutfits = new Dictionary<string, string> { { this.CurrentCharacter, "" } };
                     }
-                    else if (!this.Configuration.LastOutfits.ContainsKey(DalamudService.ClientState.LocalPlayer.Name.TextValue))
+                    else if (!this.Configuration.LastOutfits.ContainsKey(this.CurrentCharacter))
                     {
-                        this.Configuration.LastOutfits.Add(DalamudService.ClientState.LocalPlayer.Name.TextValue, "");
-                        this.Configuration.Save();
-                    }
-
-
-
-
-                    if (this.CurrentCharacter != this.Configuration.LastAppliedCharacter)
-                    {
-                        this.Configuration.LastOutfits[DalamudService.ClientState.LocalPlayer.Name.TextValue] = "";
-                        this.CurrentCharacter = DalamudService.ClientState.LocalPlayer.Name.TextValue;
-                        this.Configuration.LastAppliedCharacter = this.CurrentCharacter;
-                        this.Configuration.Save();
-                    }
-
-                    if (this.Configuration.MyCharacter == null)
-                    {
-                        this.Configuration.MyCharacter = new OmgCharacter
-                        {
-                            Name = DalamudService.ClientState.LocalPlayer.Name.TextValue,
-                            World = DalamudService.ClientState.LocalPlayer.HomeWorld.GameData.Name,
-                            FullName = $"{DalamudService.ClientState.LocalPlayer.Name.TextValue}@{DalamudService.ClientState.LocalPlayer.HomeWorld.GameData.Name}"
-                        };
-                        this.Configuration.Save();
-
+                        this.Configuration.LastOutfits.Add(this.CurrentCharacter, "");
 
                     }
+
+                    this.Configuration.Save();
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-
-            }
-
            
+            }
         }
 
+
+        
         private void OnTransitionChange(ConditionFlag flag, bool value)
         {
-
-       
             if (flag == ConditionFlag.BetweenAreas51)
             {
                 Property = !Property;
-
-
             }
         }
         public void SetChatMonitoring(bool active)
@@ -311,6 +300,7 @@ namespace OutfitManager
         }
         public void Dispose()
         {
+            DalamudService.ClientState.Login -= OnLogin;
             DalamudService.Conditions.ConditionChange -= OnTransitionChange;
             this.ChatGui.ChatMessage -= OnChatMessage;
             this.WindowSystem.RemoveAllWindows();

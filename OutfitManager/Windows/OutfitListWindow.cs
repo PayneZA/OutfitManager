@@ -282,7 +282,7 @@ namespace OutfitManager.Windows
             }
             if (ImGui.BeginPopupModal("Error", ref _showErrorPopup, ImGuiWindowFlags.AlwaysAutoResize))
             {
-                _errorText = "The Penumbra collection does not exist.";
+           
                 ImGui.Text(_errorText);
                 if (ImGui.Button("OK"))
                 {
@@ -591,21 +591,38 @@ namespace OutfitManager.Windows
                     _outfit.CollectionName = _penumbraCollection;
                 }
 
-                    if (string.IsNullOrEmpty(_glamourerDesign) && this.Plugin.Configuration.AutoGlamourer)
+                if (string.IsNullOrEmpty(_glamourerDesign) && this.Plugin.Configuration.AutoGlamourer)
                 {
-                    try
-                    {
-                       _outfit.GlamourerData = GlamourerIpc.Instance.GetAllCustomizationFromCharacterIpc(DalamudService.ClientState.LocalPlayer);
-                    }
-                    catch(Exception ex)
-                    {
-                        _errorText = "Problem auto fetching glamourer data.";
-                        _showErrorPopup= true;
+                    //try
+                    //{
+                    //   _outfit.GlamourerData = GlamourerIpc.Instance.GetAllCustomizationFromCharacterIpc(DalamudService.ClientState.LocalPlayer);
+                    //}
+                    //catch(Exception ex)
+                    //{
+                    //   _errorText = "Problem auto fetching glamourer data.";
 
-                        return;
-                    }
+                    _errorText = "Glamourer auto data is no longer supported due to upcoming Glamourer 2. Disable store current glamourer in /omg config to acknowledge this.";
+                    _showErrorPopup = true;
+
+                    return;
+                    //    }
                 }
+                //if (string.IsNullOrEmpty(_glamourerDesign) && this.Plugin.Configuration.AutoGlamourer)
+                //{
+                //    try
+                //    {
+                //        _outfit.GlamourerData = GlamourerIpc.Instance.GetAllCustomizationFromCharacterIpc(DalamudService.ClientState.LocalPlayer);
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        _errorText = "Problem auto fetching glamourer data.";
 
+                //        _errorText = "Glamourer auto data is no longer supported due to upcoming Glamourer 2. Disable store current glamourer in /omg config to acknowledge this.";
+                //        _showErrorPopup = true;
+
+                //        return;
+                //    }
+                //}
 
                 if (!this.Plugin.OutfitHandler.Outfits.ContainsKey(_outfit.Name))
                 {

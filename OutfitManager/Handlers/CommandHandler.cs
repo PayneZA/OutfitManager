@@ -142,7 +142,8 @@ namespace OutfitManager.Handlers
 
                     try
                     {
-                        this._plugin.OutfitHandler.CreateSnapshot();
+                        DalamudService.Chat.Print($"No longer supported.");
+                       // this._plugin.OutfitHandler.CreateSnapshot();
                     }
                     catch(Exception ex)
                     {
