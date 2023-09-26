@@ -165,22 +165,8 @@ namespace OutfitManager.Handlers
                         delay = 300;
                     }
 
-                    foreach (RecievedCommand recievedCommand in commands)
-                    {
-                        _plugin.RelayCommand(recievedCommand.Command, delay += 100);
-                    }
+                    ExecuteCommands(commands, outfitName);
 
-                    if (this._plugin.Configuration.LastOutfits.ContainsKey(DalamudService.ClientState.LocalPlayer.Name.TextValue))
-                    {
-                        this._plugin.Configuration.LastOutfits[DalamudService.ClientState.LocalPlayer.Name.TextValue] = outfitName;
-                    }
-                    else
-                    {
-                        this._plugin.Configuration.LastOutfits.Add(DalamudService.ClientState.LocalPlayer.Name.TextValue, outfitName);
-                    }
-
-                    //   this._plugin.Configuration.OutfitName = outfitName;
-                    this._plugin.Configuration.Save();
                 }
             }
             catch (NullReferenceException ex)
@@ -199,6 +185,43 @@ namespace OutfitManager.Handlers
                 PluginLog.Error(ex, "Error: An unexpected error occurred.");
             }
         }
+
+        private void ExecuteCommands(List<RecievedCommand> commands, string outfitname)
+        {
+            int delay = 100;
+            int commandCount = commands.Count;
+
+            for (int i = 0; i < commandCount; i++)
+            {
+                var recievedCommand = commands[i];
+                var isLastCommand = (i == commandCount - 1);
+
+                var timer = new System.Timers.Timer(delay);
+                timer.Elapsed += (sender, e) =>
+                {
+                    timer.Stop();
+                    _plugin.RelayCommand(recievedCommand.Command);
+
+                    // If it's the last command, execute the subsequent logic
+                    if (isLastCommand)
+                    {
+                        if (this._plugin.Configuration.LastOutfits.ContainsKey(DalamudService.ClientState.LocalPlayer.Name.TextValue))
+                        {
+                            this._plugin.Configuration.LastOutfits[DalamudService.ClientState.LocalPlayer.Name.TextValue] = outfitname;
+                        }
+                        else
+                        {
+                            this._plugin.Configuration.LastOutfits.Add(DalamudService.ClientState.LocalPlayer.Name.TextValue, outfitname);
+                        }
+                        this._plugin.Configuration.Save();
+                    }
+                };
+                timer.Start();
+
+                delay += 100;
+            }
+        }
+
 
 
         public string GetOutfitJsonFilePath()
