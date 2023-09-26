@@ -132,7 +132,7 @@ namespace OutfitManager.Handlers
 
                     if (!string.IsNullOrEmpty(outfit.DesignPath.Trim()))
                     {
-                        commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/glamour apply,<me>,{outfit.DesignPath}" });
+                        commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/glamour apply {outfit.DesignPath}|<me>" });
                     }
                     else if (outfit.GlamourerData != null && !string.IsNullOrEmpty(outfit.GlamourerData.Trim()))
                     {
