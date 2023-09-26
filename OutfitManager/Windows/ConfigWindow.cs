@@ -185,12 +185,12 @@ namespace OutfitManager.Windows
                     this._Plugin.Configuration.Save();
                 }
 
-                if (ImGui.CollapsingHeader("Re-Wear Settings", ImGuiTreeNodeFlags.DefaultOpen))
-                {
+          //      if (ImGui.CollapsingHeader("Re-Wear Settings", ImGuiTreeNodeFlags.DefaultOpen))
+           //     {
                  //   Persist();
 
             
-                }
+            //    }
                 if (ImGui.CollapsingHeader("Auto-Fill Settings", ImGuiTreeNodeFlags.DefaultOpen))
                 {
                     AutoFill();

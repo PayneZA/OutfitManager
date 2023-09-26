@@ -368,14 +368,15 @@ namespace OutfitManager
         {
             this.Common.Functions.Chat.SendMessage($"/tell {character} forceoutfit:{outfitlock}");
         }
-        public async Task RelayCommand(string command, int delay = 100)
+        public void RelayCommand(string command, int delay = 100)
         {
-            if (!string.IsNullOrEmpty(command.Trim()))
-            {
-                await DelayTask(delay);
+        //   if (!string.IsNullOrEmpty(command.Trim()))
+         //   {
+         //       await DelayTask(delay);
 
+          
                 CommandManager.ProcessCommand(command);
-            }
+          //  }
         }
 
         static async Task DelayTask(int delay)

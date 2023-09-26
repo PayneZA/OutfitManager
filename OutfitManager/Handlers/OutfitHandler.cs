@@ -80,124 +80,124 @@ namespace OutfitManager.Handlers
 
         public void EquipOutfit(string outfitName = "", string tag = "", bool gearset = true, bool ignoreCollection = false)
         {
-            DalamudService.Chat.Print("Incompatability with new glamourer, please await update of outfitmanager.");
-            //try
-            //{
-            //    OmgOutfit outfit = null;
-            //    this.Snapshot = new OmgOutfit();
+           // DalamudService.Chat.Print("Incompatability with new glamourer, please await update of outfitmanager.");
+            try
+            {
+                OmgOutfit outfit = null;
+                this.Snapshot = new OmgOutfit();
 
-            //    if (this._plugin == null)
-            //    {
-            //        throw new NullReferenceException("Plugin is not initialized");
-            //    }
+                if (this._plugin == null)
+                {
+                    throw new NullReferenceException("Plugin is not initialized");
+                }
 
-            //    if (!string.IsNullOrEmpty(tag))
-            //    {
-            //        List<OmgOutfit> outfits = this._plugin.OutfitHandler.Outfits.Values.Where(x => x.Tags.Contains(tag)).ToList();
+                if (!string.IsNullOrEmpty(tag))
+                {
+                    List<OmgOutfit> outfits = this._plugin.OutfitHandler.Outfits.Values.Where(x => x.Tags.Contains(tag)).ToList();
 
-            //        if (outfits.Count > 0)
-            //        {
-            //            Random random = new Random();
-            //            int index = random.Next(outfits.Count);
-            //            outfit = outfits[index];
-            //        }
-            //        else
-            //        {
-            //            throw new Exception("No outfits found with the provided tag");
-            //        }
-            //    }
-            //    else
-            //    {
-            //        if (!this._plugin.OutfitHandler.Outfits.ContainsKey(outfitName))
-            //        {
-            //            throw new KeyNotFoundException($"No outfit found with the name {outfitName}");
-            //        }
-            //        outfit = this._plugin.OutfitHandler.Outfits[outfitName];
-            //    }
+                    if (outfits.Count > 0)
+                    {
+                        Random random = new Random();
+                        int index = random.Next(outfits.Count);
+                        outfit = outfits[index];
+                    }
+                    else
+                    {
+                        throw new Exception("No outfits found with the provided tag");
+                    }
+                }
+                else
+                {
+                    if (!this._plugin.OutfitHandler.Outfits.ContainsKey(outfitName))
+                    {
+                        throw new KeyNotFoundException($"No outfit found with the name {outfitName}");
+                    }
+                    outfit = this._plugin.OutfitHandler.Outfits[outfitName];
+                }
 
-            //    if (outfit != null)
-            //    {
-            //        List<RecievedCommand> commands = new List<RecievedCommand>();
+                if (outfit != null)
+                {
+                    List<RecievedCommand> commands = new List<RecievedCommand>();
 
-            //        if (!string.IsNullOrEmpty(outfit.CollectionName.Trim()) && !ignoreCollection)
-            //        {
-            //            if (this._plugin.Configuration.PenumbraCollectionType != "Your Character")
-            //            {
-            //                SetCollectionForObject.Subscriber(DalamudService.PluginInterface).Invoke(0, outfit.CollectionName, true, false);
-            //            }
-            //            else
-            //            {
-            //                SetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Yourself, outfit.CollectionName, true, false);
-            //            }
-            //        }
+                    if (!string.IsNullOrEmpty(outfit.CollectionName.Trim()) && !ignoreCollection)
+                    {
+                        if (this._plugin.Configuration.PenumbraCollectionType != "Your Character")
+                        {
+                            SetCollectionForObject.Subscriber(DalamudService.PluginInterface).Invoke(0, outfit.CollectionName, true, false);
+                        }
+                        else
+                        {
+                            SetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Yourself, outfit.CollectionName, true, false);
+                        }
+                    }
 
-            //        if (!string.IsNullOrEmpty(outfit.DesignPath.Trim()))
-            //        {
-            //            commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/glamour apply {outfit.DesignPath}|<me>" });
-            //        }
-            //        else if (outfit.GlamourerData != null && !string.IsNullOrEmpty(outfit.GlamourerData.Trim()))
-            //        {
-            //            GlamourerIpc.Instance?.ApplyOnlyEquipmentToCharacterIpc(outfit.GlamourerData, DalamudService.ClientState.LocalPlayer);
-            //        }
+                    if (!string.IsNullOrEmpty(outfit.DesignPath.Trim()))
+                    {
+                        commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/glamour apply {outfit.DesignPath}|<me>" });
+                    }
+                    //else if (outfit.GlamourerData != null && !string.IsNullOrEmpty(outfit.GlamourerData.Trim()))
+                    //{
+                    //    GlamourerIpc.Instance?.ApplyOnlyEquipmentToCharacterIpc(outfit.GlamourerData, DalamudService.ClientState.LocalPlayer);
+                    //}
 
-            //       if (this._plugin.Configuration.EnableCustomizeSupport)
-            //        {
-            //                    if (outfit.CustomizeScaleName != null && outfit.CustomizeScaleName.Trim() != "")
-            //                    {
-                                 
-            //                            this._plugin.Configuration.LastAppliedScale = outfit.CustomizeScaleName;
-            //                            commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/capply {DalamudService.ClientState.LocalPlayer.Name.TextValue},{outfit.CustomizeScaleName}" });
+                    if (this._plugin.Configuration.EnableCustomizeSupport)
+                    {
+                        if (outfit.CustomizeScaleName != null && outfit.CustomizeScaleName.Trim() != "")
+                        {
 
-            //                    }
-            //                    else if (this._plugin.Configuration.ResetScalesToDefault)
-            //                    {
-            //                            this._plugin.Configuration.LastAppliedScale = "default-omg-scale";
-            //                           commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/capply {DalamudService.ClientState.LocalPlayer.Name.TextValue},default-omg-scale" });
-                                
-            //                    }
-            //        }
+                            this._plugin.Configuration.LastAppliedScale = outfit.CustomizeScaleName;
+                            commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/capply {DalamudService.ClientState.LocalPlayer.Name.TextValue},{outfit.CustomizeScaleName}" });
 
-            //        int delay = 0;
-            //        if (!string.IsNullOrEmpty(outfit.GearSet) && gearset)
-            //        {
-            //            this.IgnoreGsEquip = true;
-            //            this._plugin.Common.Functions.Chat.SendMessage("/gearset change " + outfit.GearSet.Trim());
-            //            delay = 300;
-            //        }
+                        }
+                        else if (this._plugin.Configuration.ResetScalesToDefault)
+                        {
+                            this._plugin.Configuration.LastAppliedScale = "default-omg-scale";
+                            commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/capply {DalamudService.ClientState.LocalPlayer.Name.TextValue},default-omg-scale" });
 
-            //        foreach (RecievedCommand recievedCommand in commands)
-            //        {
-            //            _plugin.RelayCommand(recievedCommand.Command, delay += 100);
-            //        }
+                        }
+                    }
 
-            //        if (this._plugin.Configuration.LastOutfits.ContainsKey(DalamudService.ClientState.LocalPlayer.Name.TextValue))
-            //        {
-            //            this._plugin.Configuration.LastOutfits[DalamudService.ClientState.LocalPlayer.Name.TextValue] = outfitName;
-            //        }
-            //        else
-            //        {
-            //            this._plugin.Configuration.LastOutfits.Add(DalamudService.ClientState.LocalPlayer.Name.TextValue, outfitName);
-            //        }
-                 
-            //     //   this._plugin.Configuration.OutfitName = outfitName;
-            //        this._plugin.Configuration.Save();
-            //    }
-            //}
-            //catch (NullReferenceException ex)
-            //{
-            //    // Log the error
-            //    PluginLog.Error(ex, "Error: NullReferenceException caught.");
-            //}
-            //catch (KeyNotFoundException ex)
-            //{
-            //    // Log the error
-            //    PluginLog.Error(ex, "Error: KeyNotFoundException caught.");
-            //} 
-            //catch (Exception ex)
-            //{
-            //    // Log the error
-            //    PluginLog.Error(ex, "Error: An unexpected error occurred.");
-            //}
+                    int delay = 0;
+                    if (!string.IsNullOrEmpty(outfit.GearSet) && gearset)
+                    {
+                        this.IgnoreGsEquip = true;
+                        this._plugin.Common.Functions.Chat.SendMessage("/gearset change " + outfit.GearSet.Trim());
+                        delay = 300;
+                    }
+
+                    foreach (RecievedCommand recievedCommand in commands)
+                    {
+                        _plugin.RelayCommand(recievedCommand.Command, delay += 100);
+                    }
+
+                    if (this._plugin.Configuration.LastOutfits.ContainsKey(DalamudService.ClientState.LocalPlayer.Name.TextValue))
+                    {
+                        this._plugin.Configuration.LastOutfits[DalamudService.ClientState.LocalPlayer.Name.TextValue] = outfitName;
+                    }
+                    else
+                    {
+                        this._plugin.Configuration.LastOutfits.Add(DalamudService.ClientState.LocalPlayer.Name.TextValue, outfitName);
+                    }
+
+                    //   this._plugin.Configuration.OutfitName = outfitName;
+                    this._plugin.Configuration.Save();
+                }
+            }
+            catch (NullReferenceException ex)
+            {
+                // Log the error
+                PluginLog.Error(ex, "Error: NullReferenceException caught.");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                // Log the error
+                PluginLog.Error(ex, "Error: KeyNotFoundException caught.");
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                PluginLog.Error(ex, "Error: An unexpected error occurred.");
+            }
         }
 
 
