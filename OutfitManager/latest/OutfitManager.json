@@ -1,16 +1,18 @@
-{
-  "Author": "PayneZA",
-  "Name": "Outfit Manager",
-  "InternalName": "OutfitManager",
-  "AssemblyVersion": "0.0.5.8",
-  "Description": "Easy outfit changing if you know the name with penumbra/glamourer and gearset support.",
-  "ApplicableVersion": "any",
-  "RepoUrl": "https://github.com/PayneZA/OutfitManager",
-  "DalamudApiLevel": 8,
-  "LoadRequiredState": 2,
-  "LoadSync": true,
-  "CanUnloadAsync": false,
-  "LoadPriority": 0,
-  "Punchline": "Allows penumbra/glamourer/gearset assignment via chat command.",
-  "AcceptsFeedback": true
-}
+[
+    {
+        "Author": "PayneZA",
+        "Name": "Outfit Manager",
+        "InternalName": "OutfitManager",
+        "AssemblyVersion": "0.0.5.8",
+        "Description": "Easy outfit changing if you know the name with penumbra/glamourer and gearset support.",
+        "ApplicableVersion": "any",
+        "RepoUrl": "https://github.com/PayneZA/OutfitManager",
+        "DalamudApiLevel": 8,
+        "LoadRequiredState": 2,
+        "LoadSync": true,
+        "CanUnloadAsync": false,
+        "LoadPriority": 0,
+        "Punchline": "Allows penumbra/glamourer/gearset assignment via chat command.",
+        "AcceptsFeedback": true
+    }
+]
