@@ -166,6 +166,12 @@ namespace OutfitManager
                 this.Configuration.MyCharacter.FullName = $"{this.Configuration.MyCharacter.Name}@{this.Configuration.MyCharacter.World}";
                 this.Configuration.Save();
             }
+
+            if (this.Configuration.Persist)
+            {
+                this.Configuration.Persist = false;
+                this.Configuration.Save();
+            }
             WindowSystem.AddWindow(new ConfigWindow(this));
             WindowSystem.AddWindow(new MainWindow(this));
             WindowSystem.AddWindow(new AllowedCharacterWindow(this));

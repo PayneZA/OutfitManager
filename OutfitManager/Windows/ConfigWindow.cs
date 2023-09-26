@@ -187,7 +187,7 @@ namespace OutfitManager.Windows
 
                 if (ImGui.CollapsingHeader("Re-Wear Settings", ImGuiTreeNodeFlags.DefaultOpen))
                 {
-                    Persist();
+                 //   Persist();
 
             
                 }
