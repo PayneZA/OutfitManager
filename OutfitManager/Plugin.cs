@@ -34,22 +34,25 @@ using OutfitManager.Models;
 using OutfitManager.Services;
 using Lumina.Excel.GeneratedSheets;
 using Dalamud.Game;
+using Dalamud.Plugin.Services;
+using Dalamud.Interface.Internal;
 
 namespace OutfitManager
 {
     public sealed class Plugin : IDalamudPlugin
     {
+       
         public string Name => "Outfit Manager";
         private const string CommandName = "/omg";
         public DalamudPluginInterface PluginInterface { get; init; }
-        private CommandManager CommandManager { get; init; }
+        private ICommandManager CommandManager { get; init; }
         public Configuration Configuration { get; init; }
         private bool isCommandsEnabled { get; set; }
 
         public bool PersistOutfit { get; set; }
 
-        public TextureWrap OutfitPreview;
-        private ChatGui ChatGui { get; init; }
+        public IDalamudTextureWrap OutfitPreview;
+        private IChatGui ChatGui { get; init; }
         public WindowSystem WindowSystem = new("OutfitManager");
         public XivCommonBase Common { get; init; }
 
@@ -92,7 +95,7 @@ namespace OutfitManager
         }
         public event EventHandler Transition;
 
-        public Plugin(DalamudPluginInterface pluginInterface, CommandManager commandManager, ChatGui chatGui)
+        public Plugin(DalamudPluginInterface pluginInterface, ICommandManager commandManager, IChatGui chatGui)
         {
 
             this.PluginInterface = pluginInterface;
@@ -100,7 +103,7 @@ namespace OutfitManager
             this.ChatGui = chatGui;
             try
             {
-                this.Common = new XivCommonBase(Hooks.None);
+                this.Common = new XivCommonBase(pluginInterface, Hooks.None);
             }
             catch (NullReferenceException ex)
             {
@@ -199,17 +202,29 @@ namespace OutfitManager
    
         }
 
-        public void OnLogin(object? sender, EventArgs e)
+        public void OnLogin()
         {
             SetCharacterAndWorld();
         }
 
         public void HideAllWindows()
+
         {
-            this.WindowSystem.GetWindow("OutfitManager Outfit List Window").IsOpen = false;
-            this.WindowSystem.GetWindow("OutfitManager Allowed Character Window").IsOpen = false;
-            this.WindowSystem.GetWindow("OutfitManager").IsOpen = false;
-            this.WindowSystem.GetWindow("Outfit Preview Window").IsOpen = false;
+            this.ShowOrHideWindow("OutfitManager Outfit List Window", false);
+            this.ShowOrHideWindow("OutfitManager Allowed Character Window", false);
+            this.ShowOrHideWindow("OutfitManager", false);
+            this.ShowOrHideWindow("Outfit Preview Window", false);
+            this.ShowOrHideWindow("OutfitManager Outfit List Window", false);
+            //this.WindowSystem.Windows.FirstOrDefault(x => x.WindowName == "OutfitManager Outfit List Window").IsOpen = false;
+            //this.WindowSystem.Windows.FirstOrDefault(x => x.WindowName == "OutfitManager Allowed Character Window").IsOpen = false;
+            //this.WindowSystem.Windows.FirstOrDefault(x => x.WindowName == "OutfitManager").IsOpen = false;
+            //this.WindowSystem.Windows.FirstOrDefault(x => x.WindowName == "Outfit Preview Window").IsOpen = false;
+            //this.WindowSystem.Windows.FirstOrDefault(x => x.WindowName == "OutfitManager Outfit List Window").IsOpen = false;
+
+            //this.WindowSystem.GetWindow("OutfitManager Outfit List Window").IsOpen = false;
+            //this.WindowSystem.GetWindow("OutfitManager Allowed Character Window").IsOpen = false;
+            //this.WindowSystem.GetWindow("OutfitManager").IsOpen = false;
+            //this.WindowSystem.GetWindow("Outfit Preview Window").IsOpen = false;
         }
 
         protected void OnTransitionChanged()
@@ -325,15 +340,21 @@ namespace OutfitManager
 
         public void DrawConfigUI()
         {
-            WindowSystem.GetWindow("OutfitManager").IsOpen = true;
+            this.ShowOrHideWindow("OutfitManager", true);
+    //        this.WindowSystem.Windows.FirstOrDefault(x => x.WindowName == "OutfitManager").IsOpen = true;
+     //       WindowSystem.GetWindow("OutfitManager").IsOpen = true;
         }
         public void DrawAllowedUserUI()
         {
-            WindowSystem.GetWindow("OutfitManager Allowed Character Window").IsOpen = true;
+            this.ShowOrHideWindow("OutfitManager Allowed Character Window", true);
+     //       this.WindowSystem.Windows.FirstOrDefault(x => x.WindowName == "OutfitManager Allowed Character Window").IsOpen = true;
+         //   WindowSystem.GetWindow("OutfitManager Allowed Character Window").IsOpen = true;
         }
         public void DrawOutfitListUI()
         {
-            WindowSystem.GetWindow("OutfitManager Outfit List Window").IsOpen = true;
+            this.ShowOrHideWindow("OutfitManager Outfit List Window", true);
+    ///        this.WindowSystem.Windows.FirstOrDefault(x => x.WindowName == "OutfitManager Outfit List Window").IsOpen = true;
+           // WindowSystem.GetWindow("OutfitManager Outfit List Window").IsOpen = true;
         }
 
         public List<string> GetAvailableCollections()
@@ -398,6 +419,8 @@ namespace OutfitManager
             if (File.Exists(imagePath))
             {
                 ShowOrHideWindow("Outfit Preview Window", true);
+
+               // this.PluginInterface.UiBuilder.LoadImage(imagePath);
                 this.OutfitPreview = this.PluginInterface.UiBuilder.LoadImage(imagePath);
             }
 
@@ -409,7 +432,9 @@ namespace OutfitManager
 
         public void ShowOrHideWindow(string name, bool visible)
         {
-            WindowSystem.GetWindow(name).IsOpen = visible;
+      
+            this.WindowSystem.Windows.FirstOrDefault(x => x.WindowName == name).IsOpen = visible;
+            //WindowSystem.GetWindow(name).IsOpen = visible;
 
 
             if(name == "Outfit Preview Window" && !visible)

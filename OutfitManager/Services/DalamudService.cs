@@ -17,27 +17,28 @@ using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.DutyState;
 using Dalamud.Game.Gui.Toast;
 using Dalamud.Interface.Windowing;
+using Dalamud.Plugin.Services;
 
 namespace OutfitManager.Services
 {
     public sealed class DalamudService
     {
         [PluginService] public static DalamudPluginInterface PluginInterface { get; set; } = null!;
-        [PluginService] public static ChatGui Chat { get; set; } = null!;
-        [PluginService] public static ClientState ClientState { get; set; } = null!;
-        [PluginService] public static Framework Framework { get; set; } = null!;
-        [PluginService] public static GameGui GameGui { get; set; } = null!;
-        [PluginService] public static TargetManager TargetManager { get; set; } = null!;
-        [PluginService] public static DutyState DutyState { get; set; } = null!;
-        [PluginService] public static ToastGui Toast { get; set; } = null!;
-        [PluginService] public static ObjectTable ObjectTable { get; set; } = null!;
-        [PluginService] public static CommandManager Commands { get; private set; } = null!;
-        [PluginService] public static DataManager GameData { get; private set; } = null!;
-        [PluginService] public static Condition Conditions { get; private set; } = null!;
-        [PluginService] public static TargetManager Targets { get; private set; } = null!;
-        [PluginService] public static ObjectTable Objects { get; private set; } = null!;
-        [PluginService] public static TitleScreenMenu TitleScreenMenu { get; private set; } = null!;
-        [PluginService] public static KeyState KeyState { get; private set; } = null!;
+        [PluginService] public static IChatGui Chat { get; set; } = null!;
+        [PluginService] public static IClientState ClientState { get; set; } = null!;
+        [PluginService] public static IFramework Framework { get; set; } = null!;
+        [PluginService] public static IGameGui GameGui { get; set; } = null!;
+        [PluginService] public static ITargetManager TargetManager { get; set; } = null!;
+        [PluginService] public static IDutyState DutyState { get; set; } = null!;
+        [PluginService] public static IToastGui Toast { get; set; } = null!;
+        [PluginService] public static IObjectTable ObjectTable { get; set; } = null!;
+        [PluginService] public static ICommandManager Commands { get; private set; } = null!;
+        [PluginService] public static IDataManager GameData { get; private set; } = null!;
+        [PluginService] public static ICondition Conditions { get; private set; } = null!;
+        [PluginService] public static ITargetManager Targets { get; private set; } = null!;
+        [PluginService] public static IObjectTable Objects { get; private set; } = null!;
+        [PluginService] public static ITitleScreenMenu TitleScreenMenu { get; private set; } = null!;
+        [PluginService] public static IKeyState KeyState { get; private set; } = null!;
 
     }
 }

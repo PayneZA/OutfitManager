@@ -64,7 +64,8 @@ namespace OutfitManager.Windows
                 ImGui.TextColored(new Vector4(0.26f, 0.59f, 0.98f, 1.0f), "Configuration");
                 if (ImGui.Button("Configuration"))
                 {
-                    this._Plugin.WindowSystem.GetWindow("Outfit Manager Configuration Window").IsOpen = true;
+                    this._Plugin.ShowOrHideWindow("Outfit Manager Configuration Window", true);
+                 //   this._Plugin.WindowSystem.GetWindow("Outfit Manager Configuration Window").IsOpen = true;
                 }
                 ImGui.SameLine();
                 ImGui.TextDisabled("(Configure your settings.)");
@@ -92,7 +93,8 @@ namespace OutfitManager.Windows
                 ImGui.TextColored(new Vector4(1, 0, 0, 1), "Please configure your character name and world name first!");
                 if (ImGui.Button("Go to Configuration"))
                 {
-                    this._Plugin.WindowSystem.GetWindow("Outfit Manager Configuration Window").IsOpen = true;
+                    this._Plugin.ShowOrHideWindow("Outfit Manager Configuration Window", true);
+                  //  this._Plugin.WindowSystem.GetWindow("Outfit Manager Configuration Window").IsOpen = true;
                 }
             }
 

@@ -39,11 +39,13 @@ namespace OutfitManager.Handlers
             {
                 if (!string.IsNullOrEmpty(this._plugin.Configuration.MyCharacter.Name) && !string.IsNullOrEmpty(this._plugin.Configuration.MyCharacter.World))
                 {
-                    this._plugin.WindowSystem.GetWindow("OutfitManager Outfit List Window").IsOpen = true;
+                    this._plugin.ShowOrHideWindow("OutfitManager Outfit List Window", true);
+                    //this._plugin.WindowSystem.GetWindow("OutfitManager Outfit List Window").IsOpen = true;
                 }
                 else
                 {
-                    this._plugin.WindowSystem.GetWindow("OutfitManager").IsOpen = true;
+                    this._plugin.ShowOrHideWindow("OutfitManager", true);
+                 //   this._plugin.WindowSystem.GetWindow("OutfitManager").IsOpen = true;
                 }
                 return;
             }
@@ -55,10 +57,12 @@ namespace OutfitManager.Handlers
             switch (action)
             {
                 case "config":
-                    this._plugin.WindowSystem.GetWindow("Outfit Manager Configuration Window").IsOpen = true;
+                    this._plugin.ShowOrHideWindow("Outfit Manager Configuration Window", true);
+              //      this._plugin.WindowSystem.GetWindow("Outfit Manager Configuration Window").IsOpen = true;
                     break;
                 case "menu":
-                    this._plugin.WindowSystem.GetWindow("OutfitManager").IsOpen = true;
+                    this._plugin.ShowOrHideWindow("OutfitManager", true);
+                 //   this._plugin.WindowSystem.GetWindow("OutfitManager").IsOpen = true;
                     break;
                 case "wear":
                     this._plugin.OutfitHandler.EquipOutfit(actionArgs);
@@ -67,7 +71,8 @@ namespace OutfitManager.Handlers
                     this._plugin.OutfitHandler.EquipOutfit("", actionArgs);
                     break;
                 case "other":
-                    this._plugin.WindowSystem.GetWindow("OutfitManager Other Character Window").IsOpen = true;
+                    this._plugin.ShowOrHideWindow("OutfitManager Other Character Window", true);
+              //      this._plugin.WindowSystem.GetWindow("OutfitManager Other Character Window").IsOpen = true;
                     break;
                 case "persist":
                     this._plugin.Configuration.Persist = actionArgs == "true" || actionArgs == "on";
