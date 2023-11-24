@@ -1,6 +1,9 @@
 # Outfit Manager
 `https://raw.githubusercontent.com/PayneZA/OutfitManager/main/OutfitManager/latest/OutfitManager.json`
 
+# Plugin in maintenance mode
+Due to time constraints this plugin is updated best effort
+
 # User Guide
 
 ## 1. Introduction
