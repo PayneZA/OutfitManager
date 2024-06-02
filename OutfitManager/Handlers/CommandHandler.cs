@@ -12,7 +12,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using XivCommon.Functions;
-using static Penumbra.Api.Ipc;
 
 namespace OutfitManager.Handlers
 {
@@ -26,6 +25,14 @@ namespace OutfitManager.Handlers
 
         public void OnCommand(string command, string args)
         {
+            if (!this._plugin.Configuration.HasShowNotice)
+            {
+                this._plugin.ShowOrHideWindow("OutfitManager Notice Window", true);
+
+
+                return;
+            }
+
             string originalArgs = args;
             args = args.ToLower().Trim();
 
@@ -94,14 +101,16 @@ namespace OutfitManager.Handlers
                     this._plugin.OutfitHandler.Snapshot = new Models.OmgOutfit();
                     if (!string.IsNullOrEmpty(this._plugin.Configuration.PrimaryCollection))
                     {
-                        if (this._plugin.Configuration.PenumbraCollectionType != "Your Character")
-                        {
-                            SetCollectionForObject.Subscriber(DalamudService.PluginInterface).Invoke(0, this._plugin.Configuration.PrimaryCollection, true, false);
-                        }
-                        else
-                        {
-                            SetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Yourself, this._plugin.Configuration.PrimaryCollection, true, false);
-                        }
+                        this._plugin.RelayCommand($"/penumbra collection Individual | {this._plugin.Configuration.PrimaryCollection} | <me>", 100);
+
+                        //if (this._plugin.Configuration.PenumbraCollectionType != "Your Character")
+                        //{
+                        //    SetCollectionForObject.Subscriber(DalamudService.PluginInterface).Invoke(0, this._plugin.Configuration.PrimaryCollection, true, false);
+                        //}
+                        //else
+                        //{
+                        //    SetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Yourself, this._plugin.Configuration.PrimaryCollection, true, false);
+                        //}
                         //  RelayCommand($"/penumbra collection {this.Configuration.PenumbraCollectionType} | {this.Configuration.PrimaryCollection} | <me>");
                         DalamudService.Chat.Print($"Your last worn outfit has been cleared and collection set to {this._plugin.Configuration.PrimaryCollection}");
                     }

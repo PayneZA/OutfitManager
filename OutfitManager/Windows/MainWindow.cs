@@ -37,6 +37,8 @@ namespace OutfitManager.Windows
 
         public override void Draw()
         {
+            ImGui.TextColored(new Vector4(0.26f, 0.59f, 0.98f, 1.0f), "NOTE: Outfit Manager Will Not Be Updated Post-Dawntrail !");
+
             ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.9f, 0.9f, 0.9f, 1.0f));
             ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new Vector2(10, 20));
 

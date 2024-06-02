@@ -67,7 +67,7 @@ namespace OutfitManager.Windows
             _ignorePersistCollection = this._Plugin.Configuration.IgnorePersistCollection;
             _primaryCollection = this._Plugin.Configuration.PrimaryCollection;
             _currentCollectionTypeIndex = Array.IndexOf(collectionTypes, this._Plugin.Configuration.PenumbraCollectionType);
-            _autoCollection = this._Plugin.Configuration.AutoCollection;
+            _autoCollection = false;
             _autoGlamourer = this._Plugin.Configuration.AutoGlamourer;
             _customizeSupport = this._Plugin.Configuration.EnableCustomizeSupport;
             _resetScalesToDefault = this._Plugin.Configuration.ResetScalesToDefault;
@@ -129,6 +129,8 @@ namespace OutfitManager.Windows
         }
         public override void Draw()
         {
+            ImGui.TextColored(new Vector4(0.26f, 0.59f, 0.98f, 1.0f), "NOTE: Outfit Manager Will Not Be Updated Post-Dawntrail !");
+
             CharacterName();
 
             if (_characterExists && _worldExists)
@@ -256,11 +258,11 @@ namespace OutfitManager.Windows
 
         public void AutoFill()
         {
-            if (ImGui.Checkbox("Set current collection on add/update outfit if not specified.", ref _autoCollection))
-            {
-                this._Plugin.Configuration.AutoCollection = _autoCollection;
-                this._Plugin.Configuration.Save();
-            }
+            //if (ImGui.Checkbox("Set current collection on add/update outfit if not specified.", ref _autoCollection))
+            //{
+            //    this._Plugin.Configuration.AutoCollection = _autoCollection;
+            //    this._Plugin.Configuration.Save();
+            //}
 
            if (this._Plugin.OutfitHandler.AutoGlamourerUsed || this._Plugin.Configuration.AutoGlamourer)
             {

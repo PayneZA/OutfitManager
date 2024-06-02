@@ -18,7 +18,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
-using static Penumbra.Api.Ipc;
 
 namespace OutfitManager.Windows
 {
@@ -81,6 +80,8 @@ namespace OutfitManager.Windows
 
         public override void Draw()
         {
+            ImGui.TextColored(new Vector4(0.26f, 0.59f, 0.98f, 1.0f), "NOTE: Outfit Manager Will Not Be Updated Post-Dawntrail !");
+
             if (_firstDraw)
             {
                 if (this.Plugin.Configuration.MyCharacter != null && this.Plugin.OutfitHandler.Outfits != null)
@@ -539,39 +540,42 @@ namespace OutfitManager.Windows
         {
             if (ImGui.Button("Add / Update Outfit") && (!string.IsNullOrEmpty(_newOutfitName)))
             {
-                if (!string.IsNullOrEmpty(_penumbraCollection))
-                {
-                    if (!this.Plugin.GetAvailableCollections().Contains(_penumbraCollection, StringComparer.OrdinalIgnoreCase))
-                    {
-                        _errorText = "Penumbra collection not found.";
-                        _showErrorPopup = true;
-                        return;
-                    }
-                }
-                else if (this.Plugin.Configuration.AutoCollection)
-                {
-                    try
-                    {
-                        if (this.Plugin.Configuration.PenumbraCollectionType != "Your Character")
-                        {
+                //if (!string.IsNullOrEmpty(_penumbraCollection))
+                //{
+                //    //this.Plugin.PenumbraApi.Collection.GetCollections();
+
+
+                //    //if (!this.Plugin.GetAvailableCollections().Contains(_penumbraCollection, StringComparer.OrdinalIgnoreCase))
+                //    //{
+                //    //    _errorText = "Penumbra collection not found.";
+                //    //    _showErrorPopup = true;
+                //    //    return;
+                //    //}
+                //}
+                //else if (this.Plugin.Configuration.AutoCollection)
+                //{
+                //    try
+                //    {
+                //        if (this.Plugin.Configuration.PenumbraCollectionType != "Your Character")
+                //        {
                     
-                            _penumbraCollection = GetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Current);
-                        }
-                        else
-                        {
-                            _penumbraCollection = GetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Yourself);
-                        }
+                //            _penumbraCollection = GetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Current);
+                //        }
+                //        else
+                //        {
+                //            _penumbraCollection = GetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Yourself);
+                //        }
 
                   
-                    }
-                    catch(Exception ex)
-                    {
-                        _errorText = "Problem auto fetching penumbra collection.";
-                        _showErrorPopup = true;
+                //    }
+                //    catch(Exception ex)
+                //    {
+                //        _errorText = "Problem auto fetching penumbra collection.";
+                //        _showErrorPopup = true;
 
-                        return;
-                    }
-                }
+                //        return;
+                //    }
+                //}
 
                 _outfit = new OmgOutfit
                 {
@@ -586,10 +590,10 @@ namespace OutfitManager.Windows
                     CustomizeScaleName = _scaleName
                 };
 
-                if (this.Plugin.Configuration.AutoCollection)
-                {
-                    _outfit.CollectionName = _penumbraCollection;
-                }
+                //if (this.Plugin.Configuration.AutoCollection)
+                //{
+                //    _outfit.CollectionName = _penumbraCollection;
+                //}
 
                 if (string.IsNullOrEmpty(_glamourerDesign) && this.Plugin.Configuration.AutoGlamourer)
                 {
@@ -649,78 +653,78 @@ namespace OutfitManager.Windows
             }
         }
 
-        //Potential future feature
-        public void AddSnapshotButton()
-        {
+        ////Potential future feature
+        //public void AddSnapshotButton()
+        //{
 
-            if (ImGui.Button("Add / Update Snapshot") && (!string.IsNullOrEmpty(_newOutfitName)))
-            {
-                if (!string.IsNullOrEmpty(_penumbraCollection))
-                {
-                    if (!this.Plugin.GetAvailableCollections().Contains(_penumbraCollection, StringComparer.OrdinalIgnoreCase))
-                    {
-                        _showErrorPopup = true;
-                        return;
-                    }
-                }
-                else
-                {
-                  _penumbraCollection = this.Plugin.GetCurrentCollection();
-                }
-                _outfit = new OmgOutfit
-                {
-                    CollectionName = _penumbraCollection,
-                    DesignPath = _glamourerDesign,
-                    DisplayName = _newOutfitName,
-                    GearSet = _gearset,
-                    Name = _newOutfitName.ToLower().Replace(":", ""),
-                    Notes = _notes,
-                    Tags = _tags.ToLower().Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList(),
-                    IsFavourite = _favourite,
-                    IsSnapshot = true,
-                    CustomizeScaleName = _scaleName
-                };
+        //    if (ImGui.Button("Add / Update Snapshot") && (!string.IsNullOrEmpty(_newOutfitName)))
+        //    {
+        //        if (!string.IsNullOrEmpty(_penumbraCollection))
+        //        {
+        //            if (!this.Plugin.GetAvailableCollections().Contains(_penumbraCollection, StringComparer.OrdinalIgnoreCase))
+        //            {
+        //                _showErrorPopup = true;
+        //                return;
+        //            }
+        //        }
+        //        else
+        //        {
+        //          _penumbraCollection = this.Plugin.GetCurrentCollection();
+        //        }
+        //        _outfit = new OmgOutfit
+        //        {
+        //            CollectionName = _penumbraCollection,
+        //            DesignPath = _glamourerDesign,
+        //            DisplayName = _newOutfitName,
+        //            GearSet = _gearset,
+        //            Name = _newOutfitName.ToLower().Replace(":", ""),
+        //            Notes = _notes,
+        //            Tags = _tags.ToLower().Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList(),
+        //            IsFavourite = _favourite,
+        //            IsSnapshot = true,
+        //            CustomizeScaleName = _scaleName
+        //        };
 
-                try
-                {
-                   string glamourerData = GlamourerIpc.Instance.GetAllCustomizationFromCharacterIpc(DalamudService.ClientState.LocalPlayer);
+        //        try
+        //        {
+        //           string glamourerData = GlamourerIpc.Instance.GetAllCustomizationFromCharacterIpc(DalamudService.ClientState.LocalPlayer);
 
-                    _outfit.GlamourerData = glamourerData;
+        //            _outfit.GlamourerData = glamourerData;
 
                 
-                }
-                catch
-                {
-                    _outfit.IsSnapshot = false;
-                    _errorText = "Problem contacting glamourer";
-                    _showErrorPopup = true;
-                    return;
+        //        }
+        //        catch
+        //        {
+        //            _outfit.IsSnapshot = false;
+        //            _errorText = "Problem contacting glamourer";
+        //            _showErrorPopup = true;
+        //            return;
                   
-                }
+        //        }
 
-                if (!this.Plugin.OutfitHandler.Outfits.ContainsKey(_outfit.Name))
-                {
-                    this.Plugin.OutfitHandler.Outfits.Add(_outfit.Name, _outfit);
-                }
-                else
-                {
-                    this.Plugin.OutfitHandler.Outfits[_outfit.Name] = _outfit;
-                }
+        //        if (!this.Plugin.OutfitHandler.Outfits.ContainsKey(_outfit.Name))
+        //        {
+        //            this.Plugin.OutfitHandler.Outfits.Add(_outfit.Name, _outfit);
+        //        }
+        //        else
+        //        {
+        //            this.Plugin.OutfitHandler.Outfits[_outfit.Name] = _outfit;
+        //        }
 
-                _outfitList = this.Plugin.OutfitHandler.Outfits.Values.OrderBy(x => x.DisplayName).ToList();
+        //        _outfitList = this.Plugin.OutfitHandler.Outfits.Values.OrderBy(x => x.DisplayName).ToList();
 
-                _outfits = _outfitList.Select(f => f.DisplayName).ToArray();
-                _filteredOutfits = _outfits;
-                _filter = "";
-                if (!string.IsNullOrEmpty(_characterName))
-                {
-                    this.Plugin.Configuration.MyCharacter.Name = _characterName;
-                }
-                this.Plugin.Configuration.Save();
-                this.Plugin.OutfitHandler.SaveOutfits(this.Plugin.OutfitHandler.Outfits);
+        //        _outfits = _outfitList.Select(f => f.DisplayName).ToArray();
+        //        _filteredOutfits = _outfits;
+        //        _filter = "";
+        //        if (!string.IsNullOrEmpty(_characterName))
+        //        {
+        //            this.Plugin.Configuration.MyCharacter.Name = _characterName;
+        //        }
+        //        this.Plugin.Configuration.Save();
+        //        this.Plugin.OutfitHandler.SaveOutfits(this.Plugin.OutfitHandler.Outfits);
 
-                Init();
-            }
-        }
+        //        Init();
+        //    }
+        //}
     }
 }

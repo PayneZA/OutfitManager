@@ -1,7 +1,7 @@
 {
   "version": 1,
   "dependencies": {
-    "net7.0-windows7.0": {
+    "net8.0-windows7.0": {
       "DalamudPackager": {
         "type": "Direct",
         "requested": "[2.1.12, )",
@@ -10,15 +10,15 @@
       },
       "Penumbra.Api": {
         "type": "Direct",
-        "requested": "[1.0.12, )",
-        "resolved": "1.0.12",
-        "contentHash": "0plNvXfhnOMYdyO+9jqRVx91SQv4lnGj3isRIRdZ0q6MGyk3oCpd4imu/nyrO5tH9cQEsVltakzJAXecSuDAMQ=="
+        "requested": "[5.1.0, )",
+        "resolved": "5.1.0",
+        "contentHash": "gpTdA1+MKFN1AueyBnDO8Y7bpDfmKw57a+YTpwiNK6mw4lEdO9cSeknkyjWbVrmyB2p2IanhX6c1arS8dTAMtw=="
       },
       "System.Drawing.Common": {
         "type": "Direct",
-        "requested": "[8.0.0, )",
-        "resolved": "8.0.0",
-        "contentHash": "JkbHJjtI/dWc5dfmEdJlbe3VwgZqCkZRtfuWFh5GOv0f+gGCfBtzMpIVkmdkj2AObO9y+oiOi81UGwH3aBYuqA==",
+        "requested": "[8.0.6, )",
+        "resolved": "8.0.6",
+        "contentHash": "aSwRnJzz6fZ73JvWMMG0KvBwOnXsBTFtfHLriQyAPrDIZ+NrDfl15GWbO/A35k0dtH77D7jfxzEcFF7RONtU/w==",
         "dependencies": {
           "Microsoft.Win32.SystemEvents": "8.0.0"
         }

@@ -17,6 +17,7 @@ namespace OutfitManager
         public Dictionary<string, OmgCharacter> SafeSenders { get; set; } = new Dictionary<string, OmgCharacter>();
         public bool ChatControl { get; set; }
 
+        public bool HasShowNotice { get; set; } 
         public int ChangeDelay { get; set; } = 5;
 
         public int ScreenshotDelay { get; set; } = 5;
@@ -34,7 +35,7 @@ namespace OutfitManager
         public bool EnableCustomizeSupport { get; set; }
 
         public bool ResetScalesToDefault { get; set; }
-        public bool AutoCollection { get; set; }
+        public bool AutoCollection { get; set; } = false;
 
 
         public string LastAppliedScale { get; set; } = "";

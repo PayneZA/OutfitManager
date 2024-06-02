@@ -14,7 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using XivCommon;
-using static Penumbra.Api.Ipc;
+
 
 namespace OutfitManager.Handlers
 {
@@ -121,14 +121,18 @@ namespace OutfitManager.Handlers
 
                     if (!string.IsNullOrEmpty(outfit.CollectionName.Trim()) && !ignoreCollection)
                     {
-                        if (this._plugin.Configuration.PenumbraCollectionType != "Your Character")
-                        {
-                            SetCollectionForObject.Subscriber(DalamudService.PluginInterface).Invoke(0, outfit.CollectionName, true, false);
-                        }
-                        else
-                        {
-                            SetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Yourself, outfit.CollectionName, true, false);
-                        }
+
+                        commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/penumbra collection Individual | {outfit.CollectionName} | <me>" });
+
+
+                        //if (this._plugin.Configuration.PenumbraCollectionType != "Your Character")
+                        //{
+                        //    SetCollectionForObject.Subscriber(DalamudService.PluginInterface).Invoke(0, outfit.CollectionName, true, false);
+                        //}
+                        //else
+                        //{
+                        //    SetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Yourself, outfit.CollectionName, true, false);
+                        //}
                     }
 
                     if (!string.IsNullOrEmpty(outfit.DesignPath.Trim()))
@@ -311,53 +315,53 @@ namespace OutfitManager.Handlers
             this._plugin.Configuration.Save();
         }
 
-        public void CreateSnapshot()
-        {
-            try
-            {
+        //public void CreateSnapshot()
+        //{
+        //    try
+        //    {
 
-                string collectionName = "";
-                if (this._plugin.Configuration.PenumbraCollectionType != "Your Character")
-                {
-                    collectionName = GetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Current);
-                }
-                else
-                {
-                    collectionName = GetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Yourself);
-                }
+        //        string collectionName = "";
+        //        if (this._plugin.Configuration.PenumbraCollectionType != "Your Character")
+        //        {
+        //            collectionName = GetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Current);
+        //        }
+        //        else
+        //        {
+        //            collectionName = GetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Yourself);
+        //        }
 
-                this.Snapshot = new OmgOutfit
-                {
-                    IsSnapshot = true,
-                    GlamourerData = GlamourerIpc.Instance.GetAllCustomizationFromCharacterIpc(DalamudService.ClientState.LocalPlayer),
-                    CollectionName = collectionName
-                };
-            }
-            catch
-            {
-                this.Snapshot = new OmgOutfit();
-            }
-        }
+        //        this.Snapshot = new OmgOutfit
+        //        {
+        //            IsSnapshot = true,
+        //            GlamourerData = GlamourerIpc.Instance.GetAllCustomizationFromCharacterIpc(DalamudService.ClientState.LocalPlayer),
+        //            CollectionName = collectionName
+        //        };
+        //    }
+        //    catch
+        //    {
+        //        this.Snapshot = new OmgOutfit();
+        //    }
+        //}
 
         public void ClearSnapshot(string collection, string glamourerBase64)
         {
             this.Snapshot = new OmgOutfit();
         }
 
-        public void ApplySnapshot()
-        {
-            string collectionName = "";
+        //public void ApplySnapshot()
+        //{
+        //    string collectionName = "";
 
-            if (this._plugin.Configuration.PenumbraCollectionType != "Your Character")
-            {
-                collectionName = GetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Current);
-            }
-            else
-            {
-                collectionName = GetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Yourself);
-            }
+        //    if (this._plugin.Configuration.PenumbraCollectionType != "Your Character")
+        //    {
+        //        collectionName = GetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Current);
+        //    }
+        //    else
+        //    {
+        //        collectionName = GetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Yourself);
+        //    }
 
-            GlamourerIpc.Instance.ApplyAllToCharacterIpc(this.Snapshot.GlamourerData, DalamudService.ClientState.LocalPlayer);
-        }
+        //    GlamourerIpc.Instance.ApplyAllToCharacterIpc(this.Snapshot.GlamourerData, DalamudService.ClientState.LocalPlayer);
+        //}
     }
 }

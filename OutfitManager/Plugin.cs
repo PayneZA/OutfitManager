@@ -20,7 +20,6 @@ using System.Runtime.CompilerServices;
 using XivCommon;
 using Dalamud.Game.ClientState.Conditions;
 using System.Text;
-using static Penumbra.Api.Ipc;
 using Penumbra.Api.Enums;
 using System.Reflection.Metadata.Ecma335;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
@@ -36,6 +35,7 @@ using Lumina.Excel.GeneratedSheets;
 using Dalamud.Game;
 using Dalamud.Plugin.Services;
 using Dalamud.Interface.Internal;
+using Penumbra.Api.Api;
 
 namespace OutfitManager
 {
@@ -52,6 +52,8 @@ namespace OutfitManager
         public bool PersistOutfit { get; set; }
 
         public IDalamudTextureWrap OutfitPreview;
+
+        public IPenumbraApi PenumbraApi;
         private IChatGui ChatGui { get; init; }
         public WindowSystem WindowSystem = new("OutfitManager");
         public XivCommonBase Common { get; init; }
@@ -181,6 +183,7 @@ namespace OutfitManager
             WindowSystem.AddWindow(new OutfitListWindow(this));
             WindowSystem.AddWindow(new OtherCharactersWindow(this));
             WindowSystem.AddWindow(new OutfitPreviewWindow(this));
+            WindowSystem.AddWindow(new NoticeWindow(this));
 
             this.PluginInterface.UiBuilder.Draw += DrawUI;
             this.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
@@ -205,6 +208,15 @@ namespace OutfitManager
         public void OnLogin()
         {
             SetCharacterAndWorld();
+
+            if (!this.Configuration.HasShowNotice)
+            {
+                this.ShowOrHideWindow("OutfitManager Notice Window", true);
+
+
+                return;
+            }
+
         }
 
         public void HideAllWindows()
@@ -215,6 +227,7 @@ namespace OutfitManager
             this.ShowOrHideWindow("OutfitManager", false);
             this.ShowOrHideWindow("Outfit Preview Window", false);
             this.ShowOrHideWindow("OutfitManager Outfit List Window", false);
+            this.ShowOrHideWindow("OutfitManager Notice Window", false);
             //this.WindowSystem.Windows.FirstOrDefault(x => x.WindowName == "OutfitManager Outfit List Window").IsOpen = false;
             //this.WindowSystem.Windows.FirstOrDefault(x => x.WindowName == "OutfitManager Allowed Character Window").IsOpen = false;
             //this.WindowSystem.Windows.FirstOrDefault(x => x.WindowName == "OutfitManager").IsOpen = false;
@@ -236,7 +249,7 @@ namespace OutfitManager
                 {
                     if (this.OutfitHandler.Snapshot.IsSnapshot)
                     {
-                        this.OutfitHandler.ApplySnapshot();
+                    //    this.OutfitHandler.ApplySnapshot();
                     }
                     else
                     {
@@ -330,6 +343,7 @@ namespace OutfitManager
 
         private void OnCommand(string command, string args)
         {
+         
             this.commandHandler.OnCommand(command,args);
         }
 
@@ -357,28 +371,30 @@ namespace OutfitManager
            // WindowSystem.GetWindow("OutfitManager Outfit List Window").IsOpen = true;
         }
 
-        public List<string> GetAvailableCollections()
-        {
-            var collections = GetCollections.Subscriber(PluginInterface).Invoke().ToList();
+        //public List<string> GetAvailableCollections()
+        //{
+        //    var collections = GetCollections.Subscriber(PluginInterface).Invoke().ToList();
 
 
-            return collections;
-        }
+        //    return collections;
+        //}
 
-        public string GetCurrentCollection()
-        {
-            if (this.Configuration.PenumbraCollectionType != "Your Character")
-            {
+        //public string GetCurrentCollection()
+        //{
+        //    if (this.Configuration.PenumbraCollectionType != "Your Character")
+        //    {
 
-                return GetCollectionForType.Subscriber(PluginInterface).Invoke(ApiCollectionType.Current);
-            }
-            else
-            {
-                return GetCollectionForType.Subscriber(PluginInterface).Invoke(ApiCollectionType.Yourself);
-            }
+
+                
+        //        return GetCollectionForType.Subscriber(PluginInterface).Invoke(ApiCollectionType.Current);
+        //    }
+        //    else
+        //    {
+        //        return GetCollectionForType.Subscriber(PluginInterface).Invoke(ApiCollectionType.Yourself);
+        //    }
 
            
-        }
+        //}
 
         public async Task SendEquipOutfit(string character, string characterFirstname, string outfit)
         {
