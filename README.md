@@ -1,7 +1,7 @@
-# Outfit Manager
+# Outfit Manager - DISCONTINUED
 
-# Plugin in maintenance mode
-Due to time constraints this plugin is updated best effort
+# Plugin Discontinued
+Due to time constraints this plugin is not going to be updated for dawntrail.
 
 # User Guide
 
@@ -9,12 +9,7 @@ Due to time constraints this plugin is updated best effort
 The Outfit Manager is a Dalamud plugin that helps you manage and equip different outfits for your character. It has several features like persisting outfits, locking outfits, setting collections, previewing outfits, and more.
 
 ## 2. Installation
-To install the plugin, follow these steps:
-
-- Open the Dalamud plugin installer
-- Add `https://raw.githubusercontent.com/PayneZA/OutfitManager/main/OutfitManager/latest/OutfitManager.json` to your sources.
-- Search for "Outfit Manager"
-- Install the plugin
+N/A
 
 ## 3. Commands
 To access the features of the plugin, use the following commands:
