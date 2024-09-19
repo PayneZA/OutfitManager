@@ -9,7 +9,6 @@ using Dalamud.Game.Gui;
 using Dalamud.Hooking;
 using Newtonsoft.Json;
 using System;
-using XivCommon;
 using Dalamud.Game.Text;
 using System.Collections.Generic;
 using Dalamud.Game.Text.SeStringHandling;
@@ -17,7 +16,6 @@ using System.Threading.Tasks;
 using System.Linq;
 using ImGuiScene;
 using System.Runtime.CompilerServices;
-using XivCommon;
 using Dalamud.Game.ClientState.Conditions;
 using System.Text;
 using Penumbra.Api.Enums;
@@ -26,7 +24,6 @@ using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Logging;
 using System.Text.RegularExpressions;
-using OutfitManager.Ipc;
 using Newtonsoft.Json.Linq;
 using OutfitManager.Handlers;
 using OutfitManager.Models;
@@ -36,16 +33,16 @@ using Dalamud.Game;
 using Dalamud.Plugin.Services;
 using Dalamud.Interface.Internal;
 using Penumbra.Api.Api;
+using Dalamud.Interface.Textures.TextureWraps;
 
 namespace OutfitManager
 {
     public sealed class Plugin : IDalamudPlugin
     {
-       
+        [PluginService] internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
+        [PluginService] internal static ICommandManager CommandManager { get; private set; } = null!;
         public string Name => "Outfit Manager";
         private const string CommandName = "/omg";
-        public DalamudPluginInterface PluginInterface { get; init; }
-        private ICommandManager CommandManager { get; init; }
         public Configuration Configuration { get; init; }
         private bool isCommandsEnabled { get; set; }
 
@@ -53,85 +50,45 @@ namespace OutfitManager
 
         public IDalamudTextureWrap OutfitPreview;
 
-        public IPenumbraApi PenumbraApi;
-        private IChatGui ChatGui { get; init; }
-        public WindowSystem WindowSystem = new("OutfitManager");
-        public XivCommonBase Common { get; init; }
 
-   //     private bool _ignoreGsEquip { get;set; }
+        public readonly WindowSystem WindowSystem = new("OutfitManager");
         public bool PersistGearset { get; set; }
 
         public bool IgnorePersistCollection { get; set; }
         private bool _transition;
-
-     //   private bool _outfitLock;
 
         private bool _previousTransition;
         public string OutfitName { get; set; }
 
         public bool SnapshotActive { get; set; }
 
-        public ChatHandler chatHandler;
         public OutfitHandler OutfitHandler { get; }
 
         public CommandHandler commandHandler;
 
         public OutfitCaptureService CaptureService;
 
+        private ConfigWindow ConfigWindow { get; init; }
+        private MainWindow MainWindow { get; init; }
         public string CurrentCharacter { get; set; }
-        public bool Property
-        {
-            get { return _transition; }
-            set
-            {
-                _previousTransition = _transition;
-                _transition = value;
 
-                // Check if the value has changed
-                if (_previousTransition == true)
-                {
-                    // Trigger the second event
-                    OnTransitionChanged();
-                }
-            }
-        }
-        public event EventHandler Transition;
+        private bool FrameWorkUpdateTaskProcessing { get; set; }
 
-        public Plugin(DalamudPluginInterface pluginInterface, ICommandManager commandManager, IChatGui chatGui)
+        public DateTime LastFrameworkupdate { get; set; } = DateTime.Now;
+
+        public Plugin()
         {
 
-            this.PluginInterface = pluginInterface;
-            this.CommandManager = commandManager;
-            this.ChatGui = chatGui;
-            try
-            {
-                this.Common = new XivCommonBase(pluginInterface, Hooks.None);
-            }
-            catch (NullReferenceException ex)
-            {
-                // Log the error
-                PluginLog.Error(ex, "Failed to initialize XivCommonBase due to a NullReferenceException.");
-            }
-            catch (Exception ex)
-            {
-                // Catch any other unexpected exceptions
-                PluginLog.Error(ex, "An unexpected error occurred while initializing XivCommonBase.");
-            }
 
+            Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
 
-            this.Configuration = this.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
-            this.Configuration.Initialize(this.PluginInterface);
-          
+            PluginInterface.Create<DalamudService>();
 
-            this.isCommandsEnabled = this.Configuration.ChatControl;
-            pluginInterface.Create<DalamudService>();
-          
-            this.chatHandler = new ChatHandler(this);
             this.OutfitHandler = new OutfitHandler(this);
             this.commandHandler = new CommandHandler(this);
-       
-    
-            this.CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
+
+
+            CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
             {
                 HelpMessage = $"No arguments to bring up UI (Will take you to outfits if you have added any otherwise config){Environment.NewLine}" +
                 $"config = bring up configuration window{Environment.NewLine}" +
@@ -147,10 +104,10 @@ namespace OutfitManager
                 $"snapshot - will have a temporary penumbra / glamourer combination that will re-apply if re-apply is enabled and be lost on wear outfit or restart." +
                 $"clearsnapshot - will manually clear the snapshot."
             });
-       
+
 
             if (this.Configuration.MyCharacter == null || string.IsNullOrEmpty(this.Configuration.MyCharacter.Name))
-            { 
+            {
 
                 if (this.Configuration.Characters.Count > 0)
                 {
@@ -164,7 +121,7 @@ namespace OutfitManager
                 }
             }
 
-                 
+
 
             if (string.IsNullOrEmpty(this.Configuration.MyCharacter.FullName) && !string.IsNullOrEmpty(this.Configuration.MyCharacter.Name) && !string.IsNullOrEmpty(this.Configuration.MyCharacter.World))
             {
@@ -177,45 +134,43 @@ namespace OutfitManager
                 this.Configuration.Persist = false;
                 this.Configuration.Save();
             }
+
             WindowSystem.AddWindow(new ConfigWindow(this));
             WindowSystem.AddWindow(new MainWindow(this));
             WindowSystem.AddWindow(new AllowedCharacterWindow(this));
             WindowSystem.AddWindow(new OutfitListWindow(this));
-            WindowSystem.AddWindow(new OtherCharactersWindow(this));
             WindowSystem.AddWindow(new OutfitPreviewWindow(this));
-            WindowSystem.AddWindow(new NoticeWindow(this));
 
-            this.PluginInterface.UiBuilder.Draw += DrawUI;
-            this.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
+            PluginInterface.UiBuilder.Draw += DrawUI;
+            PluginInterface.UiBuilder.OpenConfigUi += ToggleConfigUI;
+            PluginInterface.UiBuilder.OpenMainUi += ToggleMainUI;
 
-            DalamudService.Conditions.ConditionChange += OnTransitionChange;
+
             DalamudService.ClientState.Login += OnLogin;
-
-            SetChatMonitoring(this.isCommandsEnabled);
+            DalamudService.Framework.Update += OnFrameworkUpdate;
 
             if (this.Configuration.OutfitName == null)
             {
                 this.Configuration.OutfitName = "";
             }
+        }
+
+        private void OnFrameworkUpdate(IFramework framework)
+        {
+            if (!FrameWorkUpdateTaskProcessing)
+            {
+                FrameWorkUpdateTaskProcessing = true;
+                LastFrameworkupdate = DateTime.Now;
+            }
 
 
-            SetCharacterAndWorld();
-        
-
-   
+            FrameWorkUpdateTaskProcessing = false;
         }
 
         public void OnLogin()
         {
-            SetCharacterAndWorld();
 
-            if (!this.Configuration.HasShowNotice)
-            {
-                this.ShowOrHideWindow("OutfitManager Notice Window", true);
-
-
-                return;
-            }
+         
 
         }
 
@@ -228,123 +183,19 @@ namespace OutfitManager
             this.ShowOrHideWindow("Outfit Preview Window", false);
             this.ShowOrHideWindow("OutfitManager Outfit List Window", false);
             this.ShowOrHideWindow("OutfitManager Notice Window", false);
-            //this.WindowSystem.Windows.FirstOrDefault(x => x.WindowName == "OutfitManager Outfit List Window").IsOpen = false;
-            //this.WindowSystem.Windows.FirstOrDefault(x => x.WindowName == "OutfitManager Allowed Character Window").IsOpen = false;
-            //this.WindowSystem.Windows.FirstOrDefault(x => x.WindowName == "OutfitManager").IsOpen = false;
-            //this.WindowSystem.Windows.FirstOrDefault(x => x.WindowName == "Outfit Preview Window").IsOpen = false;
-            //this.WindowSystem.Windows.FirstOrDefault(x => x.WindowName == "OutfitManager Outfit List Window").IsOpen = false;
-
-            //this.WindowSystem.GetWindow("OutfitManager Outfit List Window").IsOpen = false;
-            //this.WindowSystem.GetWindow("OutfitManager Allowed Character Window").IsOpen = false;
-            //this.WindowSystem.GetWindow("OutfitManager").IsOpen = false;
-            //this.WindowSystem.GetWindow("Outfit Preview Window").IsOpen = false;
-        }
-
-        protected void OnTransitionChanged()
-        {
-            if (this.Configuration.Persist || this.OutfitHandler.OutfitLock)
-            {
-              
-                if ((this.Configuration.LastOutfits.ContainsKey(DalamudService.ClientState.LocalPlayer.Name.TextValue) && this.Configuration.LastOutfits[DalamudService.ClientState.LocalPlayer.Name.TextValue] != "") || this.OutfitHandler.Snapshot.IsSnapshot)
-                {
-                    if (this.OutfitHandler.Snapshot.IsSnapshot)
-                    {
-                    //    this.OutfitHandler.ApplySnapshot();
-                    }
-                    else
-                    {
-
-                        if (this.Configuration.LastOutfits[DalamudService.ClientState.LocalPlayer.Name.TextValue] != "")
-                        {
-
-                            this.OutfitHandler.EquipOutfit(this.Configuration.LastOutfits[DalamudService.ClientState.LocalPlayer.Name.TextValue], "", false, this.Configuration.IgnorePersistCollection);
-                        }
-                    }
-                }
-            }
-
-
-        }
-
-        private void SetCharacterAndWorld()
-        {
-            try
-            {
-           
-                this.CurrentCharacter = DalamudService.ClientState?.LocalPlayer?.Name?.TextValue ?? "";
-
-                if (this.Configuration.MyCharacter == null)
-                {
-                    this.Configuration.MyCharacter = new OmgCharacter
-                    {
-                        Name = this.CurrentCharacter,
-                        World = DalamudService.ClientState.LocalPlayer.HomeWorld.GameData.Name,
-                        FullName = $"{this.CurrentCharacter}@{DalamudService.ClientState.LocalPlayer.HomeWorld.GameData.Name}"
-                    };
-                }
-
-
-                if (this.CurrentCharacter != "")
-                {
-                    if (this.Configuration.LastOutfits == null)
-                    {
-                        this.Configuration.LastOutfits = new Dictionary<string, string> { { this.CurrentCharacter, "" } };
-                    }
-                    else if (!this.Configuration.LastOutfits.ContainsKey(this.CurrentCharacter))
-                    {
-                        this.Configuration.LastOutfits.Add(this.CurrentCharacter, "");
-
-                    }
-
-                    this.Configuration.Save();
-                }
-            }
-            catch (Exception ex)
-            {
-           
-            }
-        }
-
-
-        
-        private void OnTransitionChange(ConditionFlag flag, bool value)
-        {
-            if (flag == ConditionFlag.BetweenAreas51)
-            {
-                Property = !Property;
-            }
-        }
-        public void SetChatMonitoring(bool active)
-        {
-            if (active)
-            {
-                this.isCommandsEnabled = true;
-                this.Configuration.ChatControl = true;
-                this.Configuration.Save();
-                this.ChatGui.ChatMessage -= OnChatMessage;
-                this.ChatGui.ChatMessage += OnChatMessage;
-            }
-            else
-            {
-                this.isCommandsEnabled = false;
-                this.Configuration.ChatControl = false; ;
-                this.Configuration.Save();
-                this.ChatGui.ChatMessage -= OnChatMessage;
-            }
         }
         public void Dispose()
         {
             DalamudService.ClientState.Login -= OnLogin;
-            DalamudService.Conditions.ConditionChange -= OnTransitionChange;
-            this.ChatGui.ChatMessage -= OnChatMessage;
+            DalamudService.Framework.Update -= OnFrameworkUpdate;
             this.WindowSystem.RemoveAllWindows();
-            this.CommandManager.RemoveHandler(CommandName);
+
         }
 
         private void OnCommand(string command, string args)
         {
-         
-            this.commandHandler.OnCommand(command,args);
+
+            this.commandHandler.OnCommand(command, args);
         }
 
         private void DrawUI()
@@ -355,66 +206,47 @@ namespace OutfitManager
         public void DrawConfigUI()
         {
             this.ShowOrHideWindow("OutfitManager", true);
-    //        this.WindowSystem.Windows.FirstOrDefault(x => x.WindowName == "OutfitManager").IsOpen = true;
-     //       WindowSystem.GetWindow("OutfitManager").IsOpen = true;
         }
         public void DrawAllowedUserUI()
         {
             this.ShowOrHideWindow("OutfitManager Allowed Character Window", true);
-     //       this.WindowSystem.Windows.FirstOrDefault(x => x.WindowName == "OutfitManager Allowed Character Window").IsOpen = true;
-         //   WindowSystem.GetWindow("OutfitManager Allowed Character Window").IsOpen = true;
         }
         public void DrawOutfitListUI()
         {
             this.ShowOrHideWindow("OutfitManager Outfit List Window", true);
-    ///        this.WindowSystem.Windows.FirstOrDefault(x => x.WindowName == "OutfitManager Outfit List Window").IsOpen = true;
-           // WindowSystem.GetWindow("OutfitManager Outfit List Window").IsOpen = true;
         }
 
-        //public List<string> GetAvailableCollections()
+        //public void RelayCommand(string command, int delay = 100)
         //{
-        //    var collections = GetCollections.Subscriber(PluginInterface).Invoke().ToList();
-
-
-        //    return collections;
+        //    CommandManager.ProcessCommand(command);
         //}
 
-        //public string GetCurrentCollection()
-        //{
-        //    if (this.Configuration.PenumbraCollectionType != "Your Character")
-        //    {
-
-
-                
-        //        return GetCollectionForType.Subscriber(PluginInterface).Invoke(ApiCollectionType.Current);
-        //    }
-        //    else
-        //    {
-        //        return GetCollectionForType.Subscriber(PluginInterface).Invoke(ApiCollectionType.Yourself);
-        //    }
-
-           
-        //}
-
-        public async Task SendEquipOutfit(string character, string characterFirstname, string outfit)
+        public async void RelayCommand(string command, int delay = 100)
         {
-            this.Common.Functions.Chat.SendMessage($"/tell {character} wear:{outfit}");
-        }
-
-        public async Task SendLockOutfit(string character, string characterFirstname, string outfitlock = "off")
-        {
-            this.Common.Functions.Chat.SendMessage($"/tell {character} forceoutfit:{outfitlock}");
-        }
-        public void RelayCommand(string command, int delay = 100)
-        {
-        //   if (!string.IsNullOrEmpty(command.Trim()))
-         //   {
-         //       await DelayTask(delay);
-
-          
+            await Task.Delay(delay).ConfigureAwait(false);
+            await RunOnMainThread(() =>
+            {
                 CommandManager.ProcessCommand(command);
-          //  }
+            });
         }
+        public Task RunOnMainThread(System.Action action)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+            DalamudService.Framework.RunOnTick(() =>
+            {
+                try
+                {
+                    action();
+                    tcs.SetResult(true);
+                }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                }
+            });
+            return tcs.Task;
+        }
+
 
         static async Task DelayTask(int delay)
         {
@@ -436,8 +268,17 @@ namespace OutfitManager
             {
                 ShowOrHideWindow("Outfit Preview Window", true);
 
-               // this.PluginInterface.UiBuilder.LoadImage(imagePath);
-                this.OutfitPreview = this.PluginInterface.UiBuilder.LoadImage(imagePath);
+                try
+                {
+                    using (var stream = File.OpenRead(imagePath))
+                    {
+                        OutfitPreview = DalamudService.TextureProvider.CreateFromImageAsync(stream).GetAwaiter().GetResult();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    this.OutfitPreview = null;
+                }
             }
 
             else
@@ -448,28 +289,17 @@ namespace OutfitManager
 
         public void ShowOrHideWindow(string name, bool visible)
         {
-      
+
             this.WindowSystem.Windows.FirstOrDefault(x => x.WindowName == name).IsOpen = visible;
-            //WindowSystem.GetWindow(name).IsOpen = visible;
 
-
-            if(name == "Outfit Preview Window" && !visible)
+            if (name == "Outfit Preview Window" && !visible)
             {
                 this.OutfitPreview = null;
             }
         }
-        private void OnChatMessage(XivChatType type, uint id, ref SeString sender, ref SeString message,
-    ref bool handled)
-        {
-            try
-            {
-                this.chatHandler.ProcessChatMessage(type, id, ref sender, ref message, ref handled);
 
-            }
-            catch (Exception ex)
-            {
-                isCommandsEnabled = false;
-            }
-        }
+        public void ToggleConfigUI() => ConfigWindow.Toggle();
+        public void ToggleMainUI() => MainWindow.Toggle();
     }
 }
+

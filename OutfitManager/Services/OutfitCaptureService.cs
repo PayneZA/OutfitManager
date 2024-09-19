@@ -1,5 +1,4 @@
 using OutfitManager.Handlers;
-using OutfitManager.Ipc;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -25,20 +24,82 @@ namespace OutfitManager.Services
             this._outfitHandler = outfitHandler;
         }
 
-        public async Task CaptureOutfits(bool replaceExisting = false, bool cropToVerical = false)
+        //public async Task CaptureOutfits(bool replaceExisting = false, bool cropToVerical = false)
+        //{
+
+        //    captureInProgress = true;
+        //    var previewDirectory = this._plugin.Configuration.PreviewDirectory;
+        //    var changeDelay = 5;// this._plugin.Configuration.ChangeDelay;
+        //    var screenshotDelay = 1;// this._plugin.Configuration.ScreenshotDelay;
+        //    var gameWindowHandle = GetForegroundWindow();
+
+        //    if (!string.IsNullOrEmpty(previewDirectory) && Directory.Exists(previewDirectory))
+        //    {
+        //        DalamudService.Chat.Print($"Outfit preview generation beginning, it will wake {changeDelay} seconds after each outfit change and {screenshotDelay} seconds after each screenshot. Please hide your UI.");
+
+        //        await Task.Delay(TimeSpan.FromSeconds(5));
+
+        //        foreach (var outfit in this._outfitHandler.Outfits)
+        //        {
+        //            if (HaltScreenshots)
+        //            {
+        //                DalamudService.Chat.Print($"Preview generation canceled.");
+        //                break;
+        //            }
+
+        //            try
+        //            {
+        //                    var imagePath = Path.Combine(previewDirectory, $"{outfit.Key}.png");
+        //                    if (!File.Exists(imagePath) || replaceExisting)
+        //                    {
+        //                    this._outfitHandler.EquipOutfit(outfit.Key);
+        //                    await Task.Delay(TimeSpan.FromSeconds(changeDelay)).ConfigureAwait(false);
+
+
+        //                    var screenshotTask = TakeScreenshotAsync(imagePath, gameWindowHandle,cropToVerical);
+        //                        await Task.Delay(TimeSpan.FromSeconds(screenshotDelay));
+
+
+        //                        this._outfitHandler.Outfits[outfit.Key] = outfit.Value;
+
+        //                    }
+
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                DalamudService.Chat.Print($"Error generating preview for outfit {outfit.Key}: {ex.Message}");
+        //                continue;
+        //            }
+        //        }
+
+        //        if (!HaltScreenshots)
+        //        {
+        //            DalamudService.Chat.Print($"Preview generation complete.");
+        //        }
+
+        //        HaltScreenshots = false;
+        //    }
+        //    else
+        //    {
+        //        DalamudService.Chat.Print($"Preview directory does not exist. Please set a valid directory in the configuration.");
+        //    }
+
+        //    this.captureInProgress = false;
+        //}
+
+        public async Task CaptureOutfits(bool replaceExisting = false, bool cropToVertical = false)
         {
-         
             captureInProgress = true;
             var previewDirectory = this._plugin.Configuration.PreviewDirectory;
-            var changeDelay = 5;// this._plugin.Configuration.ChangeDelay;
-            var screenshotDelay = 1;// this._plugin.Configuration.ScreenshotDelay;
+            var changeDelay = 5; // this._plugin.Configuration.ChangeDelay;
+            var screenshotDelay = 1; // this._plugin.Configuration.ScreenshotDelay;
             var gameWindowHandle = GetForegroundWindow();
 
             if (!string.IsNullOrEmpty(previewDirectory) && Directory.Exists(previewDirectory))
             {
-                DalamudService.Chat.Print($"Outfit preview generation beginning, it will wake {changeDelay} seconds after each outfit change and {screenshotDelay} seconds after each screenshot. Please hide your UI.");
+                DalamudService.Chat.Print($"Outfit preview generation beginning. Please hide your UI.");
 
-                await Task.Delay(TimeSpan.FromSeconds(5));
+                await Task.Delay(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
 
                 foreach (var outfit in this._outfitHandler.Outfits)
                 {
@@ -50,21 +111,22 @@ namespace OutfitManager.Services
 
                     try
                     {
-                        if (string.IsNullOrEmpty(outfit.Value.GearSet))
+                        var imagePath = Path.Combine(previewDirectory, $"{outfit.Key}.png");
+                        if (!File.Exists(imagePath) || replaceExisting)
                         {
-                            var imagePath = Path.Combine(previewDirectory, $"{outfit.Key}.png");
-                            if (!File.Exists(imagePath) || replaceExisting)
+                            // Ensure EquipOutfit runs on the main thread
+                            await this._plugin.RunOnMainThread(() =>
                             {
                                 this._outfitHandler.EquipOutfit(outfit.Key);
-                                await Task.Delay(TimeSpan.FromSeconds(changeDelay));
+                            });
 
-                                var screenshotTask = TakeScreenshotAsync(imagePath, gameWindowHandle,cropToVerical);
-                                await Task.Delay(TimeSpan.FromSeconds(screenshotDelay));
+                            await Task.Delay(TimeSpan.FromSeconds(changeDelay)).ConfigureAwait(false);
 
-                                outfit.Value.GlamourerData = GlamourerIpc.Instance.GetAllCustomizationFromCharacterIpc(DalamudService.ClientState.LocalPlayer);
-                                this._outfitHandler.Outfits[outfit.Key] = outfit.Value;
+                            await TakeScreenshotAsync(imagePath, gameWindowHandle, cropToVertical).ConfigureAwait(false);
 
-                            }
+                            await Task.Delay(TimeSpan.FromSeconds(screenshotDelay)).ConfigureAwait(false);
+
+                            this._outfitHandler.Outfits[outfit.Key] = outfit.Value;
                         }
                     }
                     catch (Exception ex)

@@ -2,7 +2,6 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Logging;
 using Dalamud.Plugin;
 using Newtonsoft.Json;
-using OutfitManager.Ipc;
 using OutfitManager.Models;
 using OutfitManager.Services;
 using Penumbra.Api.Enums;
@@ -13,8 +12,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using XivCommon;
-
 
 namespace OutfitManager.Handlers
 {
@@ -42,22 +39,6 @@ namespace OutfitManager.Handlers
             this.Outfits = LoadOutfits();
             this.Snapshot = new OmgOutfit();
 
-            try
-            {
-                foreach (var fit in this.Outfits)
-                {
-                    if (!string.IsNullOrEmpty(fit.Value.GlamourerData))
-                    {
-                        this.AutoGlamourerUsed = true;
-                    }
-                
-
-                }
-            }
-            catch(Exception ex)
-            {
-
-            }
         }
 
         public async Task UnlockOutfit(int delay)
@@ -80,9 +61,9 @@ namespace OutfitManager.Handlers
 
         public void EquipOutfit(string outfitName = "", string tag = "", bool gearset = true, bool ignoreCollection = false)
         {
-           // DalamudService.Chat.Print("Incompatability with new glamourer, please await update of outfitmanager.");
             try
             {
+                this._plugin.RelayCommand("/penumbra bulktag inherit clothing | b:-=CLOTHING=-");
                 OmgOutfit outfit = null;
                 this.Snapshot = new OmgOutfit();
 
@@ -124,50 +105,14 @@ namespace OutfitManager.Handlers
 
                         commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/penumbra collection Individual | {outfit.CollectionName} | <me>" });
 
-
-                        //if (this._plugin.Configuration.PenumbraCollectionType != "Your Character")
-                        //{
-                        //    SetCollectionForObject.Subscriber(DalamudService.PluginInterface).Invoke(0, outfit.CollectionName, true, false);
-                        //}
-                        //else
-                        //{
-                        //    SetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Yourself, outfit.CollectionName, true, false);
-                        //}
                     }
 
                     if (!string.IsNullOrEmpty(outfit.DesignPath.Trim()))
                     {
-                        commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/glamour apply {outfit.DesignPath}|<me>" });
-                    }
-                    //else if (outfit.GlamourerData != null && !string.IsNullOrEmpty(outfit.GlamourerData.Trim()))
-                    //{
-                    //    GlamourerIpc.Instance?.ApplyOnlyEquipmentToCharacterIpc(outfit.GlamourerData, DalamudService.ClientState.LocalPlayer);
-                    //}
-
-                    if (this._plugin.Configuration.EnableCustomizeSupport)
-                    {
-                        if (outfit.CustomizeScaleName != null && outfit.CustomizeScaleName.Trim() != "")
-                        {
-
-                            this._plugin.Configuration.LastAppliedScale = outfit.CustomizeScaleName;
-                            commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/capply {DalamudService.ClientState.LocalPlayer.Name.TextValue},{outfit.CustomizeScaleName}" });
-
-                        }
-                        else if (this._plugin.Configuration.ResetScalesToDefault)
-                        {
-                            this._plugin.Configuration.LastAppliedScale = "default-omg-scale";
-                            commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/capply {DalamudService.ClientState.LocalPlayer.Name.TextValue},default-omg-scale" });
-
-                        }
+                        commands.Add(new RecievedCommand { CommandType = "plugin", Command = $"/glamour apply {outfit.DesignPath}|<me>;true" });
                     }
 
                     int delay = 0;
-                    if (!string.IsNullOrEmpty(outfit.GearSet) && gearset)
-                    {
-                        this.IgnoreGsEquip = true;
-                        this._plugin.Common.Functions.Chat.SendMessage("/gearset change " + outfit.GearSet.Trim());
-                        delay = 300;
-                    }
 
                     foreach (RecievedCommand recievedCommand in commands)
                     {
@@ -190,30 +135,31 @@ namespace OutfitManager.Handlers
             catch (NullReferenceException ex)
             {
                 // Log the error
-                PluginLog.Error(ex, "Error: NullReferenceException caught.");
+                //PluginLog.Error(ex, "Error: NullReferenceException caught.");
             }
             catch (KeyNotFoundException ex)
             {
                 // Log the error
-                PluginLog.Error(ex, "Error: KeyNotFoundException caught.");
+          //      PluginLog.Error(ex, "Error: KeyNotFoundException caught.");
             }
             catch (Exception ex)
             {
                 // Log the error
-                PluginLog.Error(ex, "Error: An unexpected error occurred.");
+         //       PluginLog.Error(ex, "Error: An unexpected error occurred.");
             }
         }
 
 
         public string GetOutfitJsonFilePath()
         {
-            string configDirectory = DalamudService.PluginInterface.GetPluginConfigDirectory();
+            string configDirectory = Plugin.PluginInterface.GetPluginConfigDirectory();
             return Path.Combine(configDirectory, "Outfits.json");
         }
 
         public string GetGlamourerDesignFilePath()
         {
-            string configDirectory = DalamudService.PluginInterface.GetPluginConfigDirectory().Replace("OutfitManager","Glamourer");
+           
+            string configDirectory = Plugin.PluginInterface.GetPluginConfigDirectory().Replace("OutfitManager","Glamourer");
             if(Directory.Exists(configDirectory))
             {
                 return Path.Combine(configDirectory, "Designs.json");
@@ -224,56 +170,7 @@ namespace OutfitManager.Handlers
             }
         }
 
-        public void MigrateToGlamourer()
-        {
-            // Fetch paths using your existing methods
-            string designsPath = GetGlamourerDesignFilePath();
-            string outfitsPath = GetOutfitJsonFilePath();
-
-            if (!string.IsNullOrEmpty(designsPath))
-            {
-                // Read Designs.json
-                var designs = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(designsPath));
-
-                // Read Outfits.json
-                var outfits = this.Outfits;
-
-                try
-                {
-                    foreach (var outfitEntry in this.Outfits)
-                    {
-                        var outfit = outfitEntry.Value;
-                        if (string.IsNullOrEmpty(outfit.DesignPath) && !string.IsNullOrEmpty(outfit.GlamourerData))
-                        {
-                            var baseKey = $"omgoutfits/{outfit.Name.ToLower()}";
-                            var newDesignKey = baseKey;
-                            int counter = 1;
-
-                            while (designs.ContainsKey(newDesignKey))
-                            {
-                                newDesignKey = baseKey + counter;
-                                counter++;
-                            }
-
-                            designs[newDesignKey] = outfit.GlamourerData;
-                            outfit.DesignPath = $"/{newDesignKey}"; // Removing 'Collections/' prefix
-                        }
-
-                        outfitEntry.Value.GlamourerData = "";
-                    }
-
-               
-                    // Save back to the files
-                    File.WriteAllText(designsPath, JsonConvert.SerializeObject(designs, Formatting.Indented));
-                    File.WriteAllText(outfitsPath, JsonConvert.SerializeObject(outfits, Formatting.Indented));
-             
-                    this.LoadOutfits();
-                }
-                catch(Exception ex) { 
-                }
-            }
-        }
-
+      
 
         public Dictionary<string, OmgOutfit> LoadOutfits()
         {
@@ -311,57 +208,12 @@ namespace OutfitManager.Handlers
             SaveOutfits(oldOutfits);
 
             // Clear the old outfits from the configuration and save the configuration
-        //    this._plugin.Configuration.MyCharacter.Outfits.Clear();
             this._plugin.Configuration.Save();
         }
-
-        //public void CreateSnapshot()
-        //{
-        //    try
-        //    {
-
-        //        string collectionName = "";
-        //        if (this._plugin.Configuration.PenumbraCollectionType != "Your Character")
-        //        {
-        //            collectionName = GetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Current);
-        //        }
-        //        else
-        //        {
-        //            collectionName = GetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Yourself);
-        //        }
-
-        //        this.Snapshot = new OmgOutfit
-        //        {
-        //            IsSnapshot = true,
-        //            GlamourerData = GlamourerIpc.Instance.GetAllCustomizationFromCharacterIpc(DalamudService.ClientState.LocalPlayer),
-        //            CollectionName = collectionName
-        //        };
-        //    }
-        //    catch
-        //    {
-        //        this.Snapshot = new OmgOutfit();
-        //    }
-        //}
 
         public void ClearSnapshot(string collection, string glamourerBase64)
         {
             this.Snapshot = new OmgOutfit();
         }
-
-        //public void ApplySnapshot()
-        //{
-        //    string collectionName = "";
-
-        //    if (this._plugin.Configuration.PenumbraCollectionType != "Your Character")
-        //    {
-        //        collectionName = GetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Current);
-        //    }
-        //    else
-        //    {
-        //        collectionName = GetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Yourself);
-        //    }
-
-        //    GlamourerIpc.Instance.ApplyAllToCharacterIpc(this.Snapshot.GlamourerData, DalamudService.ClientState.LocalPlayer);
-        //}
     }
 }

@@ -17,7 +17,6 @@ namespace OutfitManager.Models
 
         public string DisplayName { get; set; }
 
-        public string GearSet { get; set; }
 
         public string CharacterName { get; set; }
 
@@ -26,14 +25,5 @@ namespace OutfitManager.Models
         public List<string> Tags { get; set; }
         public bool IsFavourite { get; set; }
 
-        public string GlamourerData { get; set; }
-
-        public string PalettePlusData { get;}
-
-        public string HeelsData { get; set; }
-
-        public bool IsSnapshot { get; set; }
-
-        public string CustomizeScaleName { get; set; } = "";
     }
 }

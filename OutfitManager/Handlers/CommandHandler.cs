@@ -1,6 +1,6 @@
 using Dalamud.Interface.Windowing;
 using Dalamud.Logging;
-using OutfitManager.Ipc;
+
 using OutfitManager.Models;
 using OutfitManager.Services;
 using Penumbra.Api.Enums;
@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
-using XivCommon.Functions;
+
 
 namespace OutfitManager.Handlers
 {
@@ -47,12 +47,10 @@ namespace OutfitManager.Handlers
                 if (!string.IsNullOrEmpty(this._plugin.Configuration.MyCharacter.Name) && !string.IsNullOrEmpty(this._plugin.Configuration.MyCharacter.World))
                 {
                     this._plugin.ShowOrHideWindow("OutfitManager Outfit List Window", true);
-                    //this._plugin.WindowSystem.GetWindow("OutfitManager Outfit List Window").IsOpen = true;
                 }
                 else
                 {
                     this._plugin.ShowOrHideWindow("OutfitManager", true);
-                 //   this._plugin.WindowSystem.GetWindow("OutfitManager").IsOpen = true;
                 }
                 return;
             }
@@ -69,7 +67,6 @@ namespace OutfitManager.Handlers
                     break;
                 case "menu":
                     this._plugin.ShowOrHideWindow("OutfitManager", true);
-                 //   this._plugin.WindowSystem.GetWindow("OutfitManager").IsOpen = true;
                     break;
                 case "wear":
                     this._plugin.OutfitHandler.EquipOutfit(actionArgs);
@@ -79,7 +76,6 @@ namespace OutfitManager.Handlers
                     break;
                 case "other":
                     this._plugin.ShowOrHideWindow("OutfitManager Other Character Window", true);
-              //      this._plugin.WindowSystem.GetWindow("OutfitManager Other Character Window").IsOpen = true;
                     break;
                 case "persist":
                     this._plugin.Configuration.Persist = actionArgs == "true" || actionArgs == "on";
@@ -94,47 +90,7 @@ namespace OutfitManager.Handlers
                     break;
                 case "reset":
 
-                    args = args.ToLower().Replace("reset", "").Trim();
-
-                    this._plugin.OutfitName = "";
-                    this._plugin.Configuration.LastOutfits[DalamudService.ClientState.LocalPlayer.Name.TextValue] = "";
-                    this._plugin.OutfitHandler.Snapshot = new Models.OmgOutfit();
-                    if (!string.IsNullOrEmpty(this._plugin.Configuration.PrimaryCollection))
-                    {
-                        this._plugin.RelayCommand($"/penumbra collection Individual | {this._plugin.Configuration.PrimaryCollection} | <me>", 100);
-
-                        //if (this._plugin.Configuration.PenumbraCollectionType != "Your Character")
-                        //{
-                        //    SetCollectionForObject.Subscriber(DalamudService.PluginInterface).Invoke(0, this._plugin.Configuration.PrimaryCollection, true, false);
-                        //}
-                        //else
-                        //{
-                        //    SetCollectionForType.Subscriber(DalamudService.PluginInterface).Invoke(ApiCollectionType.Yourself, this._plugin.Configuration.PrimaryCollection, true, false);
-                        //}
-                        //  RelayCommand($"/penumbra collection {this.Configuration.PenumbraCollectionType} | {this.Configuration.PrimaryCollection} | <me>");
-                        DalamudService.Chat.Print($"Your last worn outfit has been cleared and collection set to {this._plugin.Configuration.PrimaryCollection}");
-                    }
-                    else
-                    {
-                        DalamudService.Chat.Print($"Your last worn outfit has been cleared.");
-                    }
-
-                    if (this._plugin.Configuration.EnableCustomizeSupport && this._plugin.Configuration.ResetScalesToDefault)
-                    {
-                        try
-                        {
-                 
-                            this._plugin.RelayCommand($"/capply {this._plugin.CurrentCharacter},default-omg-scale", 100);
-    
-                               //     CustomizeIPC.Instance?.SetBodyScaleToCharacterIpc("default-omg-scale", DalamudService.ClientState.LocalPlayer);
-                            
-                        }
-                        catch (Exception ex)
-                        {
-                            // Log the error
-                            PluginLog.Error(ex, "Failed to apply scales.");
-                        }
-                    }
+                    this._plugin.RelayCommand("/penumbra bulktag inherit clothing | b:-=CLOTHING=-");
                     this._plugin.Configuration.Save();
 
                     break;
@@ -157,7 +113,6 @@ namespace OutfitManager.Handlers
                     try
                     {
                         DalamudService.Chat.Print($"No longer supported.");
-                       // this._plugin.OutfitHandler.CreateSnapshot();
                     }
                     catch(Exception ex)
                     {
@@ -169,7 +124,6 @@ namespace OutfitManager.Handlers
 
                     try
                     {
-                     
                         this._plugin.OutfitHandler.Snapshot = new Models.OmgOutfit();
                     }
                     catch (Exception ex)

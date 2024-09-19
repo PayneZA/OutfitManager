@@ -4,30 +4,24 @@
     "net8.0-windows7.0": {
       "DalamudPackager": {
         "type": "Direct",
-        "requested": "[2.1.12, )",
-        "resolved": "2.1.12",
-        "contentHash": "Sc0PVxvgg4NQjcI8n10/VfUQBAS4O+Fw2pZrAqBdRMbthYGeogzu5+xmIGCGmsEZ/ukMOBuAqiNiB5qA3MRalg=="
+        "requested": "[2.1.13, )",
+        "resolved": "2.1.13",
+        "contentHash": "rMN1omGe8536f4xLMvx9NwfvpAc9YFFfeXJ1t4P4PE6Gu8WCIoFliR1sh07hM+bfODmesk/dvMbji7vNI+B/pQ=="
       },
       "Penumbra.Api": {
         "type": "Direct",
-        "requested": "[5.1.0, )",
-        "resolved": "5.1.0",
-        "contentHash": "gpTdA1+MKFN1AueyBnDO8Y7bpDfmKw57a+YTpwiNK6mw4lEdO9cSeknkyjWbVrmyB2p2IanhX6c1arS8dTAMtw=="
+        "requested": "[5.2.0, )",
+        "resolved": "5.2.0",
+        "contentHash": "fi36rbPTR76MTtC++0dMXmycidpGnMU2OGt+Wf/ckaEs5qmWJbIW9RE8O+rCOEFhtmzWcXIjKAMYJSSyb9nU8g=="
       },
       "System.Drawing.Common": {
         "type": "Direct",
-        "requested": "[8.0.6, )",
-        "resolved": "8.0.6",
-        "contentHash": "aSwRnJzz6fZ73JvWMMG0KvBwOnXsBTFtfHLriQyAPrDIZ+NrDfl15GWbO/A35k0dtH77D7jfxzEcFF7RONtU/w==",
+        "requested": "[8.0.7, )",
+        "resolved": "8.0.7",
+        "contentHash": "DoeBae0gZvxs3mtfoub6F1k28fSkFPzmhFuvblplKMnLYKmTMVy0j4Yxahh96KM532JzHGDxhJn1VpMKSB1pyg==",
         "dependencies": {
           "Microsoft.Win32.SystemEvents": "8.0.0"
         }
-      },
-      "XivCommon": {
-        "type": "Direct",
-        "requested": "[9.0.0, )",
-        "resolved": "9.0.0",
-        "contentHash": "avaBp3FmSCi/PiQhntCeBDYOHejdyTWmFtz4pRBVQQ8vHkmRx+YTk1la9dkYBMlXxRXKckEdH1iI1Fu61JlE7w=="
       },
       "Microsoft.Win32.SystemEvents": {
         "type": "Transitive",

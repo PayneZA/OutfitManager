@@ -1,6 +1,5 @@
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
-using OutfitManager.Ipc;
 using OutfitManager.Services;
 using System;
 using System.Collections.Generic;
@@ -71,16 +70,6 @@ namespace OutfitManager.Windows
             _autoGlamourer = this._Plugin.Configuration.AutoGlamourer;
             _customizeSupport = this._Plugin.Configuration.EnableCustomizeSupport;
             _resetScalesToDefault = this._Plugin.Configuration.ResetScalesToDefault;
-        }
-
-
-        public void RemoteControl()
-        {
-            if (ImGui.Checkbox("Allow Chat Control (Via Tell)", ref _chatControl))
-            {
-
-                this._Plugin.SetChatMonitoring(_chatControl);
-            }
         }
         public void CharacterName()
         {
@@ -156,10 +145,6 @@ namespace OutfitManager.Windows
                     }
                 }
 
-                RemoteControl();
-
-
-
                 if (ImGui.CollapsingHeader("Customize Settings", ImGuiTreeNodeFlags.DefaultOpen))
                 {
                     if (ImGui.Checkbox("Enable Customize Support (Requires a default-omg-scale scale to switch back to normal.", ref _customizeSupport))
@@ -187,12 +172,6 @@ namespace OutfitManager.Windows
                     this._Plugin.Configuration.Save();
                 }
 
-          //      if (ImGui.CollapsingHeader("Re-Wear Settings", ImGuiTreeNodeFlags.DefaultOpen))
-           //     {
-                 //   Persist();
-
-            
-            //    }
                 if (ImGui.CollapsingHeader("Auto-Fill Settings", ImGuiTreeNodeFlags.DefaultOpen))
                 {
                     AutoFill();
@@ -258,12 +237,6 @@ namespace OutfitManager.Windows
 
         public void AutoFill()
         {
-            //if (ImGui.Checkbox("Set current collection on add/update outfit if not specified.", ref _autoCollection))
-            //{
-            //    this._Plugin.Configuration.AutoCollection = _autoCollection;
-            //    this._Plugin.Configuration.Save();
-            //}
-
            if (this._Plugin.OutfitHandler.AutoGlamourerUsed || this._Plugin.Configuration.AutoGlamourer)
             {
                 if (ImGui.Checkbox("Store current glamourer equipment on add/update outfit if not specified.", ref _autoGlamourer))
@@ -276,22 +249,7 @@ namespace OutfitManager.Windows
             ImGui.Text("Please create new designs for existing auto designs.");
             ImGui.Text("You just wear the outfit, save the design and fill in the path in OutfitManager.");
             ImGui.Text("Auto designs will stop working when Glamourer 2 comes out.");
-            ////    ImGui.Text("Do not use this if you are already on glamourer 2.");
 
-            ////if (ImGui.Button("Create Glamourer Designs From AutoGlamourer (Shift)"))
-            ////{
-            ////    if (ImGui.IsKeyDown(ImGuiKey.ModShift))
-            ////    {
-            ////        this._Plugin.OutfitHandler.MigrateToGlamourer();
-            ////        _autoGlamourer = false;
-            ////        this._Plugin.Configuration.AutoGlamourer = false;
-            ////        this._Plugin.Configuration.Save();
-            ////    }
-            ////}
-            ////    ImGui.Text("Designs will be created in a omgoutfits folder in Glamourer, it is important to restart your game after runnning this.");
-            ////    ImGui.Text("You will need to manually choose to apply customizations or not in the designs afterwards.");
-            ////    ImGui.Text("Glamourer 2 will use designs in a different way and your current auto designs will not work.");
-            ////    ImGui.Text("Backup your Glamourer Designs and Omg Outfits Before Doing this.");
              }
         }
 

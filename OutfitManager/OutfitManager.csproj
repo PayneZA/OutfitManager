@@ -31,10 +31,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DalamudPackager" Version="2.1.12" />
-    <PackageReference Include="Penumbra.Api" Version="5.1.0" />
-    <PackageReference Include="system.drawing.common" Version="8.0.6" />
-    <PackageReference Include="XivCommon" Version="9.0.0" />
+    <PackageReference Include="DalamudPackager" Version="2.1.13" />
+    <PackageReference Include="Penumbra.Api" Version="5.2.0" />
+    <PackageReference Include="system.drawing.common" Version="8.0.7" />
     <Reference Include="FFXIVClientStructs">
       <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
       <Private>false</Private>

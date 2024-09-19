@@ -7,11 +7,6 @@ using Dalamud.Game.Gui;
 using Dalamud.Interface;
 using Dalamud.IoC;
 using Dalamud.Plugin;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Dalamud.Game;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.DutyState;
@@ -23,7 +18,7 @@ namespace OutfitManager.Services
 {
     public sealed class DalamudService
     {
-        [PluginService] public static DalamudPluginInterface PluginInterface { get; set; } = null!;
+        [PluginService] public static IDalamudPluginInterface PluginInterface { get; set; } = null!;
         [PluginService] public static IChatGui Chat { get; set; } = null!;
         [PluginService] public static IClientState ClientState { get; set; } = null!;
         [PluginService] public static IFramework Framework { get; set; } = null!;
@@ -35,10 +30,9 @@ namespace OutfitManager.Services
         [PluginService] public static ICommandManager Commands { get; private set; } = null!;
         [PluginService] public static IDataManager GameData { get; private set; } = null!;
         [PluginService] public static ICondition Conditions { get; private set; } = null!;
-        [PluginService] public static ITargetManager Targets { get; private set; } = null!;
-        [PluginService] public static IObjectTable Objects { get; private set; } = null!;
         [PluginService] public static ITitleScreenMenu TitleScreenMenu { get; private set; } = null!;
         [PluginService] public static IKeyState KeyState { get; private set; } = null!;
 
+        [PluginService] public static ITextureProvider TextureProvider { get; private set; } = null!;
     }
 }

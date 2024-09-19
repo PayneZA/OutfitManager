@@ -45,13 +45,6 @@ namespace OutfitManager
 
         public Dictionary<string, string> LastOutfits { get; set; } = new Dictionary<string, string>();
         // the below exist just to make saving less cumbersome
-        [NonSerialized]
-        private DalamudPluginInterface? PluginInterface;
-
-        public void Initialize(DalamudPluginInterface pluginInterface)
-        {
-            this.PluginInterface = pluginInterface;
-        }
 
         public void Save()
         {
@@ -68,7 +61,7 @@ namespace OutfitManager
                     this.PreviewDirectory = "";
                 }
             }
-            this.PluginInterface!.SavePluginConfig(this);
+            Plugin.PluginInterface.SavePluginConfig(this);
         }
     }
 }
